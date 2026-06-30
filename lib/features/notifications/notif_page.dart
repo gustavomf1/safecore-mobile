@@ -59,7 +59,12 @@ class NotifPage extends ConsumerWidget {
                               await ref.read(notificacaoRepositoryProvider).marcarComoLida(n.id);
                               ref.invalidate(notificacoesProvider);
                             }
-                            if (context.mounted) context.push('/oc/${n.ncId}');
+                            if (!context.mounted) return;
+                            if (n.desvioId != null) {
+                              context.push('/desvio/${n.desvioId}');
+                            } else if (n.ncId != null) {
+                              context.push('/oc/${n.ncId}');
+                            }
                           },
                         ),
                     ],

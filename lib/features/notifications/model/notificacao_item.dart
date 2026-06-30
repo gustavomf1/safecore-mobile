@@ -1,6 +1,7 @@
 class NotificacaoItem {
   final String id;
-  final String ncId;
+  final String? ncId;
+  final String? desvioId;
   final String tipo;
   final String titulo;
   final String corpo;
@@ -9,7 +10,8 @@ class NotificacaoItem {
 
   const NotificacaoItem({
     required this.id,
-    required this.ncId,
+    this.ncId,
+    this.desvioId,
     required this.tipo,
     required this.titulo,
     required this.corpo,
@@ -20,7 +22,8 @@ class NotificacaoItem {
   factory NotificacaoItem.fromJson(Map<String, dynamic> json) {
     return NotificacaoItem(
       id: json['id'] as String,
-      ncId: json['ncId'] as String,
+      ncId: json['ncId'] as String?,
+      desvioId: json['desvioId'] as String?,
       tipo: json['tipo'] as String,
       titulo: json['titulo'] as String,
       corpo: json['corpo'] as String,

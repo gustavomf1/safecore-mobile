@@ -18,6 +18,7 @@ void main() {
       routes: [
         GoRoute(path: '/', builder: (_, __) => const SizedBox()),
         GoRoute(path: '/oc/:id', builder: (_, state) => Text('NC ${state.pathParameters['id']}')),
+        GoRoute(path: '/desvio/:id', builder: (_, state) => Text('Desvio ${state.pathParameters['id']}')),
       ],
     );
     service = FcmService(
@@ -28,23 +29,45 @@ void main() {
     );
   });
 
-  testWidgets('navigateToNc navega para /oc/{ncId} quando data tem ncId', (tester) async {
+  testWidgets('navigateToNotification navega para /oc/{ncId} quando data tem ncId', (tester) async {
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));
     await tester.pumpAndSettle();
 
-    service.navigateToNc(RemoteMessage(data: {'ncId': 'nc-123'}));
+    service.navigateToNotification(RemoteMessage(data: {'ncId': 'nc-123'}));
     await tester.pumpAndSettle();
 
     expect(find.text('NC nc-123'), findsOneWidget);
   });
 
-  testWidgets('navigateToNc nao navega quando data nao tem ncId', (tester) async {
+  testWidgets('navigateToNotification nao navega quando data nao tem ncId nem desvioId', (tester) async {
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));
     await tester.pumpAndSettle();
 
-    service.navigateToNc(RemoteMessage(data: const {}));
+    service.navigateToNotification(RemoteMessage(data: const {}));
     await tester.pumpAndSettle();
 
     expect(find.text('NC nc-123'), findsNothing);
+    expect(find.text('Desvio dev-123'), findsNothing);
+  });
+
+  testWidgets('navigateToNotification navega para /desvio/{desvioId} quando data tem desvioId', (tester) async {
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.pumpAndSettle();
+
+    service.navigateToNotification(RemoteMessage(data: {'desvioId': 'dev-123'}));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Desvio dev-123'), findsOneWidget);
+  });
+
+  testWidgets('navigateToNotification prefere desvioId sobre ncId quando ambos presentes', (tester) async {
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.pumpAndSettle();
+
+    service.navigateToNotification(RemoteMessage(data: {'desvioId': 'dev-456', 'ncId': 'nc-456'}));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Desvio dev-456'), findsOneWidget);
+    expect(find.text('NC nc-456'), findsNothing);
   });
 }

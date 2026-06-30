@@ -35,24 +35,32 @@ class FcmService {
     });
 
     // App em background, usuário tocou na notificação do sistema: Navigator já está montado.
-    FirebaseMessaging.onMessageOpenedApp.listen(navigateToNc);
+    FirebaseMessaging.onMessageOpenedApp.listen(navigateToNotification);
 
     // App estava fechado, foi aberto pelo toque: init() pode rodar antes do primeiro
     // frame do MaterialApp.router, então navigatorKey.currentState ainda seria null
     // aqui — adia para depois do próximo frame, quando o Navigator já está montado.
     final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => navigateToNc(initialMessage));
+      WidgetsBinding.instance.addPostFrameCallback((_) => navigateToNotification(initialMessage));
     }
   }
 
   @visibleForTesting
-  void navigateToNc(RemoteMessage message) {
-    final ncId = message.data['ncId'];
-    if (ncId == null) return;
+  void navigateToNotification(RemoteMessage message) {
     final context = navigatorKey.currentState?.context;
     if (context == null) return;
-    context.push('/oc/$ncId');
+
+    final desvioId = message.data['desvioId'];
+    if (desvioId != null) {
+      context.push('/desvio/$desvioId');
+      return;
+    }
+
+    final ncId = message.data['ncId'];
+    if (ncId != null) {
+      context.push('/oc/$ncId');
+    }
   }
 
   Future<void> _registerToken(String usuarioId, String token) async {
@@ -82,7 +90,7 @@ class FcmService {
         action: SnackBarAction(
           label: 'Ver',
           textColor: const Color(0xFF58A6FF),
-          onPressed: () => navigateToNc(message),
+          onPressed: () => navigateToNotification(message),
         ),
       ),
     );
