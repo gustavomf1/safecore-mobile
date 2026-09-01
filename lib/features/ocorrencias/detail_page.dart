@@ -2006,8 +2006,10 @@ class _DetailActions extends ConsumerWidget {
       }
     } on dio_pkg.DioException catch (e) {
       final data = e.response?.data;
-      final message = data is Map ? data['message'] as String? : null;
-      final camposFaltantesResp = data is Map ? (data['camposFaltantes'] as List?)?.cast<String>() : null;
+      final message = data is Map && data['message'] is String ? data['message'] as String : null;
+      final camposFaltantesResp = data is Map && data['camposFaltantes'] is List
+          ? (data['camposFaltantes'] as List).whereType<String>().toList()
+          : null;
       final texto = camposFaltantesResp != null && camposFaltantesResp.isNotEmpty
           ? '${message ?? 'Faltam campos obrigatórios'}: ${camposFaltantesResp.map((c) => camposObrigatoriosLabels[c] ?? c).join(', ')}'
           : (message ?? 'Erro ao enviar para o Plano de Ação.');

@@ -203,8 +203,10 @@ class _BodyState extends ConsumerState<_Body> {
       ref.invalidate(desvioDetailProvider(d.id));
     } on DioException catch (e) {
       final data = e.response?.data;
-      final message = data is Map ? data['message'] as String? : null;
-      final camposFaltantesResp = data is Map ? (data['camposFaltantes'] as List?)?.cast<String>() : null;
+      final message = data is Map && data['message'] is String ? data['message'] as String : null;
+      final camposFaltantesResp = data is Map && data['camposFaltantes'] is List
+          ? (data['camposFaltantes'] as List).whereType<String>().toList()
+          : null;
       final texto = camposFaltantesResp != null && camposFaltantesResp.isNotEmpty
           ? '${message ?? 'Faltam campos obrigatórios'}: ${camposFaltantesResp.map((c) => camposObrigatoriosLabels[c] ?? c).join(', ')}'
           : (message ?? 'Falha ao processar a ação.');
