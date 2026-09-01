@@ -15,7 +15,11 @@ class NcDetail {
   final String usuarioCriacaoNome;
   final String? usuarioCriacaoEmail;
   final String? usuarioCriacaoId;
+  final String? localizacaoId;
   final String? localizacaoNome;
+  final String? empresaContratadaId;
+  final String? responsavelTrativaId;
+  final String? responsavelNcId;
   final String? dataLimiteResolucao;
   final String dataRegistro;
   final bool vencida;
@@ -51,7 +55,11 @@ class NcDetail {
     required this.usuarioCriacaoNome,
     this.usuarioCriacaoEmail,
     this.usuarioCriacaoId,
+    this.localizacaoId,
     this.localizacaoNome,
+    this.empresaContratadaId,
+    this.responsavelTrativaId,
+    this.responsavelNcId,
     this.dataLimiteResolucao,
     required this.dataRegistro,
     this.vencida = false,
@@ -88,7 +96,11 @@ class NcDetail {
         usuarioCriacaoNome: json['usuarioCriacaoNome'] as String? ?? '',
         usuarioCriacaoEmail: json['usuarioCriacaoEmail'] as String?,
         usuarioCriacaoId: json['usuarioCriacaoId'] as String?,
+        localizacaoId: json['localizacaoId'] as String?,
         localizacaoNome: json['localizacaoNome'] as String?,
+        empresaContratadaId: json['empresaContratadaId'] as String?,
+        responsavelTrativaId: json['responsavelTrativaId'] as String?,
+        responsavelNcId: json['responsavelNcId'] as String?,
         dataLimiteResolucao: json['dataLimiteResolucao'] as String?,
         dataRegistro: json['dataRegistro'] as String? ?? '',
         vencida: _calcVencida(json),
