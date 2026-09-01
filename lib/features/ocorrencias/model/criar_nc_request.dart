@@ -2,8 +2,8 @@ class CriarNcRequest {
   final String estabelecimentoId;
   final String titulo;
   final String? descricao;
-  final int severidade;
-  final int probabilidade;
+  final int? severidade;
+  final int? probabilidade;
   final bool regraDeOuro;
   final bool reincidencia;
   final String? localizacaoId;
@@ -19,8 +19,8 @@ class CriarNcRequest {
     required this.estabelecimentoId,
     required this.titulo,
     this.descricao,
-    required this.severidade,
-    required this.probabilidade,
+    this.severidade,
+    this.probabilidade,
     this.regraDeOuro = false,
     this.reincidencia = false,
     this.localizacaoId,
@@ -37,8 +37,8 @@ class CriarNcRequest {
         'estabelecimentoId': estabelecimentoId,
         'titulo': titulo,
         if (descricao != null) 'descricao': descricao,
-        'severidade': severidade,
-        'probabilidade': probabilidade,
+        if (severidade != null) 'severidade': severidade,
+        if (probabilidade != null) 'probabilidade': probabilidade,
         'regraDeOuro': regraDeOuro,
         'reincidencia': reincidencia,
         if (localizacaoId != null) 'localizacaoId': localizacaoId,

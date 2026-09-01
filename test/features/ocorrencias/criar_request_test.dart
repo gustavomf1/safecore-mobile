@@ -33,6 +33,15 @@ void main() {
     expect(json.containsKey('responsavelNcId'), false);
   });
 
+  test('CriarNcRequest omite severidade e probabilidade quando nulos', () {
+    final json = const CriarNcRequest(
+      estabelecimentoId: 'est-1',
+      titulo: 'T',
+    ).toJson();
+    expect(json.containsKey('severidade'), false);
+    expect(json.containsKey('probabilidade'), false);
+  });
+
   test('CriarDesvioRequest serializa localizacaoId quando presente', () {
     final json = const CriarDesvioRequest(
       estabelecimentoId: 'est-1',
