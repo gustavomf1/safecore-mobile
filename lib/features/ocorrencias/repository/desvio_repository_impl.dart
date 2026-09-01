@@ -83,6 +83,15 @@ class DesvioRepositoryImpl implements DesvioRepository {
   }
 
   @override
+  Future<DesvioDetail> atualizar(String id, CriarDesvioRequest request) async {
+    final response = await dio.put<Map<String, dynamic>>(
+      '/api/desvios/$id',
+      data: request.toJson(),
+    );
+    return DesvioDetail.fromJson(response.data!);
+  }
+
+  @override
   Future<void> abrirTratativa(String id) async {
     await dio.post<dynamic>('/api/desvios/$id/abrir-tratativa');
   }

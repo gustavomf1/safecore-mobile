@@ -7,6 +7,7 @@ abstract class DesvioRepository {
   Future<List<DesvioSummary>> listar({String? estabelecimentoId});
   Future<DesvioDetail> buscarDetalhe(String id);
   Future<Map<String, dynamic>> criar(CriarDesvioRequest request);
+  Future<DesvioDetail> atualizar(String id, CriarDesvioRequest request);
   Future<void> abrirTratativa(String id);
   Future<void> adicionarTratativa(String id, AdicionarTrativaRequest request);
   Future<void> removerTratativa(String id, String trativaId);
