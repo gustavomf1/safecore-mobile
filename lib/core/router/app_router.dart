@@ -13,6 +13,7 @@ import '../../features/drafts/drafts_page.dart';
 import '../../features/notifications/notif_page.dart';
 import '../../features/ocorrencias/detail_page.dart';
 import '../../features/ocorrencias/desvio_detail_page.dart';
+import '../../features/ocorrencias/edit_ocorrencia_page.dart';
 import '../../features/ocorrencias/desvio_feed_page.dart';
 import '../../features/ocorrencias/feed_page.dart';
 import '../../features/profile/profile_page.dart';
@@ -98,6 +99,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           context, state,
           DesvioDetailPage(id: state.pathParameters['id']!),
         ),
+      ),
+      GoRoute(
+        path: '/oc/:id/editar',
+        builder: (_, state) => EditOcorrenciaPage(tipo: 'nc', id: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/desvio/:id/editar',
+        builder: (_, state) => EditOcorrenciaPage(tipo: 'desvio', id: state.pathParameters['id']!),
       ),
       GoRoute(path: '/drafts', builder: (_, __) => const DraftsPage()),
       GoRoute(
