@@ -13,6 +13,7 @@ import '../../core/network/dio_client.dart';
 import '../../features/auth/model/login_response.dart';
 import '../../features/auth/provider/auth_provider.dart';
 import '../../shared/widgets/status_widgets.dart';
+import 'campos_obrigatorios.dart';
 import 'model/nc_detail.dart';
 import 'repository/nc_repository_impl.dart';
 
@@ -271,7 +272,8 @@ class _GeralTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final riscoColor = _riscoColor(nc.nivelRisco);
-    final score = nc.severidade * nc.probabilidade;
+    final hasRisco = nc.severidade != null && nc.probabilidade != null;
+    final score = hasRisco ? nc.severidade! * nc.probabilidade! : 0;
 
     // Prazo
     int? diasRestantes;
@@ -485,11 +487,11 @@ class _GeralTab extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        Text('$score', style: TextStyle(color: riscoColor, fontSize: 26, fontWeight: FontWeight.w900, height: 1)),
+                        Text(hasRisco ? '$score' : '—', style: TextStyle(color: riscoColor, fontSize: 26, fontWeight: FontWeight.w900, height: 1)),
                         const SizedBox(height: 2),
                         Text('/20', style: TextStyle(color: riscoColor.withValues(alpha: .6), fontSize: 10, fontWeight: FontWeight.w800)),
                         const SizedBox(height: 6),
-                        Text(_riscoLabel(nc.nivelRisco), style: TextStyle(color: riscoColor, fontSize: 10, fontWeight: FontWeight.w900)),
+                        Text(hasRisco ? _riscoLabel(nc.nivelRisco) : 'Não definida', style: TextStyle(color: riscoColor, fontSize: 10, fontWeight: FontWeight.w900)),
                       ],
                     ),
                   ),
@@ -498,11 +500,11 @@ class _GeralTab extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  _RiscoMeta(label: 'SEV.', value: '${nc.severidade}', sub: _sevLabel(nc.severidade)),
+                  _RiscoMeta(label: 'SEV.', value: nc.severidade?.toString() ?? '—', sub: nc.severidade != null ? _sevLabel(nc.severidade!) : ''),
                   const SizedBox(width: 16),
-                  _RiscoMeta(label: 'PROB.', value: '${nc.probabilidade}', sub: _probLabel(nc.probabilidade)),
+                  _RiscoMeta(label: 'PROB.', value: nc.probabilidade?.toString() ?? '—', sub: nc.probabilidade != null ? _probLabel(nc.probabilidade!) : ''),
                   const SizedBox(width: 16),
-                  _RiscoMeta(label: 'NÍVEL', value: _riscoLabel(nc.nivelRisco), sub: 'score $score', color: riscoColor),
+                  _RiscoMeta(label: 'NÍVEL', value: hasRisco ? _riscoLabel(nc.nivelRisco) : 'Não definida', sub: hasRisco ? 'score $score' : '—', color: riscoColor),
                 ],
               ),
             ],
@@ -1942,6 +1944,28 @@ class _DetailActions extends ConsumerWidget {
       return;
     }
 
+    final faltantes = camposFaltantesNc(nc);
+    if (faltantes.isNotEmpty) {
+      await showDialog<void>(
+        context: context,
+        builder: (_) => AlertDialog(
+          backgroundColor: const Color(0xFF151A21),
+          title: const Text('Faltam campos obrigatórios', style: TextStyle(color: _NcDetailColors.text)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: faltantes
+                .map((codigo) => Text('• ${camposObrigatoriosLabels[codigo] ?? codigo}', style: const TextStyle(color: _NcDetailColors.muted, fontSize: 13, height: 1.5)))
+                .toList(),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Fechar', style: TextStyle(color: _NcDetailColors.muted))),
+          ],
+        ),
+      );
+      return;
+    }
+
     // Confirmação com dados principais
     final confirmar = await showDialog<bool>(
       context: context,
@@ -1997,6 +2021,16 @@ class _DetailActions extends ConsumerWidget {
           const SnackBar(content: Text('NC enviada para plano de ação. O responsável será notificado.')),
         );
       }
+    } on dio_pkg.DioException catch (e) {
+      final data = e.response?.data;
+      final message = data is Map && data['message'] is String ? data['message'] as String : null;
+      final camposFaltantesResp = data is Map && data['camposFaltantes'] is List
+          ? (data['camposFaltantes'] as List).whereType<String>().toList()
+          : null;
+      final texto = camposFaltantesResp != null && camposFaltantesResp.isNotEmpty
+          ? '${message ?? 'Faltam campos obrigatórios'}: ${camposFaltantesResp.map((c) => camposObrigatoriosLabels[c] ?? c).join(', ')}'
+          : (message ?? 'Erro ao enviar para o Plano de Ação.');
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(texto)));
     } catch (e) {
       if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro: $e')));
     }

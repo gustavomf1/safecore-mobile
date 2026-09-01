@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../shared/data/mock_data.dart';
 import '../../shared/widgets/prototype_ui.dart';
 import '../auth/provider/auth_provider.dart';
+import 'campos_obrigatorios.dart';
 import 'model/desvio_action_requests.dart';
 import 'model/desvio_detail.dart';
 import 'model/evidencia_metadata.dart';
@@ -200,6 +201,20 @@ class _BodyState extends ConsumerState<_Body> {
     try {
       await action();
       ref.invalidate(desvioDetailProvider(d.id));
+    } on DioException catch (e) {
+      final data = e.response?.data;
+      final message = data is Map && data['message'] is String ? data['message'] as String : null;
+      final camposFaltantesResp = data is Map && data['camposFaltantes'] is List
+          ? (data['camposFaltantes'] as List).whereType<String>().toList()
+          : null;
+      final texto = camposFaltantesResp != null && camposFaltantesResp.isNotEmpty
+          ? '${message ?? 'Faltam campos obrigatórios'}: ${camposFaltantesResp.map((c) => camposObrigatoriosLabels[c] ?? c).join(', ')}'
+          : (message ?? 'Falha ao processar a ação.');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(texto), backgroundColor: ProtoColors.red),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -482,7 +497,7 @@ class _BodyState extends ConsumerState<_Body> {
         if (!isCriador) return [];
         return [
           _btn('Enviar para Tratativa', Icons.send_rounded, ProtoColors.blue,
-              () => _run(() => ref.read(desvioRepositoryProvider).abrirTratativa(d.id))),
+              () => _confirmarOuAvisarFaltantes(context)),
         ];
       case 'AGUARDANDO_TRATATIVA':
         if (!canTratar) return [];
@@ -503,6 +518,30 @@ class _BodyState extends ConsumerState<_Body> {
       default:
         return [];
     }
+  }
+
+  Future<void> _confirmarOuAvisarFaltantes(BuildContext context) async {
+    final faltantes = camposFaltantesDesvio(d);
+    if (faltantes.isNotEmpty) {
+      await showDialog<void>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Faltam campos obrigatórios'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: faltantes
+                .map((codigo) => Text('• ${camposObrigatoriosLabels[codigo] ?? codigo}'))
+                .toList(),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Fechar')),
+          ],
+        ),
+      );
+      return;
+    }
+    await _run(() => ref.read(desvioRepositoryProvider).abrirTratativa(d.id));
   }
 
   Widget _btn(String label, IconData icon, Color color, VoidCallback onTap) =>
