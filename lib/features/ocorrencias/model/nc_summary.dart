@@ -7,6 +7,7 @@ class NcSummary {
   final String dataRegistro;
   final bool vencida;
   final String? responsavelTratativaId;
+  final String? ncAnteriorId;
 
   const NcSummary({
     required this.id,
@@ -17,6 +18,7 @@ class NcSummary {
     required this.dataRegistro,
     required this.vencida,
     this.responsavelTratativaId,
+    this.ncAnteriorId,
   });
 
   factory NcSummary.fromJson(Map<String, dynamic> json) {
@@ -39,6 +41,7 @@ class NcSummary {
       dataRegistro: json['dataRegistro'] as String? ?? '',
       vencida: vencida,
       responsavelTratativaId: json['responsavelTrativaId'] as String?,
+      ncAnteriorId: json['ncAnteriorId'] as String?,
     );
   }
 }

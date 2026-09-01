@@ -18,11 +18,14 @@ import '../ocorrencias/model/localizacao.dart';
 import '../ocorrencias/model/nc_summary.dart';
 import '../ocorrencias/model/norma.dart';
 import '../ocorrencias/model/usuario_summary.dart';
+import '../ocorrencias/nc_reincidencia.dart';
 import '../ocorrencias/repository/desvio_repository_impl.dart';
 import '../ocorrencias/repository/email_padrao_repository.dart';
 import '../ocorrencias/repository/evidencia_repository_impl.dart';
 import '../ocorrencias/repository/nc_repository_impl.dart';
+import '../ocorrencias/repository/nc_trecho_norma_repository_impl.dart';
 import '../ocorrencias/repository/support_repository_impl.dart';
+import '../ocorrencias/widgets/trecho_manual_sheet.dart';
 
 class WizardPage extends ConsumerStatefulWidget {
   final String tipo;
@@ -49,8 +52,10 @@ class _WizardPageState extends ConsumerState<WizardPage> {
   bool _reincidencia = false;
   bool _regraDeOuro = false;
 
-  // Normas selection (IDs)
+  // Normas selection (IDs) e trechos manuais staged por normaId (persistidos
+  // de verdade só depois que a NC existe, em _publicar).
   final Set<String> _selectedNormaIds = {};
+  final Map<String, TrechoManualResult> _normaTrechos = {};
 
   // Localização
   String? _localizacaoId;
@@ -141,6 +146,15 @@ class _WizardPageState extends ConsumerState<WizardPage> {
                           _selectedNormaIds.add(id);
                         } else {
                           _selectedNormaIds.remove(id);
+                          _normaTrechos.remove(id);
+                        }
+                      }),
+                      trechos: _normaTrechos,
+                      onTrechoChanged: (normaId, trecho) => setState(() {
+                        if (trecho == null) {
+                          _normaTrechos.remove(normaId);
+                        } else {
+                          _normaTrechos[normaId] = trecho;
                         }
                       }),
                     ),
@@ -314,6 +328,15 @@ class _WizardPageState extends ConsumerState<WizardPage> {
         emailsPadraoExcluidos: emailsPadraoExcluidos,
       );
       final nc = await ref.read(ncRepositoryProvider).criar(request);
+      final trechoRepo = ref.read(ncTrechoNormaRepositoryProvider);
+      for (final entry in _normaTrechos.entries) {
+        await trechoRepo.vincular(
+          nc.id,
+          normaId: entry.key,
+          clausulaReferencia: entry.value.clausulaReferencia,
+          textoEditado: entry.value.textoEditado,
+        );
+      }
       await _uploadPhotos(nc.id, isNc: true);
       if (mounted) {
         ref.invalidate(ncListProvider(workspaceId));
@@ -614,43 +637,63 @@ class _DescriptionStep extends ConsumerWidget {
                     error: (_, __) => const Text('Erro ao carregar NCs',
                         style: TextStyle(
                             color: ProtoColors.red, fontSize: 12)),
-                    data: (ncs) => Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                          color: ProtoColors.surface2,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                              color: ProtoColors.orange.withValues(alpha: .5))),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<NcSummary?>(
-                          isExpanded: true,
-                          dropdownColor: ProtoColors.surface,
-                          value: ncAnterior,
-                          hint: const Text('Selecionar NC anterior',
-                              style: TextStyle(
-                                  color: ProtoColors.muted, fontSize: 13)),
-                          style: const TextStyle(
-                              color: ProtoColors.text, fontSize: 13),
-                          items: [
-                            const DropdownMenuItem(
-                                value: null,
-                                child: Text('— Nenhuma',
+                    data: (ncs) {
+                      final selecionada = ncAnterior;
+                      final warning = selecionada == null
+                          ? null
+                          : reincidenciaChainEnd(ncs, selecionada.id);
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            decoration: BoxDecoration(
+                                color: ProtoColors.surface2,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                    color: warning != null
+                                        ? ProtoColors.orange
+                                        : ProtoColors.orange.withValues(alpha: .5))),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<NcSummary?>(
+                                isExpanded: true,
+                                dropdownColor: ProtoColors.surface,
+                                value: ncAnterior,
+                                hint: const Text('Selecionar NC anterior',
                                     style: TextStyle(
-                                        color: ProtoColors.muted,
-                                        fontSize: 13))),
-                            ...ncs.map((nc) => DropdownMenuItem(
-                                  value: nc,
-                                  child: Text(
-                                    '${nc.titulo} · ${nc.status}',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                )),
+                                        color: ProtoColors.muted, fontSize: 13)),
+                                style: const TextStyle(
+                                    color: ProtoColors.text, fontSize: 13),
+                                items: [
+                                  const DropdownMenuItem(
+                                      value: null,
+                                      child: Text('— Nenhuma',
+                                          style: TextStyle(
+                                              color: ProtoColors.muted,
+                                              fontSize: 13))),
+                                  ...ncs.map((nc) => DropdownMenuItem(
+                                        value: nc,
+                                        child: Text(
+                                          '${nc.titulo} · ${nc.status}',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      )),
+                                ],
+                                onChanged: onNcAnterior,
+                              ),
+                            ),
+                          ),
+                          if (warning != null) ...[
+                            const SizedBox(height: 8),
+                            _ReincidenciaWarning(
+                              ultimaNc: warning,
+                              onUsarEsta: () => onNcAnterior(warning),
+                            ),
                           ],
-                          onChanged: onNcAnterior,
-                        ),
-                      ),
-                    ),
+                        ],
+                      );
+                    },
                   ),
             if (ncAnterior != null) ...[
               const SizedBox(height: 8),
@@ -1065,6 +1108,56 @@ class _SignalRow extends StatelessWidget {
       );
 }
 
+/// Espelha o aviso do web (RegistroOcorrenciaPage) quando a NC escolhida como
+/// "anterior" já tem uma sucessora: o backend rejeita a gravação nesse caso
+/// (NaoConformidadeService.validarFimDaCadeia), então avisamos antes de tentar.
+class _ReincidenciaWarning extends StatelessWidget {
+  final NcSummary ultimaNc;
+  final VoidCallback onUsarEsta;
+  const _ReincidenciaWarning({required this.ultimaNc, required this.onUsarEsta});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: ProtoColors.orange.withValues(alpha: .08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: ProtoColors.orange.withValues(alpha: .4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('⚠ Esta NC já possui uma reincidência registrada',
+              style: TextStyle(color: ProtoColors.orange, fontSize: 12, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 4),
+          const Text('Para manter o rastro linear, selecione a última NC da cadeia:',
+              style: TextStyle(color: ProtoColors.muted, fontSize: 11)),
+          const SizedBox(height: 8),
+          Text(ultimaNc.titulo,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: ProtoColors.text, fontSize: 12, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: onUsarEsta,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: ProtoColors.orange.withValues(alpha: .18),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: ProtoColors.orange),
+              ),
+              child: const Text('Usar esta NC',
+                  style: TextStyle(color: ProtoColors.orange, fontSize: 12, fontWeight: FontWeight.w800)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 const _sevOpts = [
   (value: 1, label: 'Insignificante', color: Color(0xFF3fb950)),
   (value: 2, label: 'Pequena', color: Color(0xFF3fb950)),
@@ -1337,60 +1430,24 @@ class _RampPicker extends StatelessWidget {
 // Step 3: Norms — wired to normasProvider
 // ---------------------------------------------------------------------------
 
-const _normClauses = <String, List<String>>{
-  'NR-35': [
-    'Item 35.1 — Estabelece os requisitos mínimos e as medidas de proteção para o trabalho em altura.',
-    'Item 35.3.1 — Todo trabalho em altura deve ser realizado com sistema de proteção contra quedas.',
-    'Item 35.3.3 — O sistema de proteção deve ser compatível com o tipo de trabalho a ser executado.',
-    'Item 35.4.1 — O trabalhador deve ser capacitado para reconhecer os riscos envolvidos.',
-  ],
-  'NR-06': [
-    'Item 6.1 — EPI é todo dispositivo ou produto de uso individual destinado à proteção de riscos.',
-    'Item 6.3 — A empresa é obrigada a fornecer EPI adequado ao risco, em perfeito estado de conservação.',
-    'Item 6.7 — O empregado é obrigado a usar o EPI apenas para a finalidade a que se destina.',
-  ],
-  'NR-33': [
-    'Item 33.1 — Espaço confinado é qualquer área não projetada para ocupação humana contínua.',
-    'Item 33.3.2 — É proibida a entrada sem autorização e sem os procedimentos de segurança estabelecidos.',
-    'Item 33.4.1 — O vigia deve permanecer do lado externo do espaço confinado durante toda a atividade.',
-  ],
-  'NR-10': [
-    'Item 10.2.1 — Nos serviços em instalações elétricas é obrigatória a adoção de medidas preventivas de controle do risco elétrico.',
-    'Item 10.3.1 — Os trabalhadores autorizados a trabalhar em instalações elétricas devem ser treinados.',
-  ],
-  'NR-12': [
-    'Item 12.1 — Máquinas e equipamentos devem ter dispositivos de partida e parada que reduzam a possibilidade de acidentes.',
-    'Item 12.5 — As zonas de perigo das máquinas devem ser protegidas por medidas de proteção coletiva.',
-  ],
-};
-
-const _iaSuggestions = <String, String>{
-  'NR-35':
-      'Item 35.3.1 — Todo trabalho em altura deve ser realizado com sistema de proteção contra quedas que contemple EPI e EPC adequados.',
-  'NR-06':
-      'Item 6.3 — A empresa é obrigada a fornecer aos empregados, gratuitamente, EPI adequado ao risco, em perfeito estado de conservação.',
-  'NR-33':
-      'Item 33.3.2 — É proibida a entrada de trabalhadores em espaços confinados sem a devida autorização e sem os procedimentos de segurança.',
-  'NR-10':
-      'Item 10.2.1 — Nos serviços em instalações elétricas é obrigatória a adoção de medidas preventivas de controle do risco elétrico.',
-  'NR-12':
-      'Item 12.1 — Máquinas e equipamentos devem ter dispositivos de partida, acionamento e parada que reduzam as possibilidades de ocorrência de acidentes.',
-};
-
-enum _TrechoMode { search, manual }
-
 class _NormsStep extends ConsumerStatefulWidget {
   final Set<String> selectedIds;
   final void Function(String id, bool selected) onToggle;
+  final Map<String, TrechoManualResult> trechos;
+  final void Function(String normaId, TrechoManualResult? trecho) onTrechoChanged;
 
-  const _NormsStep({required this.selectedIds, required this.onToggle});
+  const _NormsStep({
+    required this.selectedIds,
+    required this.onToggle,
+    required this.trechos,
+    required this.onTrechoChanged,
+  });
 
   @override
   ConsumerState<_NormsStep> createState() => _NormsStepState();
 }
 
 class _NormsStepState extends ConsumerState<_NormsStep> {
-  final Map<String, String> _trechos = {};
   String _search = '';
   final _searchCtrl = TextEditingController();
 
@@ -1403,43 +1460,18 @@ class _NormsStepState extends ConsumerState<_NormsStep> {
   void _toggle(Norma norma) {
     final alreadySelected = widget.selectedIds.contains(norma.id);
     widget.onToggle(norma.id, !alreadySelected);
-    if (alreadySelected) _trechos.remove(norma.codigo);
+    if (alreadySelected) widget.onTrechoChanged(norma.id, null);
   }
 
-  Future<void> _openBusca(String codigo, String nome) async {
-    final result = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-        child: _TrechoSheet(
-            code: codigo,
-            normName: nome,
-            initialMode: _TrechoMode.search,
-            existingTrecho: _trechos[codigo]),
-      ),
+  Future<void> _openManual(Norma norma) async {
+    final existing = widget.trechos[norma.id];
+    final result = await showTrechoManualSheet(
+      context,
+      code: norma.codigo,
+      existingClausula: existing?.clausulaReferencia,
+      existingTexto: existing?.textoEditado,
     );
-    if (result != null) setState(() => _trechos[codigo] = result);
-  }
-
-  Future<void> _openManual(String codigo, String nome) async {
-    final result = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-        child: _TrechoSheet(
-            code: codigo,
-            normName: nome,
-            initialMode: _TrechoMode.manual,
-            existingTrecho: _trechos[codigo]),
-      ),
-    );
-    if (result != null) setState(() => _trechos[codigo] = result);
+    if (result != null) widget.onTrechoChanged(norma.id, result);
   }
 
   @override
@@ -1561,7 +1593,7 @@ class _NormsStepState extends ConsumerState<_NormsStep> {
             else
               ...filtered.map((n) {
                 final checked = widget.selectedIds.contains(n.id);
-                final trecho = _trechos[n.codigo];
+                final trecho = widget.trechos[n.id];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: AnimatedContainer(
@@ -1655,14 +1687,17 @@ class _NormsStepState extends ConsumerState<_NormsStep> {
                                       color: ProtoColors.blue, size: 14),
                                   const SizedBox(width: 6),
                                   Expanded(
-                                      child: Text(trecho,
+                                      child: Text(
+                                          trecho.clausulaReferencia != null
+                                              ? '${trecho.clausulaReferencia} — ${trecho.textoEditado}'
+                                              : trecho.textoEditado,
                                           style: const TextStyle(
                                               color: ProtoColors.text,
                                               fontSize: 12,
                                               height: 1.4))),
                                   GestureDetector(
-                                      onTap: () => setState(() =>
-                                          _trechos.remove(n.codigo)),
+                                      onTap: () =>
+                                          widget.onTrechoChanged(n.id, null),
                                       child: const Icon(Icons.close,
                                           color: ProtoColors.muted,
                                           size: 14)),
@@ -1671,16 +1706,9 @@ class _NormsStepState extends ConsumerState<_NormsStep> {
                             ],
                             Row(children: [
                               _NormActionBtn(
-                                  icon: Icons.search_rounded,
-                                  label: 'Buscar trecho',
-                                  onTap: () =>
-                                      _openBusca(n.codigo, n.nome)),
-                              const SizedBox(width: 8),
-                              _NormActionBtn(
                                   icon: Icons.edit_outlined,
                                   label: 'Escrever manual',
-                                  onTap: () =>
-                                      _openManual(n.codigo, n.nome)),
+                                  onTap: () => _openManual(n)),
                             ]),
                           ]),
                         ),
@@ -1759,411 +1787,6 @@ class _NormActionBtn extends StatelessWidget {
       );
 }
 
-// ---------------------------------------------------------------------------
-// _TrechoSheet (unchanged logic)
-// ---------------------------------------------------------------------------
-
-class _TrechoSheet extends StatefulWidget {
-  final String code;
-  final String normName;
-  final _TrechoMode initialMode;
-  final String? existingTrecho;
-  const _TrechoSheet(
-      {required this.code,
-      required this.normName,
-      required this.initialMode,
-      this.existingTrecho});
-  @override
-  State<_TrechoSheet> createState() => _TrechoSheetState();
-}
-
-class _TrechoSheetState extends State<_TrechoSheet> {
-  late _TrechoMode _mode;
-  final _searchQueryCtrl = TextEditingController();
-  bool _hasSearched = false;
-  String? _selectedClause;
-  List<String> _searchResults = [];
-  final _clauseRefCtrl = TextEditingController();
-  late final _textCtrl =
-      TextEditingController(text: widget.existingTrecho ?? '');
-  int _charCount = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _mode = widget.initialMode;
-    _charCount = widget.existingTrecho?.length ?? 0;
-    _textCtrl
-        .addListener(() => setState(() => _charCount = _textCtrl.text.length));
-  }
-
-  @override
-  void dispose() {
-    _searchQueryCtrl.dispose();
-    _clauseRefCtrl.dispose();
-    _textCtrl.dispose();
-    super.dispose();
-  }
-
-  void _runSearch() {
-    final q = _searchQueryCtrl.text.trim().toLowerCase();
-    final all = _normClauses[widget.code] ??
-        ['Item 1.1 — Trecho de referência para ${widget.code}.'];
-    setState(() {
-      _hasSearched = true;
-      _selectedClause = null;
-      _searchResults = q.isEmpty
-          ? all
-          : all.where((c) => c.toLowerCase().contains(q)).toList();
-      if (_searchResults.isEmpty) {
-        _searchResults = [
-          _iaSuggestions[widget.code] ??
-              'Nenhum trecho encontrado para "$q" em ${widget.code}.'
-        ];
-      }
-    });
-  }
-
-  String? get _result {
-    if (_mode == _TrechoMode.search) return _selectedClause;
-    final text = _textCtrl.text.trim();
-    if (text.isEmpty) return null;
-    final ref = _clauseRefCtrl.text.trim();
-    return ref.isNotEmpty ? '$ref — $text' : text;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isSearch = _mode == _TrechoMode.search;
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-      decoration: const BoxDecoration(
-          color: ProtoColors.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-              child: Container(
-                  width: 38,
-                  height: 4,
-                  decoration: BoxDecoration(
-                      color: ProtoColors.muted,
-                      borderRadius: BorderRadius.circular(99)))),
-          const SizedBox(height: 16),
-          Row(children: [
-            Icon(
-                isSearch
-                    ? Icons.auto_awesome_rounded
-                    : Icons.edit_outlined,
-                color: ProtoColors.blue,
-                size: 18),
-            const SizedBox(width: 10),
-            Expanded(
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                  Text(
-                      isSearch
-                          ? 'Buscar trecho por IA'
-                          : 'Escrever trecho manual',
-                      style: const TextStyle(
-                          color: ProtoColors.text,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900)),
-                  Text(widget.code,
-                      style: const TextStyle(
-                          color: ProtoColors.muted, fontSize: 12)),
-                ])),
-            GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.close, color: ProtoColors.muted)),
-          ]),
-          const SizedBox(height: 14),
-          Row(children: [
-            _ModeTab(
-                label: 'Buscar por IA',
-                icon: Icons.auto_awesome_rounded,
-                selected: isSearch,
-                onTap: () => setState(() {
-                      _mode = _TrechoMode.search;
-                      _hasSearched = false;
-                    })),
-            const SizedBox(width: 8),
-            _ModeTab(
-                label: 'Escrever manual',
-                icon: Icons.edit_outlined,
-                selected: !isSearch,
-                onTap: () => setState(() => _mode = _TrechoMode.manual)),
-          ]),
-          const SizedBox(height: 16),
-          if (isSearch) ...[
-            const Text('O que você quer encontrar?',
-                style: TextStyle(
-                    color: ProtoColors.text,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700)),
-            const SizedBox(height: 8),
-            Row(children: [
-              Expanded(
-                child: Container(
-                  height: 44,
-                  decoration: BoxDecoration(
-                      color: ProtoColors.surface2,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: ProtoColors.border)),
-                  child: Row(children: [
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextField(
-                        controller: _searchQueryCtrl,
-                        style: const TextStyle(
-                            color: ProtoColors.text, fontSize: 13),
-                        onSubmitted: (_) => _runSearch(),
-                        decoration: const InputDecoration(
-                          hintText:
-                              'Ex: "linha de vida", "proteção coletiva"…',
-                          hintStyle: TextStyle(
-                              color: ProtoColors.muted, fontSize: 12),
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                      ),
-                    ),
-                  ]),
-                ),
-              ),
-              const SizedBox(width: 8),
-              SizedBox(
-                height: 44,
-                child: FilledButton.icon(
-                  style: FilledButton.styleFrom(
-                      backgroundColor: ProtoColors.blue,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 14)),
-                  onPressed: _runSearch,
-                  icon: const Icon(Icons.search, size: 16),
-                  label: const Text('Buscar',
-                      style: TextStyle(fontWeight: FontWeight.w900)),
-                ),
-              ),
-            ]),
-            if (_hasSearched) ...[
-              const SizedBox(height: 12),
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                    maxHeight:
-                        MediaQuery.of(context).size.height * .28),
-                child: ListView(
-                  shrinkWrap: true,
-                  children: _searchResults.map((clause) {
-                    final sel = _selectedClause == clause;
-                    return GestureDetector(
-                      onTap: () => setState(
-                          () => _selectedClause = sel ? null : clause),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 150),
-                        padding: const EdgeInsets.all(12),
-                        margin: const EdgeInsets.only(bottom: 8),
-                        decoration: BoxDecoration(
-                          color: sel
-                              ? ProtoColors.blue.withValues(alpha: .10)
-                              : ProtoColors.surface2,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                              color: sel
-                                  ? ProtoColors.blue
-                                  : ProtoColors.border),
-                        ),
-                        child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                          Icon(Icons.format_quote,
-                              color: sel
-                                  ? ProtoColors.blue
-                                  : ProtoColors.muted,
-                              size: 14),
-                          const SizedBox(width: 8),
-                          Expanded(
-                              child: Text(clause,
-                                  style: const TextStyle(
-                                      color: ProtoColors.text,
-                                      fontSize: 12,
-                                      height: 1.4))),
-                          if (sel)
-                            const Icon(Icons.check_circle,
-                                color: ProtoColors.blue, size: 16),
-                        ]),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-          ] else ...[
-            const Text('Cláusula / Item',
-                style: TextStyle(
-                    color: ProtoColors.text,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700)),
-            const SizedBox(height: 4),
-            const Text('opcional',
-                style:
-                    TextStyle(color: ProtoColors.muted, fontSize: 11)),
-            const SizedBox(height: 8),
-            Container(
-              height: 44,
-              decoration: BoxDecoration(
-                  color: ProtoColors.surface2,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: ProtoColors.border)),
-              child: TextField(
-                controller: _clauseRefCtrl,
-                style: const TextStyle(
-                    color: ProtoColors.text, fontSize: 13),
-                decoration: const InputDecoration(
-                  hintText: 'Ex: 12.38, item 4.2…',
-                  hintStyle:
-                      TextStyle(color: ProtoColors.muted, fontSize: 13),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 14),
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-            const Row(children: [
-              Text('Texto do trecho',
-                  style: TextStyle(
-                      color: ProtoColors.text,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700)),
-              SizedBox(width: 6),
-              Text('*',
-                  style: TextStyle(
-                      color: ProtoColors.red,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w900)),
-            ]),
-            const SizedBox(height: 8),
-            Container(
-              decoration: BoxDecoration(
-                  color: ProtoColors.surface2,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: ProtoColors.border)),
-              child: TextField(
-                controller: _textCtrl,
-                maxLines: 5,
-                style: const TextStyle(
-                    color: ProtoColors.text,
-                    fontSize: 13,
-                    height: 1.4),
-                decoration: const InputDecoration(
-                  hintText: 'Cole ou escreva o trecho da norma aqui…',
-                  hintStyle:
-                      TextStyle(color: ProtoColors.muted, fontSize: 13),
-                  contentPadding: EdgeInsets.all(14),
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text('$_charCount caracteres',
-                style: const TextStyle(
-                    color: ProtoColors.muted2, fontSize: 11)),
-          ],
-          const SizedBox(height: 16),
-          Row(children: [
-            Expanded(
-                child: SizedBox(
-              height: 46,
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                    foregroundColor: ProtoColors.text,
-                    side:
-                        const BorderSide(color: ProtoColors.border),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10))),
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar',
-                    style: TextStyle(fontWeight: FontWeight.w900)),
-              ),
-            )),
-            const SizedBox(width: 10),
-            Expanded(
-                flex: 2,
-                child: SizedBox(
-              height: 46,
-              child: FilledButton.icon(
-                style: FilledButton.styleFrom(
-                    backgroundColor: _result != null
-                        ? ProtoColors.blue
-                        : ProtoColors.surface2,
-                    foregroundColor: _result != null
-                        ? Colors.white
-                        : ProtoColors.muted,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10))),
-                onPressed: _result != null
-                    ? () => Navigator.pop(context, _result)
-                    : null,
-                icon: const Icon(Icons.link_rounded, size: 16),
-                label: const Text('Adicionar trecho',
-                    style: TextStyle(fontWeight: FontWeight.w900)),
-              ),
-            )),
-          ]),
-        ],
-      ),
-    );
-  }
-}
-
-class _ModeTab extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final bool selected;
-  final VoidCallback onTap;
-  const _ModeTab(
-      {required this.label,
-      required this.icon,
-      required this.selected,
-      required this.onTap});
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: selected
-                ? ProtoColors.blue.withValues(alpha: .15)
-                : ProtoColors.surface2,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-                color: selected ? ProtoColors.blue : ProtoColors.border),
-          ),
-          child:
-              Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(icon,
-                color: selected ? ProtoColors.blue : ProtoColors.muted,
-                size: 14),
-            const SizedBox(width: 6),
-            Text(label,
-                style: TextStyle(
-                    color: selected
-                        ? ProtoColors.blue
-                        : ProtoColors.text,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700)),
-          ]),
-        ),
-      );
-}
 
 // ---------------------------------------------------------------------------
 // Step 4: Evidence
