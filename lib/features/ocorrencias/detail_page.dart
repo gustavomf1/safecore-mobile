@@ -112,6 +112,11 @@ class DetailPage extends ConsumerWidget {
                     ? 'yellow'
                     : 'blue';
         final concluida = nc.status == 'CONCLUIDA' || nc.status == 'FECHADA';
+        final user = ref.watch(authProvider).valueOrNull;
+        final isAberta = nc.status.toUpperCase() == 'ABERTA';
+        final isCriador = user != null &&
+            (user.id == nc.usuarioCriacaoId || user.email == nc.usuarioCriacaoEmail);
+        final podeEditar = user != null && (isAberta ? (isCriador || user.isAdmin) : user.isAdmin);
 
         return DefaultTabController(
           length: 5,
@@ -124,7 +129,12 @@ class DetailPage extends ConsumerWidget {
                 children: [
                   Hero(
                     tag: 'cover-${nc.id}',
-                    child: _DetailHero(nc: nc, tone: tone),
+                    child: _DetailHero(
+                      nc: nc,
+                      tone: tone,
+                      podeEditar: podeEditar,
+                      onEditar: () => context.push('/oc/${nc.id}/editar'),
+                    ),
                   ),
                   _DetailTabs(),
                   Expanded(
@@ -152,8 +162,44 @@ class DetailPage extends ConsumerWidget {
 class _DetailHero extends StatelessWidget {
   final NcDetail nc;
   final String tone;
+  final bool podeEditar;
+  final VoidCallback onEditar;
 
-  const _DetailHero({required this.nc, required this.tone});
+  const _DetailHero({
+    required this.nc,
+    required this.tone,
+    required this.podeEditar,
+    required this.onEditar,
+  });
+
+  void _showMenu(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: _NcDetailColors.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (podeEditar)
+              ListTile(
+                leading: const Icon(Icons.edit_outlined, color: _NcDetailColors.blue),
+                title: const Text('Editar', style: TextStyle(color: _NcDetailColors.text, fontWeight: FontWeight.w700)),
+                onTap: () {
+                  Navigator.pop(context);
+                  onEditar();
+                },
+              )
+            else
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Text('Nenhuma ação disponível', style: TextStyle(color: _NcDetailColors.muted, fontSize: 13)),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +218,7 @@ class _DetailHero extends StatelessWidget {
               const Spacer(),
               _HeroIconButton(icon: Icons.share_rounded, onTap: () {}),
               const SizedBox(width: 8),
-              _HeroIconButton(icon: Icons.more_vert_rounded, onTap: () {}),
+              _HeroIconButton(icon: Icons.more_vert_rounded, onTap: () => _showMenu(context)),
             ],
           ),
           const SizedBox(height: 16),
@@ -1948,7 +1994,7 @@ class _DetailActions extends ConsumerWidget {
     if (faltantes.isNotEmpty) {
       await showDialog<void>(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (dialogContext) => AlertDialog(
           backgroundColor: const Color(0xFF151A21),
           title: const Text('Faltam campos obrigatórios', style: TextStyle(color: _NcDetailColors.text)),
           content: Column(
@@ -1959,7 +2005,14 @@ class _DetailActions extends ConsumerWidget {
                 .toList(),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Fechar', style: TextStyle(color: _NcDetailColors.muted))),
+            TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Fechar', style: TextStyle(color: _NcDetailColors.muted))),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                dialogContext.push('/oc/${nc.id}/editar');
+              },
+              child: const Text('Editar'),
+            ),
           ],
         ),
       );
