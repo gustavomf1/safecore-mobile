@@ -7,5 +7,6 @@ abstract class NcRepository {
   Future<List<NcSummary>> listar({String? estabelecimentoId, String? status});
   Future<NcDetail> buscarPorId(String id);
   Future<NcDetail> criar(CriarNcRequest request);
+  Future<NcDetail> atualizar(String id, CriarNcRequest request);
   Future<void> salvarRascunho(RascunhoLocal rascunho);
 }

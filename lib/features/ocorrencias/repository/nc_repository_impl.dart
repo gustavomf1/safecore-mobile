@@ -158,6 +158,15 @@ class NcRepositoryImpl implements NcRepository {
   }
 
   @override
+  Future<NcDetail> atualizar(String id, CriarNcRequest request) async {
+    final response = await dio.put<Map<String, dynamic>>(
+      '/api/nao-conformidades/$id',
+      data: request.toJson(),
+    );
+    return NcDetail.fromJson(response.data!);
+  }
+
+  @override
   Future<void> salvarRascunho(RascunhoLocal rascunho) async {
     // Handled by DraftRepository
   }
