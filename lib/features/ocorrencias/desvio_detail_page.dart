@@ -161,6 +161,7 @@ class DesvioDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(desvioDetailProvider(id));
+    final session = ref.watch(authProvider).valueOrNull;
     return Scaffold(
       backgroundColor: ProtoColors.bg,
       appBar: AppBar(
@@ -171,6 +172,21 @@ class DesvioDetailPage extends ConsumerWidget {
           onPressed: () => context.go('/desvios'),
         ),
         title: const Text('Desvio'),
+        actions: [
+          async.maybeWhen(
+            data: (d) {
+              final isAberto = d.status.toUpperCase() == 'ABERTO';
+              final isCriador = session != null && session.email == d.usuarioCriacaoEmail;
+              final podeEditar = session != null && (isAberto ? (isCriador || session.isAdmin) : session.isAdmin);
+              if (!podeEditar) return const SizedBox.shrink();
+              return IconButton(
+                icon: const Icon(Icons.edit_outlined),
+                onPressed: () => context.push('/desvio/${d.id}/editar'),
+              );
+            },
+            orElse: () => const SizedBox.shrink(),
+          ),
+        ],
       ),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -525,7 +541,7 @@ class _BodyState extends ConsumerState<_Body> {
     if (faltantes.isNotEmpty) {
       await showDialog<void>(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (dialogContext) => AlertDialog(
           title: const Text('Faltam campos obrigatórios'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -535,7 +551,14 @@ class _BodyState extends ConsumerState<_Body> {
                 .toList(),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Fechar')),
+            TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Fechar')),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                dialogContext.push('/desvio/${d.id}/editar');
+              },
+              child: const Text('Editar'),
+            ),
           ],
         ),
       );
