@@ -74,6 +74,53 @@ void main() {
     });
   });
 
+  group('solicitarReset', () {
+    test('posts email to /api/auth/reset/solicitar', () async {
+      when(() => dio.post('/api/auth/reset/solicitar', data: {'email': 'joao@test.com'}))
+          .thenAnswer((_) async => Response(
+                requestOptions: RequestOptions(path: '/api/auth/reset/solicitar'),
+                statusCode: 200,
+                data: {'mensagem': 'ok'},
+              ));
+
+      await repo.solicitarReset('joao@test.com');
+
+      verify(() => dio.post('/api/auth/reset/solicitar', data: {'email': 'joao@test.com'})).called(1);
+    });
+  });
+
+  group('verificarOtp', () {
+    test('returns resetToken from response', () async {
+      when(() => dio.post('/api/auth/reset/verificar',
+              data: {'email': 'joao@test.com', 'otp': '123456'}))
+          .thenAnswer((_) async => Response(
+                requestOptions: RequestOptions(path: '/api/auth/reset/verificar'),
+                statusCode: 200,
+                data: {'resetToken': 'a1b2c3d4-0000-0000-0000-000000000000'},
+              ));
+
+      final resetToken = await repo.verificarOtp('joao@test.com', '123456');
+
+      expect(resetToken, 'a1b2c3d4-0000-0000-0000-000000000000');
+    });
+  });
+
+  group('redefinirSenha', () {
+    test('posts resetToken and novaSenha to /api/auth/reset/redefinir', () async {
+      when(() => dio.post('/api/auth/reset/redefinir',
+              data: {'resetToken': 'a1b2c3d4-0000-0000-0000-000000000000', 'novaSenha': 'NovaSenha123!'}))
+          .thenAnswer((_) async => Response(
+                requestOptions: RequestOptions(path: '/api/auth/reset/redefinir'),
+                statusCode: 200,
+              ));
+
+      await repo.redefinirSenha('a1b2c3d4-0000-0000-0000-000000000000', 'NovaSenha123!');
+
+      verify(() => dio.post('/api/auth/reset/redefinir',
+          data: {'resetToken': 'a1b2c3d4-0000-0000-0000-000000000000', 'novaSenha': 'NovaSenha123!'})).called(1);
+    });
+  });
+
   group('getSession', () {
     test('returns null when no session stored', () async {
       when(() => storage.read(key: 'user_session')).thenAnswer((_) async => null);

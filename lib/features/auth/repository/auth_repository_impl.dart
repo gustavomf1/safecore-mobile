@@ -79,6 +79,28 @@ class AuthRepositoryImpl implements AuthRepository {
     );
   }
 
+  @override
+  Future<void> solicitarReset(String email) async {
+    await dio.post('/api/auth/reset/solicitar', data: {'email': email});
+  }
+
+  @override
+  Future<String> verificarOtp(String email, String otp) async {
+    final response = await dio.post(
+      '/api/auth/reset/verificar',
+      data: {'email': email, 'otp': otp},
+    );
+    return response.data['resetToken'] as String;
+  }
+
+  @override
+  Future<void> redefinirSenha(String resetToken, String novaSenha) async {
+    await dio.post(
+      '/api/auth/reset/redefinir',
+      data: {'resetToken': resetToken, 'novaSenha': novaSenha},
+    );
+  }
+
   Future<bool> _tentarRenovar() async {
     final refreshToken = await storage.read(key: 'refresh_token');
     if (refreshToken == null) return false;

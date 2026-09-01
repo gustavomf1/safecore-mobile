@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/forgot_password_page.dart';
 import '../../features/auth/login_page.dart';
 import '../../features/auth/provider/auth_provider.dart';
 import '../../features/auth/splash_page.dart';
@@ -44,11 +45,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       final authState = ref.read(authProvider);
       final isLoggedIn = authState.valueOrNull != null;
       final isLoggingIn = state.matchedLocation == '/login';
+      final isForgotPassword = state.matchedLocation == '/esqueci-senha';
       final isSplash = state.matchedLocation == '/';
 
       if (isSplash) return null;
 
-      if (!isLoggedIn && !isLoggingIn) return '/login';
+      if (!isLoggedIn && !isLoggingIn && !isForgotPassword) return '/login';
 
       if (isLoggedIn && isLoggingIn) {
         final perfil = authState.valueOrNull?.perfil;
@@ -71,6 +73,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/', builder: (_, __) => const SplashPage()),
       GoRoute(path: '/login', builder: (_, __) => const LoginPage()),
+      GoRoute(path: '/esqueci-senha', builder: (_, __) => const ForgotPasswordPage()),
       GoRoute(path: '/workspace', builder: (_, __) => const WorkspaceSelectPage()),
       ShellRoute(
         builder: (_, __, child) => EngSegShell(child: child),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../shared/widgets/prototype_ui.dart';
 import 'provider/auth_provider.dart';
@@ -12,8 +13,8 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProviderStateMixin {
-  final email = TextEditingController(text: 'gustavo.ferreira@ers.eng.br');
-  final password = TextEditingController(text: '••••••••••');
+  final email = TextEditingController();
+  final password = TextEditingController();
   bool loading = false;
   bool remember = true;
   String? _errorMsg;
@@ -163,7 +164,7 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
                             ),
                             const SizedBox(width: 8),
                             TextButton(
-                              onPressed: () {},
+                              onPressed: () => context.push('/esqueci-senha'),
                               style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 32), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                               child: const Text('Esqueci a senha', style: TextStyle(color: ProtoColors.blue, fontSize: 11, fontWeight: FontWeight.w800)),
                             ),
