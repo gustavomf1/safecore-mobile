@@ -6,7 +6,9 @@ class DesvioDetail {
   final String status; // ABERTO | AGUARDANDO_TRATATIVA | AGUARDANDO_APROVACAO | CONCLUIDO
   final String estabelecimentoId;
   final String estabelecimentoNome;
+  final String? localizacaoId;
   final String? localizacaoNome;
+  final String? empresaContratadaId;
   final String? descricao;
   final String? orientacaoRealizada;
   final bool regraDeOuro;
@@ -26,7 +28,9 @@ class DesvioDetail {
     required this.status,
     this.estabelecimentoId = '',
     this.estabelecimentoNome = '',
+    this.localizacaoId,
     this.localizacaoNome,
+    this.empresaContratadaId,
     this.descricao,
     this.orientacaoRealizada,
     this.regraDeOuro = false,
@@ -47,7 +51,9 @@ class DesvioDetail {
         status: j['status'] as String? ?? 'ABERTO',
         estabelecimentoId: j['estabelecimentoId'] as String? ?? '',
         estabelecimentoNome: j['estabelecimentoNome'] as String? ?? '',
+        localizacaoId: j['localizacaoId'] as String?,
         localizacaoNome: j['localizacaoNome'] as String?,
+        empresaContratadaId: j['empresaContratadaId'] as String?,
         descricao: j['descricao'] as String?,
         orientacaoRealizada: j['orientacaoRealizada'] as String?,
         regraDeOuro: j['regraDeOuro'] as bool? ?? false,
