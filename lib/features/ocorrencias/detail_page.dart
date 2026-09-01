@@ -60,7 +60,7 @@ class _NcDetailColors {
   static const yellow = Color(0xFFD4A017);
 }
 
-final _ncDetailProvider = FutureProvider.family<NcDetail, String>((ref, id) {
+final ncDetailProvider = FutureProvider.family<NcDetail, String>((ref, id) {
   return ref.read(ncRepositoryProvider).buscarPorId(id);
 });
 
@@ -71,7 +71,7 @@ class DetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ncAsync = ref.watch(_ncDetailProvider(id));
+    final ncAsync = ref.watch(ncDetailProvider(id));
 
     return ncAsync.when(
       loading: () => Scaffold(
@@ -2015,7 +2015,7 @@ class _DetailActions extends ConsumerWidget {
     final dio = ref.read(dioProvider);
     try {
       await ativarNc(dio, nc.id);
-      ref.invalidate(_ncDetailProvider(nc.id));
+      ref.invalidate(ncDetailProvider(nc.id));
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('NC enviada para plano de ação. O responsável será notificado.')),
@@ -2060,7 +2060,7 @@ class _DetailActions extends ConsumerWidget {
         atividadesAprovadas: aprovadas,
       ),
     );
-    ref.invalidate(_ncDetailProvider(nc.id));
+    ref.invalidate(ncDetailProvider(nc.id));
   }
 
   Future<void> _showExecucao(BuildContext context, WidgetRef ref) async {
@@ -2078,7 +2078,7 @@ class _DetailActions extends ConsumerWidget {
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => _ExecucaoSheet(ncId: nc.id, atividades: pendentes, dio: dio, token: token),
     );
-    ref.invalidate(_ncDetailProvider(nc.id));
+    ref.invalidate(ncDetailProvider(nc.id));
   }
 
   Future<void> _showRejeitar(BuildContext context, WidgetRef ref, String tipo) async {
@@ -2209,7 +2209,7 @@ class _DetailActions extends ConsumerWidget {
     try {
       if (tipo == 'plano') await rejeitarPlano(dio, nc.id, ctrl.text.trim());
       else await rejeitarEvidencias(dio, nc.id, ctrl.text.trim());
-      ref.invalidate(_ncDetailProvider(nc.id));
+      ref.invalidate(ncDetailProvider(nc.id));
     } catch (e) {
       if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro: $e')));
     }
@@ -2238,7 +2238,7 @@ class _DetailActions extends ConsumerWidget {
     try {
       if (tipo == 'plano') await aprovarPlano(dio, nc.id);
       else await aprovarEvidencias(dio, nc.id);
-      ref.invalidate(_ncDetailProvider(nc.id));
+      ref.invalidate(ncDetailProvider(nc.id));
     } catch (e) {
       if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro: $e')));
     }
@@ -2256,7 +2256,7 @@ class _DetailActions extends ConsumerWidget {
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => _RevisarAtividadesSheet(ncId: nc.id, atividades: toReview, porques: nc.porques, causaRaiz: nc.causaRaiz, dio: dio),
     );
-    ref.invalidate(_ncDetailProvider(nc.id));
+    ref.invalidate(ncDetailProvider(nc.id));
   }
 
   Future<void> _showRevisarExecucao(BuildContext context, WidgetRef ref) async {
@@ -2309,7 +2309,7 @@ class _DetailActions extends ConsumerWidget {
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => _RevisarExecucaoSheet(ncId: nc.id, atividades: pendentes, atividadesJaAprovadas: jaAprovadas, porques: nc.porques, dio: dio, token: token),
     );
-    ref.invalidate(_ncDetailProvider(nc.id));
+    ref.invalidate(ncDetailProvider(nc.id));
   }
 }
 
