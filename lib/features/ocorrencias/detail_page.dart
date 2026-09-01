@@ -368,6 +368,7 @@ class _GeralTab extends StatelessWidget {
                 const SizedBox(height: 12),
                 if (nc.responsavelTrativaNome != null)
                   _ResponsavelRow(
+                    papel: 'Responsável pela Tratativa',
                     perfil: nc.responsavelTrativaPerfil ?? 'EXTERNO',
                     nome: nc.responsavelTrativaNome!,
                     email: nc.responsavelTrativaEmail,
@@ -376,6 +377,7 @@ class _GeralTab extends StatelessWidget {
                   const SizedBox(height: 10),
                 if (nc.responsavelNcNome != null)
                   _ResponsavelRow(
+                    papel: 'Responsável pela NC',
                     perfil: nc.responsavelNcPerfil ?? 'ENGENHEIRO',
                     nome: nc.responsavelNcNome!,
                     email: nc.responsavelNcEmail,
@@ -609,14 +611,16 @@ class _NormaBadge extends StatelessWidget {
 }
 
 class _ResponsavelRow extends StatelessWidget {
+  final String papel;
   final String perfil;
   final String nome;
   final String? email;
-  const _ResponsavelRow({required this.perfil, required this.nome, this.email});
+  const _ResponsavelRow({required this.papel, required this.perfil, required this.nome, this.email});
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           width: 36, height: 36,
@@ -634,9 +638,22 @@ class _ResponsavelRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(perfil, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .4)),
+              Text(papel, style: const TextStyle(color: _NcDetailColors.blue, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .3)),
+              const SizedBox(height: 3),
               Text(nome, style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, fontWeight: FontWeight.w800)),
-              if (email != null) Text(email!, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 11)),
+              const SizedBox(height: 3),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: _NcDetailColors.surface2,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Text(perfil, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: .3)),
+              ),
+              if (email != null) ...[
+                const SizedBox(height: 3),
+                Text(email!, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 11)),
+              ],
             ],
           ),
         ),

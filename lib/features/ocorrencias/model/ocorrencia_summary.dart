@@ -3,9 +3,11 @@ const _imageExtensions = {'jpg', 'jpeg', 'png', 'gif', 'webp'};
 class OcorrenciaSummary {
   final String tipo;
   final String id;
+  final String? codigo;
   final String titulo;
   final String status;
   final String estabelecimentoNome;
+  final String? localizacao;
   final String dataRegistro;
   final String? responsavelTratativaId;
   // NC-specific
@@ -19,9 +21,11 @@ class OcorrenciaSummary {
   const OcorrenciaSummary({
     required this.tipo,
     required this.id,
+    this.codigo,
     required this.titulo,
     required this.status,
     required this.estabelecimentoNome,
+    this.localizacao,
     required this.dataRegistro,
     this.responsavelTratativaId,
     this.nivelRisco,
@@ -46,9 +50,11 @@ class OcorrenciaSummary {
     return OcorrenciaSummary(
       tipo: tipo,
       id: json['id'] as String,
+      codigo: json['codigo'] as String?,
       titulo: json['titulo'] as String? ?? '',
       status: status,
       estabelecimentoNome: json['estabelecimentoNome'] as String? ?? '',
+      localizacao: json['localizacao'] as String?,
       dataRegistro: json['dataRegistro'] as String? ?? '',
       responsavelTratativaId: json['responsavelTratativaId'] as String?,
       nivelRisco: json['nivelRisco'] as String?,

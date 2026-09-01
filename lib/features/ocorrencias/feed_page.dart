@@ -8,9 +8,12 @@ import '../../shared/widgets/eng_cover_card.dart';
 import '../../shared/widgets/eng_pill.dart';
 import '../../shared/widgets/eng_skeleton.dart';
 import '../../shared/widgets/motion_helpers.dart';
+import '../../shared/widgets/ocorrencia_filter_sheet.dart';
+import '../../shared/widgets/ocorrencia_search_bar.dart';
 import '../../shared/widgets/status_color_helper.dart';
 import '../auth/provider/auth_provider.dart';
 import 'model/ocorrencia_summary.dart';
+import 'ocorrencia_filtering.dart';
 import 'repository/ocorrencias_repository_impl.dart';
 
 class FeedPage extends ConsumerStatefulWidget {
@@ -21,9 +24,44 @@ class FeedPage extends ConsumerStatefulWidget {
 }
 
 class _FeedPageState extends ConsumerState<FeedPage> {
-  String _filter = 'todas';
+  final _searchController = TextEditingController();
+  String _busca = '';
+  String _status = kTodosBucket;
+  String? _papel;
+  DateTime? _dataInicio;
+  DateTime? _dataFim;
 
-  void _setFilter(String v) => setState(() => _filter = v);
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  int get _activeFilterCount =>
+      (_status != kTodosBucket ? 1 : 0) +
+      (_papel != null ? 1 : 0) +
+      ((_dataInicio != null || _dataFim != null) ? 1 : 0);
+
+  Future<void> _openFilterSheet(Map<String, int> counts) async {
+    final result = await showOcorrenciaFilterSheet(
+      context,
+      statusOptions: ncStatusOptions,
+      statusCounts: counts,
+      selectedStatus: _status,
+      papelOptions: ncPapelOptions,
+      selectedPapel: _papel,
+      dataInicio: _dataInicio,
+      dataFim: _dataFim,
+    );
+    if (result != null) {
+      setState(() {
+        _status = result.status;
+        _papel = result.papel;
+        _dataInicio = result.dataInicio;
+        _dataFim = result.dataFim;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +70,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     final workspace = ref.watch(workspaceProvider);
     final workspaceId = workspace?.estabelecimento.id;
 
-    final (String?, String?) providerKey = isExterno
-        ? (null, 'RESPONSAVEL_TRATATIVA_NC')
-        : (workspaceId, null);
+    final (String?, String?) providerKey = (isExterno ? null : workspaceId, _papel);
 
     final ncsAsync = (isExterno || workspaceId != null)
         ? ref.watch(ocorrenciasProvider(providerKey)).whenData(
@@ -58,19 +94,19 @@ class _FeedPageState extends ConsumerState<FeedPage> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 6, 16, 104),
             children: [
-              ncsAsync.when(
-                loading: () => _filterRow([], 0, 0, 0, 0),
-                error: (_, __) => _filterRow([], 0, 0, 0, 0),
-                data: (ncs) {
-                  final todas = ncs.length;
-                  final abertas =
-                      ncs.where((n) => n.status == 'ABERTA').length;
-                  final vencidas = ncs.where((n) => n.vencida).length;
-                  final concluidas = ncs
-                      .where((n) =>
-                          n.status == 'CONCLUIDA' || n.status == 'FECHADA')
-                      .length;
-                  return _filterRow(ncs, todas, abertas, vencidas, concluidas);
+              OcorrenciaSearchBar(
+                controller: _searchController,
+                onChanged: (v) => setState(() => _busca = v),
+                activeFilterCount: _activeFilterCount,
+                onFilterTap: () {
+                  final ncs = ncsAsync.valueOrNull ?? const <OcorrenciaSummary>[];
+                  final counts = {
+                    for (final opt in ncStatusOptions)
+                      opt.key: opt.key == kTodosBucket
+                          ? ncs.length
+                          : ncs.where((n) => bucketForNc(n) == opt.key).length,
+                  };
+                  _openFilterSheet(counts);
                 },
               ),
               const SizedBox(height: 12),
@@ -101,14 +137,16 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   }
 
   List<OcorrenciaSummary> _applyFilter(List<OcorrenciaSummary> ncs) {
-    return switch (_filter) {
-      'abertas' => ncs.where((n) => n.status == 'ABERTA').toList(),
-      'vencidas' => ncs.where((n) => n.vencida).toList(),
-      'concluidas' => ncs
-          .where((n) => n.status == 'CONCLUIDA' || n.status == 'FECHADA')
-          .toList(),
-      _ => ncs,
-    };
+    return ncs.where((n) {
+      final matchStatus = _status == kTodosBucket || bucketForNc(n) == _status;
+      final matchBusca = matchBuscaEData(
+        n,
+        busca: _busca,
+        dataInicio: _dataInicio,
+        dataFim: _dataFim,
+      );
+      return matchStatus && matchBusca;
+    }).toList();
   }
 
   Widget _buildCard(OcorrenciaSummary nc) {
@@ -119,6 +157,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
     return EngCoverCard(
       id: nc.id,
+      codigo: nc.codigo,
       titulo: nc.titulo,
       coverUrl: coverUrl,
       hasImageCover: nc.hasImageCover,
@@ -143,78 +182,6 @@ class _FeedPageState extends ConsumerState<FeedPage> {
       ],
       meta: '${nc.estabelecimentoNome} · ${nc.nivelRisco ?? ''}',
       onTap: () => context.push('/oc/${nc.id}'),
-    );
-  }
-
-  Widget _filterRow(List<OcorrenciaSummary> ncs, int todas, int abertas,
-      int vencidas, int concluidas) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          _Chip(label: 'Todas', value: 'todas', count: todas, active: _filter == 'todas', onTap: _setFilter),
-          _Chip(label: 'Abertas', value: 'abertas', count: abertas, active: _filter == 'abertas', onTap: _setFilter),
-          _Chip(label: 'Vencidas', value: 'vencidas', count: vencidas, active: _filter == 'vencidas', onTap: _setFilter),
-          _Chip(label: 'Concluídas', value: 'concluidas', count: concluidas, active: _filter == 'concluidas', onTap: _setFilter),
-        ],
-      ),
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  final String label;
-  final String value;
-  final int count;
-  final bool active;
-  final void Function(String) onTap;
-
-  const _Chip({required this.label, required this.value, required this.count, required this.active, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(EngSegRadius.pill),
-        onTap: () => onTap(value),
-        child: AnimatedContainer(
-          duration: EngSegMotion.fast,
-          height: 34,
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          decoration: BoxDecoration(
-            color: active ? EngSegColors.dark.accent.withValues(alpha: 0.15) : EngSegColors.dark.bgSurface,
-            borderRadius: BorderRadius.circular(EngSegRadius.pill),
-            border: Border.all(
-              color: active ? EngSegColors.dark.accent : EngSegColors.dark.borderSoft,
-            ),
-          ),
-          child: Row(
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  color: active ? EngSegColors.dark.accent : EngSegColors.dark.fg2,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: EngSegColors.dark.bgElevated,
-                  borderRadius: BorderRadius.circular(99),
-                ),
-                child: Text(
-                  '$count',
-                  style: TextStyle(color: EngSegColors.dark.fg2, fontSize: 10, fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

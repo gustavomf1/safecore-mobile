@@ -5,6 +5,7 @@ import 'motion_helpers.dart';
 
 class EngCoverCard extends StatelessWidget {
   final String id;
+  final String? codigo;
   final String titulo;
   final String? coverUrl;
   final bool hasImageCover;
@@ -16,6 +17,7 @@ class EngCoverCard extends StatelessWidget {
   const EngCoverCard({
     super.key,
     required this.id,
+    this.codigo,
     required this.titulo,
     required this.coverUrl,
     required this.hasImageCover,
@@ -68,6 +70,19 @@ class EngCoverCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (codigo != null && codigo!.isNotEmpty) ...[
+                          Text(
+                            codigo!,
+                            style: TextStyle(
+                              color: EngSegColors.dark.accent,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              fontFamily: 'monospace',
+                              letterSpacing: .3,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                        ],
                         Text(
                           titulo,
                           maxLines: 2,
