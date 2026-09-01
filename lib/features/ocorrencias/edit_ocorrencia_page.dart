@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -100,6 +101,10 @@ class _EditFormState extends ConsumerState<_EditForm> {
     text: (isNc ? widget.nc!.descricao : widget.desvio!.descricao) ?? '',
   );
 
+  late final _orientacaoCtrl = TextEditingController(
+    text: widget.desvio?.orientacaoRealizada ?? '',
+  );
+
   late int _severidade = widget.nc?.severidade ?? 0;
   late int _probabilidade = widget.nc?.probabilidade ?? 0;
   late bool _regraDeOuro = isNc ? widget.nc!.regraDeOuro : widget.desvio!.regraDeOuro;
@@ -121,6 +126,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
   void dispose() {
     _tituloCtrl.dispose();
     _descCtrl.dispose();
+    _orientacaoCtrl.dispose();
     super.dispose();
   }
 
@@ -155,13 +161,12 @@ class _EditFormState extends ConsumerState<_EditForm> {
         await ref.read(ncRepositoryProvider).atualizar(widget.id, req);
         ref.invalidate(ncDetailProvider(widget.id));
       } else {
-        final d = widget.desvio!;
         final req = CriarDesvioRequest(
           estabelecimentoId: _estabelecimentoId,
           titulo: _tituloCtrl.text.trim(),
           descricao: descricao,
           localizacaoId: _localizacaoId,
-          orientacaoRealizada: d.orientacaoRealizada,
+          orientacaoRealizada: _orientacaoCtrl.text.trim().isEmpty ? null : _orientacaoCtrl.text.trim(),
           regraDeOuro: _regraDeOuro,
           responsavelDesvioId: _responsavelDesvioId,
           responsavelTratativaId: _responsavelTratativaId,
@@ -171,6 +176,10 @@ class _EditFormState extends ConsumerState<_EditForm> {
         ref.invalidate(desvioDetailProvider(widget.id));
       }
       if (mounted) context.pop();
+    } on DioException catch (e) {
+      final data = e.response?.data;
+      final message = data is Map && data['message'] is String ? data['message'] as String : null;
+      setState(() => _error = message ?? 'Falha ao salvar: $e');
     } catch (e) {
       setState(() => _error = 'Falha ao salvar: $e');
     } finally {
@@ -274,6 +283,11 @@ class _EditFormState extends ConsumerState<_EditForm> {
             ] else ...[
               const SizedBox(height: 20),
               _EField(
+                label: 'Orientação Realizada',
+                child: _EInput(controller: _orientacaoCtrl, maxLines: 3),
+              ),
+              const SizedBox(height: 20),
+              _EField(
                 label: 'Responsável pelo Desvio',
                 child: _ResponsavelField(
                   sourceId: _estabelecimentoId,
@@ -298,6 +312,14 @@ class _EditFormState extends ConsumerState<_EditForm> {
                       onChanged: (v) => setState(() => _responsavelTratativaId = v),
                     ),
             ),
+            if (_empresaContratadaId == null)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: Text(
+                  'Esta ocorrência não tem empresa contratada definida e não pode ser salva pelo app. Edite pelo sistema web.',
+                  style: TextStyle(color: _EColors.red, fontSize: 12),
+                ),
+              ),
             const SizedBox(height: 28),
             SizedBox(
               height: 50,
@@ -306,7 +328,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
                   backgroundColor: _EColors.blue,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                onPressed: _saving ? null : _salvar,
+                onPressed: (_saving || _empresaContratadaId == null) ? null : _salvar,
                 child: _saving
                     ? const SizedBox(
                         width: 20,

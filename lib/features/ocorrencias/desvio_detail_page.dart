@@ -177,7 +177,7 @@ class DesvioDetailPage extends ConsumerWidget {
             data: (d) {
               final isAberto = d.status.toUpperCase() == 'ABERTO';
               final isCriador = session != null && session.email == d.usuarioCriacaoEmail;
-              final podeEditar = session != null && (isAberto ? (isCriador || session.isAdmin) : session.isAdmin);
+              final podeEditar = session != null && isAberto && (isCriador || session.isAdmin);
               if (!podeEditar) return const SizedBox.shrink();
               return IconButton(
                 icon: const Icon(Icons.edit_outlined),

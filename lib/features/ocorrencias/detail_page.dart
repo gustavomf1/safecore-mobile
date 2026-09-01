@@ -116,7 +116,7 @@ class DetailPage extends ConsumerWidget {
         final isAberta = nc.status.toUpperCase() == 'ABERTA';
         final isCriador = user != null &&
             (user.id == nc.usuarioCriacaoId || user.email == nc.usuarioCriacaoEmail);
-        final podeEditar = user != null && (isAberta ? (isCriador || user.isAdmin) : user.isAdmin);
+        final podeEditar = user != null && isAberta && (isCriador || user.isAdmin);
 
         return DefaultTabController(
           length: 5,
