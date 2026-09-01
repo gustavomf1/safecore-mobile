@@ -39,8 +39,8 @@ class _WizardPageState extends ConsumerState<WizardPage> {
   late int step = 0;
 
   // Risk step state
-  int severity = 5;
-  int probability = 4;
+  int severity = 0;
+  int probability = 0;
 
   // Description step state (lifted from _DescriptionStep)
   final _tituloCtrl = TextEditingController();
@@ -173,8 +173,23 @@ class _WizardPageState extends ConsumerState<WizardPage> {
                   : () => setState(() => step--),
               onNext: step == stepCount - 1
                   ? _openConfirm
-                  : () =>
-                      setState(() => step = (step + 1).clamp(0, stepCount - 1)),
+                  : () {
+                      if (step == 0) {
+                        if (_tituloCtrl.text.trim().isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Título é obrigatório.')),
+                          );
+                          return;
+                        }
+                        if (_localizacaoId == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Localização é obrigatória.')),
+                          );
+                          return;
+                        }
+                      }
+                      setState(() => step = (step + 1).clamp(0, stepCount - 1));
+                    },
             ),
           ],
         ),
@@ -192,8 +207,11 @@ class _WizardPageState extends ConsumerState<WizardPage> {
       _ConfirmRow('Titulo', titulo.isEmpty ? '(sem titulo)' : titulo),
       _ConfirmRow('Estabelecimento', workspace?.estabelecimento.nome ?? '—'),
       if (isNc) ...[
-        _ConfirmRow('Risco', '$severity × $probability = ${severity * probability}',
-            red: severity * probability >= 15),
+        if (severity > 0 && probability > 0)
+          _ConfirmRow('Risco', '$severity × $probability = ${severity * probability}',
+              red: severity * probability >= 15)
+        else
+          const _ConfirmRow('Risco', 'Não definido'),
         _ConfirmRow('Regra de Ouro', _regraDeOuro ? 'Sim' : 'Nao', red: _regraDeOuro),
         _ConfirmRow('Reincidencia', _reincidencia ? 'Sim' : 'Nao'),
         const _ConfirmRow('Prazo tratativa', '30 dias (automatico)'),
@@ -262,16 +280,28 @@ class _WizardPageState extends ConsumerState<WizardPage> {
     final empresaFilhaId = workspace?.empresaFilha.id;
 
     final titulo = _tituloCtrl.text.trim();
+    if (titulo.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Título é obrigatório.')),
+      );
+      return;
+    }
+    if (_localizacaoId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Localização é obrigatória.')),
+      );
+      return;
+    }
     final descricao =
         _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim();
 
     if (isNc) {
       final request = CriarNcRequest(
         estabelecimentoId: workspaceId,
-        titulo: titulo.isEmpty ? 'Nova NC' : titulo,
+        titulo: titulo,
         descricao: descricao,
-        severidade: severity,
-        probabilidade: probability,
+        severidade: severity > 0 ? severity : null,
+        probabilidade: probability > 0 ? probability : null,
         regraDeOuro: _regraDeOuro,
         reincidencia: _reincidencia,
         normaIds: _selectedNormaIds.toList(),
@@ -295,7 +325,7 @@ class _WizardPageState extends ConsumerState<WizardPage> {
           : _descCtrl.text.trim();
       final request = CriarDesvioRequest(
         estabelecimentoId: workspaceId,
-        titulo: titulo.isEmpty ? 'Novo Desvio' : titulo,
+        titulo: titulo,
         descricao: descricao,
         localizacaoId: _localizacaoId,
         orientacaoRealizada: orientacao,
@@ -2169,6 +2199,7 @@ class _ReviewStep extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final workspace = ref.watch(workspaceProvider);
+    final hasScore = severity > 0 && probability > 0;
     final score = severity * probability;
     final nivelRisco = score >= 15 ? 'CRITICO' : score >= 9 ? 'ALTO' : score >= 4 ? 'MEDIO' : 'BAIXO';
     final nivelRed = score >= 15;
@@ -2226,7 +2257,7 @@ class _ReviewStep extends ConsumerWidget {
               if (workspace != null)
                 _ReviewLine('Estabelecimento', workspace.estabelecimento.nome),
               if (isNc) ...[
-                _ReviewLine('Risco', '$nivelRisco · $score', red: nivelRed),
+                _ReviewLine('Risco', hasScore ? '$nivelRisco · $score' : 'Não definido', red: hasScore && nivelRed),
                 _ReviewLine('Resp. NC', responsavelNome ?? '—'),
                 _ReviewLine('Resp. Tratativa', responsavelTrativaNome ?? '—'),
                 _ReviewLine('Reincidencia', reincidencia ? 'Sim' : 'Nao'),
