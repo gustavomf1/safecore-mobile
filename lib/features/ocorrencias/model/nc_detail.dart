@@ -4,8 +4,8 @@ class NcDetail {
   final String? descricao;
   final String status;
   final String nivelRisco;
-  final int severidade;
-  final int probabilidade;
+  final int? severidade;
+  final int? probabilidade;
   final bool regraDeOuro;
   final bool reincidencia;
   final String? ncAnteriorId;
@@ -40,8 +40,8 @@ class NcDetail {
     this.descricao,
     required this.status,
     required this.nivelRisco,
-    required this.severidade,
-    required this.probabilidade,
+    this.severidade,
+    this.probabilidade,
     required this.regraDeOuro,
     required this.reincidencia,
     this.ncAnteriorId,
@@ -77,8 +77,8 @@ class NcDetail {
         descricao: json['descricao'] as String?,
         status: json['status'] as String,
         nivelRisco: json['nivelRisco'] as String? ?? 'MEDIO',
-        severidade: json['severidade'] as int? ?? 1,
-        probabilidade: json['probabilidade'] as int? ?? 1,
+        severidade: json['severidade'] as int?,
+        probabilidade: json['probabilidade'] as int?,
         regraDeOuro: json['regraDeOuro'] as bool? ?? false,
         reincidencia: json['reincidencia'] as bool? ?? false,
         ncAnteriorId: json['ncAnteriorId'] as String?,
