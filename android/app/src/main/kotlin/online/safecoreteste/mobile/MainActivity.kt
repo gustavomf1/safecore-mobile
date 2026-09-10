@@ -1,4 +1,4 @@
-package com.example.engseg_mobile
+package online.safecoreteste.mobile
 
 import io.flutter.embedding.android.FlutterActivity
 
