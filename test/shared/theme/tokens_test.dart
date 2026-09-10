@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:engseg_mobile/shared/theme/tokens.dart';
+import 'package:safecore_mobile/shared/theme/tokens.dart';
 
 void main() {
   group('EngSegColors.dark', () {

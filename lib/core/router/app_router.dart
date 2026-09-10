@@ -18,7 +18,7 @@ import '../../features/ocorrencias/desvio_feed_page.dart';
 import '../../features/ocorrencias/feed_page.dart';
 import '../../features/profile/profile_page.dart';
 import '../../features/wizard/wizard_page.dart';
-import '../../shared/widgets/engseg_shell.dart';
+import '../../shared/widgets/safecore_shell.dart';
 import 'navigator_key.dart';
 import 'route_guards.dart';
 
@@ -77,7 +77,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/esqueci-senha', builder: (_, __) => const ForgotPasswordPage()),
       GoRoute(path: '/workspace', builder: (_, __) => const WorkspaceSelectPage()),
       ShellRoute(
-        builder: (_, __, child) => EngSegShell(child: child),
+        builder: (_, __, child) => SafeCoreShell(child: child),
         routes: [
           GoRoute(path: '/feed', builder: (_, __) => const FeedPage()),
           GoRoute(path: '/desvios', builder: (_, __) => const DesvioFeedPage()),

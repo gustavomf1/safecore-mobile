@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/config/app_config.dart';
 import '../../shared/theme/tokens.dart';
-import '../../shared/widgets/eng_cover_card.dart';
-import '../../shared/widgets/eng_pill.dart';
-import '../../shared/widgets/eng_skeleton.dart';
+import '../../shared/widgets/safecore_cover_card.dart';
+import '../../shared/widgets/safecore_pill.dart';
+import '../../shared/widgets/safecore_skeleton.dart';
 import '../../shared/widgets/motion_helpers.dart';
 import '../../shared/widgets/ocorrencia_filter_sheet.dart';
 import '../../shared/widgets/ocorrencia_search_bar.dart';
@@ -185,7 +185,7 @@ class _DesvioFeedPageState extends ConsumerState<DesvioFeedPage> {
     final coverUrl = dv.primeiraEvidenciaId != null
         ? '${AppConfig.apiBaseUrl}/api/evidencias/${dv.primeiraEvidenciaId}/download'
         : null;
-    return EngCoverCard(
+    return SafeCoreCoverCard(
       id: dv.id,
       codigo: dv.codigo,
       titulo: dv.titulo,
@@ -193,12 +193,12 @@ class _DesvioFeedPageState extends ConsumerState<DesvioFeedPage> {
       hasImageCover: dv.hasImageCover,
       hasAnyCover: dv.hasAnyCover,
       pills: [
-        EngPill(
+        SafeCorePill(
           label: 'Desvio',
           bg: EngSegColors.dark.statusYellowBg,
           fg: EngSegColors.dark.statusYellowFg,
         ),
-        EngPill(
+        SafeCorePill(
           label: StatusColorHelper.desvioLabel(dv.status),
           bg: dvColors.bg,
           fg: dvColors.fg,

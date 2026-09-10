@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/ocorrencia_summary.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/ocorrencia_summary.dart';
 
 void main() {
   final ncJson = {

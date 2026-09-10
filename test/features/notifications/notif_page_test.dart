@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:engseg_mobile/features/notifications/notif_page.dart';
-import 'package:engseg_mobile/features/notifications/model/notificacao_item.dart';
-import 'package:engseg_mobile/features/notifications/repository/notificacao_repository.dart';
-import 'package:engseg_mobile/features/notifications/repository/notificacao_repository_impl.dart';
+import 'package:safecore_mobile/features/notifications/notif_page.dart';
+import 'package:safecore_mobile/features/notifications/model/notificacao_item.dart';
+import 'package:safecore_mobile/features/notifications/repository/notificacao_repository.dart';
+import 'package:safecore_mobile/features/notifications/repository/notificacao_repository_impl.dart';
 
 class _MockNotificacaoRepository extends Mock implements NotificacaoRepository {}
 

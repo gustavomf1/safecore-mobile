@@ -4,16 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:go_router/go_router.dart';
-import 'package:engseg_mobile/features/auth/model/login_response.dart';
-import 'package:engseg_mobile/features/auth/model/workspace_state.dart';
-import 'package:engseg_mobile/features/auth/provider/auth_provider.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/ocorrencia_summary.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/empresa.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/estabelecimento.dart';
-import 'package:engseg_mobile/features/ocorrencias/repository/ocorrencias_repository_impl.dart';
-import 'package:engseg_mobile/features/ocorrencias/desvio_feed_page.dart';
-import 'package:engseg_mobile/shared/widgets/eng_cover_card.dart';
-import 'package:engseg_mobile/shared/widgets/eng_skeleton.dart';
+import 'package:safecore_mobile/features/auth/model/login_response.dart';
+import 'package:safecore_mobile/features/auth/model/workspace_state.dart';
+import 'package:safecore_mobile/features/auth/provider/auth_provider.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/ocorrencia_summary.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/empresa.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/estabelecimento.dart';
+import 'package:safecore_mobile/features/ocorrencias/repository/ocorrencias_repository_impl.dart';
+import 'package:safecore_mobile/features/ocorrencias/desvio_feed_page.dart';
+import 'package:safecore_mobile/shared/widgets/safecore_cover_card.dart';
+import 'package:safecore_mobile/shared/widgets/safecore_skeleton.dart';
 
 class MockAuthNotifier extends AsyncNotifier<LoginResponse?>
     with Mock
@@ -64,14 +64,14 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('feed Desvio mostra EngCoverCard com dados', (tester) async {
+  testWidgets('feed Desvio mostra SafeCoreCoverCard com dados', (tester) async {
     await tester.pumpWidget(_wrap([
       authProvider.overrideWith(MockAuthNotifier.new),
       workspaceProvider.overrideWith((ref) => _ws),
       ocorrenciasProvider.overrideWith((ref, _) async => [_dv]),
     ]));
     await tester.pumpAndSettle();
-    expect(find.byType(EngCoverCard), findsOneWidget);
+    expect(find.byType(SafeCoreCoverCard), findsOneWidget);
     expect(find.text('Desvio Teste'), findsOneWidget);
   });
 

@@ -3,7 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:engseg_mobile/core/notifications/fcm_service.dart';
+import 'package:safecore_mobile/core/notifications/fcm_service.dart';
 
 void main() {
   late GlobalKey<NavigatorState> navigatorKey;

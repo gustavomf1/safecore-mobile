@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/tokens.dart';
 
-class EngSkeleton extends StatelessWidget {
+class SafeCoreSkeleton extends StatelessWidget {
   final double width;
   final double height;
   final double borderRadius;
 
-  const EngSkeleton({
+  const SafeCoreSkeleton({
     super.key,
     this.width = double.infinity,
     this.height = 16,
@@ -42,17 +42,17 @@ class CoverCardSkeleton extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EngSkeleton(height: 180, borderRadius: EngSegRadius.md),
+          SafeCoreSkeleton(height: 180, borderRadius: EngSegRadius.md),
           SizedBox(height: 10),
           Row(children: [
-            EngSkeleton(width: 60, height: 22, borderRadius: 999),
+            SafeCoreSkeleton(width: 60, height: 22, borderRadius: 999),
             SizedBox(width: 6),
-            EngSkeleton(width: 80, height: 22, borderRadius: 999),
+            SafeCoreSkeleton(width: 80, height: 22, borderRadius: 999),
           ]),
           SizedBox(height: 8),
-          EngSkeleton(height: 16),
+          SafeCoreSkeleton(height: 16),
           SizedBox(height: 5),
-          EngSkeleton(width: 200, height: 12),
+          SafeCoreSkeleton(width: 200, height: 12),
         ],
       ),
     );

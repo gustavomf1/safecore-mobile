@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:engseg_mobile/features/notifications/model/notificacao_item.dart';
+import 'package:safecore_mobile/features/notifications/model/notificacao_item.dart';
 
 void main() {
   test('fromJson parseia ncId e desvioId como nullable', () {

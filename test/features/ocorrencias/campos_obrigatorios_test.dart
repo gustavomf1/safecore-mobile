@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:engseg_mobile/features/ocorrencias/campos_obrigatorios.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/nc_detail.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/desvio_detail.dart';
+import 'package:safecore_mobile/features/ocorrencias/campos_obrigatorios.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/nc_detail.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/desvio_detail.dart';
 
 void main() {
   test('camposFaltantesNc retorna todos os codigos quando nada preenchido', () {

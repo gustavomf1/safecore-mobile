@@ -5,10 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/provider/auth_provider.dart';
 import 'prototype_ui.dart';
 
-class EngSegShell extends ConsumerWidget {
+class SafeCoreShell extends ConsumerWidget {
   final Widget child;
 
-  const EngSegShell({super.key, required this.child});
+  const SafeCoreShell({super.key, required this.child});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

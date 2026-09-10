@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/criar_nc_request.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/criar_desvio_request.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/criar_nc_request.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/criar_desvio_request.dart';
 
 void main() {
   test('CriarNcRequest serializa novos campos opcionais quando presentes', () {
