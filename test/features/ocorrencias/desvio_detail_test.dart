@@ -18,7 +18,7 @@ void main() {
       'responsavelDesvioId': 'u-d',
       'responsavelDesvioNome': 'Eng A',
       'responsavelTratativaId': 'u-t',
-      'responsavelTrivaNome': 'Tec B',
+      'responsavelTrativaNome': 'Tec B',
       'tratativas': [
         {
           'id': 't-1',
@@ -44,7 +44,9 @@ void main() {
     expect(d.tratativas.length, 1);
     expect(d.tratativas.first.status, 'PENDENTE');
     expect(d.tratativas.first.rodada, 1);
-    expect(d.tratativas.first.evidencias.first.url, 'http://x/e-1');
+    // A URL é sempre derivada de AppConfig.apiBaseUrl + id (ver EvidenciaInfo.fromJson),
+    // não do campo 'url' do JSON — por isso checa só a forma, não um host fixo.
+    expect(d.tratativas.first.evidencias.first.url, endsWith('/api/evidencias/e-1/download'));
   });
 
   test('DesvioDetail tolera listas ausentes', () {

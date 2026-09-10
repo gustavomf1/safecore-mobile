@@ -142,7 +142,7 @@ class _StepIndicator extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Row(
         children: [
-          _Dot(active: true, label: '1'),
+          const _Dot(active: true, label: '1'),
           _Line(active: step != _Step.empresa),
           _Dot(active: step != _Step.empresa, label: '2'),
           _Line(active: step == _Step.empresaFilha),

@@ -33,7 +33,7 @@ void main() {
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));
     await tester.pumpAndSettle();
 
-    service.navigateToNotification(RemoteMessage(data: {'ncId': 'nc-123'}));
+    service.navigateToNotification(const RemoteMessage(data: {'ncId': 'nc-123'}));
     await tester.pumpAndSettle();
 
     expect(find.text('NC nc-123'), findsOneWidget);
@@ -43,7 +43,7 @@ void main() {
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));
     await tester.pumpAndSettle();
 
-    service.navigateToNotification(RemoteMessage(data: const {}));
+    service.navigateToNotification(const RemoteMessage(data: {}));
     await tester.pumpAndSettle();
 
     expect(find.text('NC nc-123'), findsNothing);
@@ -54,7 +54,7 @@ void main() {
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));
     await tester.pumpAndSettle();
 
-    service.navigateToNotification(RemoteMessage(data: {'desvioId': 'dev-123'}));
+    service.navigateToNotification(const RemoteMessage(data: {'desvioId': 'dev-123'}));
     await tester.pumpAndSettle();
 
     expect(find.text('Desvio dev-123'), findsOneWidget);
@@ -64,7 +64,7 @@ void main() {
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));
     await tester.pumpAndSettle();
 
-    service.navigateToNotification(RemoteMessage(data: {'desvioId': 'dev-456', 'ncId': 'nc-456'}));
+    service.navigateToNotification(const RemoteMessage(data: {'desvioId': 'dev-456', 'ncId': 'nc-456'}));
     await tester.pumpAndSettle();
 
     expect(find.text('Desvio dev-456'), findsOneWidget);

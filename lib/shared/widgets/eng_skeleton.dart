@@ -37,22 +37,22 @@ class CoverCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+    return const Padding(
+      padding: EdgeInsets.only(bottom: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           EngSkeleton(height: 180, borderRadius: EngSegRadius.md),
-          const SizedBox(height: 10),
-          const Row(children: [
+          SizedBox(height: 10),
+          Row(children: [
             EngSkeleton(width: 60, height: 22, borderRadius: 999),
             SizedBox(width: 6),
             EngSkeleton(width: 80, height: 22, borderRadius: 999),
           ]),
-          const SizedBox(height: 8),
-          const EngSkeleton(height: 16),
-          const SizedBox(height: 5),
-          const EngSkeleton(width: 200, height: 12),
+          SizedBox(height: 8),
+          EngSkeleton(height: 16),
+          SizedBox(height: 5),
+          EngSkeleton(width: 200, height: 12),
         ],
       ),
     );

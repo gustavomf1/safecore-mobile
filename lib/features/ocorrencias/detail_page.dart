@@ -74,9 +74,9 @@ class DetailPage extends ConsumerWidget {
     final ncAsync = ref.watch(ncDetailProvider(id));
 
     return ncAsync.when(
-      loading: () => Scaffold(
+      loading: () => const Scaffold(
         backgroundColor: _NcDetailColors.bg,
-        body: const Center(child: CircularProgressIndicator()),
+        body: Center(child: CircularProgressIndicator()),
       ),
       error: (err, _) => Scaffold(
         backgroundColor: _NcDetailColors.bg,
@@ -92,9 +92,9 @@ class DetailPage extends ConsumerWidget {
                 ),
               ),
               const Spacer(),
-              Icon(Icons.error_outline_rounded, color: _NcDetailColors.red, size: 48),
+              const Icon(Icons.error_outline_rounded, color: _NcDetailColors.red, size: 48),
               const SizedBox(height: 12),
-              Text('Erro ao carregar NC', style: const TextStyle(color: _NcDetailColors.text, fontSize: 16, fontWeight: FontWeight.w700)),
+              const Text('Erro ao carregar NC', style: TextStyle(color: _NcDetailColors.text, fontSize: 16, fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
               Text('$err', style: const TextStyle(color: _NcDetailColors.muted, fontSize: 12), textAlign: TextAlign.center),
               const Spacer(),
@@ -136,7 +136,7 @@ class DetailPage extends ConsumerWidget {
                       onEditar: () => context.push('/oc/${nc.id}/editar'),
                     ),
                   ),
-                  _DetailTabs(),
+                  const _DetailTabs(),
                   Expanded(
                     child: TabBarView(
                       children: [
@@ -328,7 +328,11 @@ class _GeralTab extends StatelessWidget {
       try {
         final prazo = DateTime.parse(nc.dataLimiteResolucao!);
         final diff = prazo.difference(DateTime.now()).inDays;
-        if (diff < 0) diasVencidos = -diff; else diasRestantes = diff;
+        if (diff < 0) {
+          diasVencidos = -diff;
+        } else {
+          diasRestantes = diff;
+        }
       } catch (_) {}
     }
 
@@ -602,12 +606,12 @@ class _NormaBadge extends StatelessWidget {
                   ),
                   if (descricao != null && descricao.isNotEmpty) ...[
                     const SizedBox(height: 14),
-                    Text('Descrição', style: const TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+                    const Text('Descrição', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
                     const SizedBox(height: 6),
                     Text(descricao, style: const TextStyle(color: Color(0xFFF8FBFF), fontSize: 13, height: 1.55)),
                   ],
                   const SizedBox(height: 14),
-                  Text('Trecho vinculado', style: const TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+                  const Text('Trecho vinculado', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
                   const SizedBox(height: 6),
                   conteudo != null && conteudo.isNotEmpty
                       ? Container(
@@ -813,14 +817,14 @@ class _PlanoTab extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 32),
       children: [
         if (semPlano)
-          _DarkCard(
+          const _DarkCard(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20),
+              padding: EdgeInsets.symmetric(vertical: 20),
               child: Column(
                 children: [
-                  const Icon(Icons.assignment_late_outlined, color: _NcDetailColors.muted, size: 32),
-                  const SizedBox(height: 8),
-                  const Text('Nenhum plano de ação submetido ainda.', style: TextStyle(color: _NcDetailColors.muted, fontSize: 13)),
+                  Icon(Icons.assignment_late_outlined, color: _NcDetailColors.muted, size: 32),
+                  SizedBox(height: 8),
+                  Text('Nenhum plano de ação submetido ainda.', style: TextStyle(color: _NcDetailColors.muted, fontSize: 13)),
                 ],
               ),
             ),
@@ -1000,9 +1004,13 @@ class _SnapshotCardState extends State<_SnapshotCard> {
     final status = (a['status'] as String? ?? 'PENDENTE').toUpperCase();
     final motivo = a['motivoRejeicao'] as String?;
     String suffix;
-    if (status == 'APROVADA') suffix = ' || APROVADA';
-    else if (status == 'REJEITADA') suffix = motivo != null && motivo.isNotEmpty ? ' || REJEITADA: $motivo' : ' || REJEITADA';
-    else suffix = ' || PENDENTE';
+    if (status == 'APROVADA') {
+      suffix = ' || APROVADA';
+    } else if (status == 'REJEITADA') {
+      suffix = motivo != null && motivo.isNotEmpty ? ' || REJEITADA: $motivo' : ' || REJEITADA';
+    } else {
+      suffix = ' || PENDENTE';
+    }
     return '$titulo — $descricao$suffix';
   }
 
@@ -1407,12 +1415,12 @@ class _ExecucaoTab extends ConsumerWidget {
     if (snapshots.isEmpty) {
       return ListView(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 32),
-        children: [
+        children: const [
           _DarkCard(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
+              padding: EdgeInsets.symmetric(vertical: 24),
               child: Column(
-                children: const [
+                children: [
                   Icon(Icons.engineering_outlined, color: _NcDetailColors.muted, size: 32),
                   SizedBox(height: 8),
                   Text('Nenhuma execução submetida ainda.', style: TextStyle(color: _NcDetailColors.muted, fontSize: 13)),
@@ -1628,7 +1636,7 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                 decoration: BoxDecoration(color: const Color(0xFF7C3AED).withValues(alpha: .15), borderRadius: BorderRadius.circular(99), border: Border.all(color: const Color(0xFF7C3AED).withValues(alpha: .4))),
-                child: Row(mainAxisSize: MainAxisSize.min, children: const [Icon(Icons.hourglass_empty_rounded, size: 10, color: Color(0xFF7C3AED)), SizedBox(width: 3), Text('Pendente', style: TextStyle(color: Color(0xFF7C3AED), fontSize: 9, fontWeight: FontWeight.w900))]),
+                child: const Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.hourglass_empty_rounded, size: 10, color: Color(0xFF7C3AED)), SizedBox(width: 3), Text('Pendente', style: TextStyle(color: Color(0xFF7C3AED), fontSize: 9, fontWeight: FontWeight.w900))]),
               ),
             ]),
             if (descricaoExec.isNotEmpty) ...[
@@ -1719,17 +1727,6 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
 class _HistoricoTab extends StatelessWidget {
   final NcDetail nc;
   const _HistoricoTab({required this.nc});
-
-  static String _statusLabel(String? s) => switch (s?.toUpperCase()) {
-    'ABERTA'                    => 'Aberta',
-    'AGUARDANDO_TRATATIVA'      => 'Aguard. Tratativa',
-    'AGUARDANDO_APROVACAO_PLANO'=> 'Aguard. Aprovação',
-    'EM_EXECUCAO'               => 'Em Execução',
-    'AGUARDANDO_VALIDACAO_FINAL'=> 'Aguard. Validação',
-    'EM_AJUSTE_PELO_EXTERNO'    => 'Reprovado',
-    'CONCLUIDO'                 => 'Concluído',
-    _                           => s ?? '—',
-  };
 
   static String _acaoLabel(String? acao) => switch (acao?.toUpperCase()) {
     'CRIACAO'          => 'NC registrada',
@@ -1824,14 +1821,12 @@ class _DetailActions extends ConsumerWidget {
   const _DetailActions({required this.nc, this.user});
 
   bool get _isEng => user?.perfil == 'ENGENHEIRO' || (user?.isAdmin ?? false);
-  bool get _canAct => user != null;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (user == null) return const SizedBox.shrink();
 
     final status = nc.status.toUpperCase();
-    final perfil = user!.perfil.toUpperCase();
     final isAberta = status == 'ABERTA';
     final isAjuste = status == 'EM_AJUSTE_PELO_EXTERNO';
     final canAprovarPlano = status == 'AGUARDANDO_APROVACAO_PLANO' && _isEng;
@@ -1902,14 +1897,14 @@ class _DetailActions extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: _NcDetailColors.red.withValues(alpha: .4)),
               ),
-              child: Row(
+              child: const Row(
                 children: [
-                  const Icon(Icons.pending_actions_rounded, size: 18, color: _NcDetailColors.red),
-                  const SizedBox(width: 10),
+                  Icon(Icons.pending_actions_rounded, size: 18, color: _NcDetailColors.red),
+                  SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'Aguardando ajuste do responsável pela tratativa.',
-                      style: const TextStyle(color: _NcDetailColors.muted, fontSize: 13, height: 1.4),
+                      style: TextStyle(color: _NcDetailColors.muted, fontSize: 13, height: 1.4),
                     ),
                   ),
                 ],
@@ -1941,14 +1936,14 @@ class _DetailActions extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: const Color(0xFF2A3A55)),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    const Icon(Icons.hourglass_top_rounded, size: 18, color: _NcDetailColors.yellow),
-                    const SizedBox(width: 10),
+                    Icon(Icons.hourglass_top_rounded, size: 18, color: _NcDetailColors.yellow),
+                    SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         'Aguarde o responsável pela tratativa evidenciar a execução.',
-                        style: const TextStyle(color: _NcDetailColors.muted, fontSize: 13, height: 1.4),
+                        style: TextStyle(color: _NcDetailColors.muted, fontSize: 13, height: 1.4),
                       ),
                     ),
                   ],
@@ -2134,169 +2129,6 @@ class _DetailActions extends ConsumerWidget {
     ref.invalidate(ncDetailProvider(nc.id));
   }
 
-  Future<void> _showRejeitar(BuildContext context, WidgetRef ref, String tipo) async {
-    final ctrl = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-    bool loading = false;
-
-    final ok = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: const Color(0xFF151A21),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setState) => Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
-            child: Form(
-              key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 40, height: 4,
-                      margin: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(color: _NcDetailColors.muted2, borderRadius: BorderRadius.circular(99)),
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: _NcDetailColors.red.withValues(alpha: .15),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(Icons.cancel_outlined, color: _NcDetailColors.red, size: 18),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'Rejeitar ${tipo == 'plano' ? 'Plano de Ação' : 'Evidências'}',
-                        style: const TextStyle(color: _NcDetailColors.text, fontSize: 17, fontWeight: FontWeight.w900),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Descreva o motivo da rejeição. O responsável será notificado.',
-                    style: const TextStyle(color: _NcDetailColors.muted, fontSize: 12, height: 1.4),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text('MOTIVO', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: ctrl,
-                    maxLines: 6,
-                    minLines: 4,
-                    autofocus: true,
-                    style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, height: 1.55),
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Informe o motivo da rejeição' : null,
-                    decoration: InputDecoration(
-                      hintText: 'Ex.: O plano de ação não contempla todas as causas identificadas na análise de risco...',
-                      hintStyle: const TextStyle(color: _NcDetailColors.muted, fontSize: 12, height: 1.55),
-                      filled: true,
-                      fillColor: _NcDetailColors.surface2,
-                      contentPadding: const EdgeInsets.all(14),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _NcDetailColors.border)),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _NcDetailColors.border)),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: _NcDetailColors.red.withValues(alpha: .6), width: 1.5)),
-                      errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _NcDetailColors.red)),
-                      focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _NcDetailColors.red, width: 1.5)),
-                      errorStyle: const TextStyle(color: _NcDetailColors.red, fontSize: 11),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: _NcDetailColors.muted,
-                            side: const BorderSide(color: _NcDetailColors.border),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                          ),
-                          onPressed: () => Navigator.pop(ctx, false),
-                          child: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.w700)),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 2,
-                        child: FilledButton.icon(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: _NcDetailColors.red,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                          ),
-                          onPressed: loading ? null : () {
-                            if (formKey.currentState!.validate()) {
-                              Navigator.pop(ctx, true);
-                            }
-                          },
-                          icon: loading
-                              ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                              : const Icon(Icons.cancel_outlined, size: 16),
-                          label: Text(
-                            'Confirmar Rejeição',
-                            style: const TextStyle(fontWeight: FontWeight.w900),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    if (ok != true || ctrl.text.trim().isEmpty) return;
-    if (!context.mounted) return;
-    final dio = ref.read(dioProvider);
-    try {
-      if (tipo == 'plano') await rejeitarPlano(dio, nc.id, ctrl.text.trim());
-      else await rejeitarEvidencias(dio, nc.id, ctrl.text.trim());
-      ref.invalidate(ncDetailProvider(nc.id));
-    } catch (e) {
-      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro: $e')));
-    }
-  }
-
-  Future<void> _confirmarAprovar(BuildContext context, WidgetRef ref, String tipo) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF151A21),
-        title: Text('Aprovar ${tipo == 'plano' ? 'Plano' : 'Evidências'}', style: const TextStyle(color: _NcDetailColors.text)),
-        content: Text('Confirmar aprovação?', style: const TextStyle(color: _NcDetailColors.muted)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar', style: TextStyle(color: _NcDetailColors.muted))),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: _NcDetailColors.green),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Aprovar'),
-          ),
-        ],
-      ),
-    );
-    if (ok != true) return;
-    if (!context.mounted) return;
-    final dio = ref.read(dioProvider);
-    try {
-      if (tipo == 'plano') await aprovarPlano(dio, nc.id);
-      else await aprovarEvidencias(dio, nc.id);
-      ref.invalidate(ncDetailProvider(nc.id));
-    } catch (e) {
-      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro: $e')));
-    }
-  }
-
   Future<void> _showRevisarAtividades(BuildContext context, WidgetRef ref) async {
     final dio = ref.read(dioProvider);
     final toReview = nc.atividades
@@ -2372,6 +2204,7 @@ class _ActionBtn extends StatelessWidget {
   final Color color;
   final VoidCallback onTap;
   final bool filled;
+  // ignore: unused_element_parameter
   const _ActionBtn({required this.label, required this.icon, required this.color, required this.onTap, this.filled = true});
 
   @override
@@ -2435,7 +2268,9 @@ class _RevisarAtividadesSheetState extends State<_RevisarAtividadesSheet> {
 
   @override
   void dispose() {
-    for (final c in _motivoCtrl) c.dispose();
+    for (final c in _motivoCtrl) {
+      c.dispose();
+    }
     _comentarioCtrl.dispose();
     super.dispose();
   }
@@ -2720,10 +2555,10 @@ class _AtividadeRevisaoCard extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(color: _NcDetailColors.green.withValues(alpha: .15), borderRadius: BorderRadius.circular(99), border: Border.all(color: _NcDetailColors.green.withValues(alpha: .4))),
-                            child: Row(mainAxisSize: MainAxisSize.min, children: [
-                              const Icon(Icons.check_circle_outline_rounded, size: 9, color: _NcDetailColors.green),
-                              const SizedBox(width: 3),
-                              const Text('Já aprovada', style: TextStyle(color: _NcDetailColors.green, fontSize: 9, fontWeight: FontWeight.w700)),
+                            child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                              Icon(Icons.check_circle_outline_rounded, size: 9, color: _NcDetailColors.green),
+                              SizedBox(width: 3),
+                              Text('Já aprovada', style: TextStyle(color: _NcDetailColors.green, fontSize: 9, fontWeight: FontWeight.w700)),
                             ]),
                           ),
                         ],
@@ -2769,62 +2604,6 @@ class _AtividadeRevisaoCard extends StatelessWidget {
   }
 }
 
-class _PorqueRevisaoCard extends StatelessWidget {
-  final int index;
-  final Map<String, dynamic> porque;
-  final String decisao;
-  final ValueChanged<String> onDecisao;
-  const _PorqueRevisaoCard({required this.index, required this.porque, required this.decisao, required this.onDecisao});
-
-  @override
-  Widget build(BuildContext context) {
-    final pergunta = porque['pergunta'] as String? ?? 'Porquê ${index + 1}';
-    final resposta = porque['resposta'] as String?;
-    final isRejeitada = decisao == 'REJEITADA';
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: isRejeitada ? const Color(0xFF2A1A1A) : _NcDetailColors.surface2,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isRejeitada ? _NcDetailColors.red.withValues(alpha: .5) : _NcDetailColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(width: 22, height: 22, alignment: Alignment.center, decoration: BoxDecoration(color: _NcDetailColors.blue.withValues(alpha: .2), borderRadius: BorderRadius.circular(7), border: Border.all(color: _NcDetailColors.borderStrong)), child: Text('${index + 1}', style: const TextStyle(color: _NcDetailColors.blue, fontSize: 11, fontWeight: FontWeight.w900))),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(pergunta, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 11, fontWeight: FontWeight.w700, height: 1.35)),
-                    if (resposta != null && resposta.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(resposta, style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, height: 1.35)),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(child: _ToggleBtn(label: 'Aprovar', icon: Icons.check_circle_outline_rounded, active: !isRejeitada, color: _NcDetailColors.green, onTap: () => onDecisao('APROVADA'))),
-              const SizedBox(width: 8),
-              Expanded(child: _ToggleBtn(label: 'Reprovar', icon: Icons.cancel_outlined, active: isRejeitada, color: _NcDetailColors.red, onTap: () => onDecisao('REJEITADA'))),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // ── Revisar Execução Sheet ────────────────────────────────────────────────────
 class _RevisarExecucaoSheet extends StatefulWidget {
   final String ncId;
@@ -2841,7 +2620,6 @@ class _RevisarExecucaoSheet extends StatefulWidget {
 
 class _RevisarExecucaoSheetState extends State<_RevisarExecucaoSheet> {
   late final List<Map<String, dynamic>> _todasAtividades;
-  late final List<bool> _ehJaAprovada;
   late final List<String> _decisoes;
   late final List<TextEditingController> _motivoCtrl;
   final _comentarioCtrl = TextEditingController();
@@ -2852,17 +2630,15 @@ class _RevisarExecucaoSheetState extends State<_RevisarExecucaoSheet> {
   void initState() {
     super.initState();
     _todasAtividades = [...widget.atividadesJaAprovadas, ...widget.atividades];
-    _ehJaAprovada = [
-      ...List.filled(widget.atividadesJaAprovadas.length, true),
-      ...List.filled(widget.atividades.length, false),
-    ];
     _decisoes = List.filled(_todasAtividades.length, 'APROVADA');
     _motivoCtrl = List.generate(_todasAtividades.length, (_) => TextEditingController());
   }
 
   @override
   void dispose() {
-    for (final c in _motivoCtrl) c.dispose();
+    for (final c in _motivoCtrl) {
+      c.dispose();
+    }
     _comentarioCtrl.dispose();
     super.dispose();
   }
@@ -3040,11 +2816,11 @@ class _ExecucaoRevisaoCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (jaAprovada) ...[
-            Row(
+            const Row(
               children: [
-                const Icon(Icons.check_circle_rounded, size: 12, color: _NcDetailColors.green),
-                const SizedBox(width: 5),
-                const Text('Já aprovada — pode reprovar se necessário', style: TextStyle(color: _NcDetailColors.green, fontSize: 10, fontWeight: FontWeight.w700)),
+                Icon(Icons.check_circle_rounded, size: 12, color: _NcDetailColors.green),
+                SizedBox(width: 5),
+                Text('Já aprovada — pode reprovar se necessário', style: TextStyle(color: _NcDetailColors.green, fontSize: 10, fontWeight: FontWeight.w700)),
               ],
             ),
             const SizedBox(height: 8),
@@ -3598,10 +3374,10 @@ class _ExecucaoSheetState extends State<_ExecucaoSheet> {
             const SizedBox(height: 10),
             const Divider(color: _NcDetailColors.border, height: 1),
             const SizedBox(height: 10),
-            Row(children: [
-              const Icon(Icons.lock_outline_rounded, size: 13, color: _NcDetailColors.green),
-              const SizedBox(width: 6),
-              const Text('Execução aprovada — sem alterações necessárias', style: TextStyle(color: _NcDetailColors.green, fontSize: 11, fontWeight: FontWeight.w700)),
+            const Row(children: [
+              Icon(Icons.lock_outline_rounded, size: 13, color: _NcDetailColors.green),
+              SizedBox(width: 6),
+              Text('Execução aprovada — sem alterações necessárias', style: TextStyle(color: _NcDetailColors.green, fontSize: 11, fontWeight: FontWeight.w700)),
             ]),
             if ((a['descricaoExecucao'] as String? ?? '').isNotEmpty) ...[
               const SizedBox(height: 8),
@@ -3622,12 +3398,12 @@ class _ExecucaoSheetState extends State<_ExecucaoSheet> {
             if (visibleEvs.isEmpty || isAprovada) return const SizedBox.shrink();
             return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const SizedBox(height: 12),
-              Row(children: [
-                const Icon(Icons.photo_library_outlined, size: 12, color: _NcDetailColors.muted),
-                const SizedBox(width: 5),
-                const Text('EVIDÊNCIAS ANTERIORES', style: TextStyle(color: _NcDetailColors.muted, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .4)),
-                const SizedBox(width: 4),
-                const Text('(toque no × para excluir)', style: TextStyle(color: _NcDetailColors.muted2, fontSize: 9)),
+              const Row(children: [
+                Icon(Icons.photo_library_outlined, size: 12, color: _NcDetailColors.muted),
+                SizedBox(width: 5),
+                Text('EVIDÊNCIAS ANTERIORES', style: TextStyle(color: _NcDetailColors.muted, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .4)),
+                SizedBox(width: 4),
+                Text('(toque no × para excluir)', style: TextStyle(color: _NcDetailColors.muted2, fontSize: 9)),
               ]),
               const SizedBox(height: 6),
               SizedBox(
@@ -4118,6 +3894,7 @@ class _KvRow extends StatelessWidget {
   final Color? valueColor;
   final bool mono;
 
+  // ignore: unused_element_parameter
   const _KvRow({required this.label, required this.value, this.valueColor, this.mono = false});
 
   @override

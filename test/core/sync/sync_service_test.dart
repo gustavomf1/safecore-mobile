@@ -15,7 +15,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(RequestOptions(path: ''));
-    registerFallbackValue(RascunhoLocal(
+    registerFallbackValue(const RascunhoLocal(
       id: '', tipo: 'NC', titulo: '', dadosJson: {}, criadoEm: 0,
     ));
   });
@@ -54,7 +54,7 @@ void main() {
     when(() => drafts.marcarSincronizado('local-1', 'server-uuid'))
         .thenAnswer((_) async {});
 
-    await service.syncPendentes(token: 'jwt-token');
+    await service.syncPendentes();
     verify(() => drafts.marcarSincronizado('local-1', 'server-uuid')).called(1);
   });
 }

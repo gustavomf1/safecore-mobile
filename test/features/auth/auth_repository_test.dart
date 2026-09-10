@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:engseg_mobile/features/auth/model/login_response.dart';
 import 'package:engseg_mobile/features/auth/repository/auth_repository_impl.dart';
 
 class MockDio extends Mock implements Dio {}
@@ -68,6 +67,7 @@ void main() {
 
   group('logout', () {
     test('clears all secure storage', () async {
+      when(() => storage.read(key: 'refresh_token')).thenAnswer((_) async => null);
       when(() => storage.deleteAll()).thenAnswer((_) async {});
       await repo.logout();
       verify(() => storage.deleteAll()).called(1);
@@ -138,6 +138,9 @@ void main() {
         'isAdmin': false,
       });
       when(() => storage.read(key: 'user_session')).thenAnswer((_) async => stored);
+      // Payload sem 'exp' faz _isTokenExpired retornar false, sem precisar mockar o fluxo de refresh.
+      when(() => storage.read(key: 'jwt_token'))
+          .thenAnswer((_) async => 'eyJhbGciOiJIUzI1NiJ9.e30.sig');
       final result = await repo.getSession();
       expect(result?.perfil, 'TECNICO');
       expect(result?.nome, 'Ana');

@@ -5,7 +5,7 @@ import 'package:engseg_mobile/features/ocorrencias/model/desvio_detail.dart';
 
 void main() {
   test('camposFaltantesNc retorna todos os codigos quando nada preenchido', () {
-    final nc = NcDetail(
+    final nc = const NcDetail(
       id: '1',
       titulo: 'T',
       status: 'ABERTA',
@@ -25,7 +25,7 @@ void main() {
   });
 
   test('camposFaltantesNc retorna lista vazia quando tudo preenchido', () {
-    final nc = NcDetail(
+    final nc = const NcDetail(
       id: '1',
       titulo: 'T',
       descricao: 'D',
@@ -41,7 +41,7 @@ void main() {
       dataRegistro: '2026-01-01',
       responsavelTrativaNome: 'R1',
       responsavelNcNome: 'R2',
-      normas: const [
+      normas: [
         {'id': 'n1'},
       ],
     );
@@ -50,7 +50,7 @@ void main() {
   });
 
   test('camposFaltantesDesvio retorna todos os codigos quando nada preenchido', () {
-    final d = DesvioDetail(
+    final d = const DesvioDetail(
       id: '1',
       titulo: 'T',
       status: 'ABERTO',
@@ -58,8 +58,8 @@ void main() {
       estabelecimentoNome: 'Est',
       regraDeOuro: false,
       dataRegistro: '2026-01-01',
-      tratativas: const [],
-      historico: const [],
+      tratativas: [],
+      historico: [],
     );
 
     expect(
@@ -69,7 +69,7 @@ void main() {
   });
 
   test('camposFaltantesDesvio retorna lista vazia quando tudo preenchido', () {
-    final d = DesvioDetail(
+    final d = const DesvioDetail(
       id: '1',
       titulo: 'T',
       status: 'ABERTO',
@@ -81,8 +81,8 @@ void main() {
       responsavelTratativaId: 'r2',
       regraDeOuro: false,
       dataRegistro: '2026-01-01',
-      tratativas: const [],
-      historico: const [],
+      tratativas: [],
+      historico: [],
     );
 
     expect(camposFaltantesDesvio(d), isEmpty);

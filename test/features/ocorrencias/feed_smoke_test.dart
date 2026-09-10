@@ -25,10 +25,10 @@ class MockAuthNotifier extends AsyncNotifier<LoginResponse?>
       );
 }
 
-final _ws = WorkspaceState(
-  empresa: const Empresa(id: 'e-1', nome: 'Empresa'),
-  estabelecimento: const Estabelecimento(id: 'ws-1', nome: 'WS'),
-  empresaFilha: const Empresa(id: 'ef-1', nome: 'EmpFilha'),
+final _ws = const WorkspaceState(
+  empresa: Empresa(id: 'e-1', nome: 'Empresa'),
+  estabelecimento: Estabelecimento(id: 'ws-1', nome: 'WS'),
+  empresaFilha: Empresa(id: 'ef-1', nome: 'EmpFilha'),
 );
 
 final _router = GoRouter(routes: [
