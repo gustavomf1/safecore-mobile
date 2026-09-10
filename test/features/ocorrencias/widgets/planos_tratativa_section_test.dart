@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/desvio_detail.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/trativa_desvio.dart';
-import 'package:engseg_mobile/features/ocorrencias/widgets/planos_tratativa_section.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/desvio_detail.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/trativa_desvio.dart';
+import 'package:safecore_mobile/features/ocorrencias/widgets/planos_tratativa_section.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
       home: Scaffold(body: SingleChildScrollView(child: child)),

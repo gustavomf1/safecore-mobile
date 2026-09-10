@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:engseg_mobile/features/auth/model/login_response.dart';
-import 'package:engseg_mobile/features/auth/provider/auth_provider.dart';
-import 'package:engseg_mobile/shared/widgets/eng_auth_image.dart';
-import 'package:engseg_mobile/shared/widgets/eng_cover_card.dart';
+import 'package:safecore_mobile/features/auth/model/login_response.dart';
+import 'package:safecore_mobile/features/auth/provider/auth_provider.dart';
+import 'package:safecore_mobile/shared/widgets/safecore_auth_image.dart';
+import 'package:safecore_mobile/shared/widgets/safecore_cover_card.dart';
 
 class MockAuthNotifier extends AsyncNotifier<LoginResponse?>
     with Mock
@@ -23,8 +23,8 @@ Widget _wrap(Widget child) => ProviderScope(
     );
 
 void main() {
-  testWidgets('exibe EngAuthImage quando evidência é imagem', (tester) async {
-    await tester.pumpWidget(_wrap(EngCoverCard(
+  testWidgets('exibe SafeCoreAuthImage quando evidência é imagem', (tester) async {
+    await tester.pumpWidget(_wrap(SafeCoreCoverCard(
       id: 'nc-1',
       titulo: 'NC Teste',
       coverUrl: 'http://host/api/evidencias/ev-1/download',
@@ -35,12 +35,12 @@ void main() {
       onTap: () {},
     )));
     await tester.pump();
-    expect(find.byType(EngAuthImage), findsOneWidget);
+    expect(find.byType(SafeCoreAuthImage), findsOneWidget);
   });
 
   testWidgets('exibe fallback documento quando evidência não é imagem',
       (tester) async {
-    await tester.pumpWidget(_wrap(EngCoverCard(
+    await tester.pumpWidget(_wrap(SafeCoreCoverCard(
       id: 'nc-2',
       titulo: 'NC PDF',
       coverUrl: 'http://host/api/evidencias/ev-2/download',
@@ -52,11 +52,11 @@ void main() {
     )));
     await tester.pump();
     expect(find.byIcon(Icons.insert_drive_file_outlined), findsOneWidget);
-    expect(find.byType(EngAuthImage), findsNothing);
+    expect(find.byType(SafeCoreAuthImage), findsNothing);
   });
 
   testWidgets('exibe fallback neutro quando sem evidência', (tester) async {
-    await tester.pumpWidget(_wrap(EngCoverCard(
+    await tester.pumpWidget(_wrap(SafeCoreCoverCard(
       id: 'nc-3',
       titulo: 'NC Sem Foto',
       coverUrl: null,
@@ -68,6 +68,6 @@ void main() {
     )));
     await tester.pump();
     expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
-    expect(find.byType(EngAuthImage), findsNothing);
+    expect(find.byType(SafeCoreAuthImage), findsNothing);
   });
 }

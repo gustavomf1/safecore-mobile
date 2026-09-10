@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/desvio_action_requests.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/desvio_action_requests.dart';
 
 void main() {
   test('AdicionarTrativaRequest serializa corretamente', () {

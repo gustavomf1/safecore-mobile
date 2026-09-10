@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
 
-class EngPill extends StatelessWidget {
+class SafeCorePill extends StatelessWidget {
   final String label;
   final Color bg;
   final Color fg;
   final IconData? icon;
 
-  const EngPill({
+  const SafeCorePill({
     super.key,
     required this.label,
     required this.bg,

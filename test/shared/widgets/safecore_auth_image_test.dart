@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:engseg_mobile/features/auth/model/login_response.dart';
-import 'package:engseg_mobile/features/auth/provider/auth_provider.dart';
-import 'package:engseg_mobile/shared/widgets/eng_auth_image.dart';
+import 'package:safecore_mobile/features/auth/model/login_response.dart';
+import 'package:safecore_mobile/features/auth/provider/auth_provider.dart';
+import 'package:safecore_mobile/shared/widgets/safecore_auth_image.dart';
 
 class MockAuthNotifier extends AsyncNotifier<LoginResponse?>
     with Mock
@@ -21,7 +21,7 @@ class MockAuthNotifier extends AsyncNotifier<LoginResponse?>
 }
 
 void main() {
-  testWidgets('EngAuthImage renderiza sem crash quando token disponível',
+  testWidgets('SafeCoreAuthImage renderiza sem crash quando token disponível',
       (tester) async {
     await tester.pumpWidget(
       ProviderScope(
@@ -30,16 +30,16 @@ void main() {
         ],
         child: const MaterialApp(
           home: Scaffold(
-            body: EngAuthImage(url: 'http://localhost/api/evidencias/1/download'),
+            body: SafeCoreAuthImage(url: 'http://localhost/api/evidencias/1/download'),
           ),
         ),
       ),
     );
     await tester.pump();
-    expect(find.byType(EngAuthImage), findsOneWidget);
+    expect(find.byType(SafeCoreAuthImage), findsOneWidget);
   });
 
-  testWidgets('EngAuthImage renderiza error widget em rede inacessível',
+  testWidgets('SafeCoreAuthImage renderiza error widget em rede inacessível',
       (tester) async {
     await tester.pumpWidget(
       ProviderScope(
@@ -48,7 +48,7 @@ void main() {
         ],
         child: const MaterialApp(
           home: Scaffold(
-            body: EngAuthImage(
+            body: SafeCoreAuthImage(
               url: 'http://localhost/api/evidencias/404/download',
               errorWidget: SizedBox(key: Key('err'), width: 10, height: 10),
             ),
@@ -57,6 +57,6 @@ void main() {
       ),
     );
     await tester.pump();
-    expect(find.byType(EngAuthImage), findsOneWidget);
+    expect(find.byType(SafeCoreAuthImage), findsOneWidget);
   });
 }

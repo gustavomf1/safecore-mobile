@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/desvio_detail.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/trativa_desvio.dart';
-import 'package:engseg_mobile/features/ocorrencias/widgets/revisar_tratativas_section.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/desvio_detail.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/trativa_desvio.dart';
+import 'package:safecore_mobile/features/ocorrencias/widgets/revisar_tratativas_section.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/desvio_action_requests.dart';
-import 'package:engseg_mobile/features/ocorrencias/repository/desvio_repository.dart';
-import 'package:engseg_mobile/features/ocorrencias/repository/desvio_repository_impl.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/desvio_action_requests.dart';
+import 'package:safecore_mobile/features/ocorrencias/repository/desvio_repository.dart';
+import 'package:safecore_mobile/features/ocorrencias/repository/desvio_repository_impl.dart';
 
 class MockDesvioRepository extends Mock implements DesvioRepository {}
 

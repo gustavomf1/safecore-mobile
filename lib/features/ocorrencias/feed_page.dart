@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/config/app_config.dart';
 import '../../shared/theme/tokens.dart';
-import '../../shared/widgets/eng_cover_card.dart';
-import '../../shared/widgets/eng_pill.dart';
-import '../../shared/widgets/eng_skeleton.dart';
+import '../../shared/widgets/safecore_cover_card.dart';
+import '../../shared/widgets/safecore_pill.dart';
+import '../../shared/widgets/safecore_skeleton.dart';
 import '../../shared/widgets/motion_helpers.dart';
 import '../../shared/widgets/ocorrencia_filter_sheet.dart';
 import '../../shared/widgets/ocorrencia_search_bar.dart';
@@ -155,7 +155,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
         ? '${AppConfig.apiBaseUrl}/api/evidencias/${nc.primeiraEvidenciaId}/download'
         : null;
 
-    return EngCoverCard(
+    return SafeCoreCoverCard(
       id: nc.id,
       codigo: nc.codigo,
       titulo: nc.titulo,
@@ -163,18 +163,18 @@ class _FeedPageState extends ConsumerState<FeedPage> {
       hasImageCover: nc.hasImageCover,
       hasAnyCover: nc.hasAnyCover,
       pills: [
-        const EngPill(
+        const SafeCorePill(
           label: 'NC',
           bg: Color(0xFF4A1017),
           fg: Color(0xFFFF4D4D),
         ),
-        EngPill(
+        SafeCorePill(
           label: StatusColorHelper.ncLabel(nc.status),
           bg: ncColors.bg,
           fg: ncColors.fg,
         ),
         if (nc.vencida)
-          const EngPill(
+          const SafeCorePill(
             label: 'Vencida',
             bg: Color(0xFF4A1017),
             fg: Color(0xFFFF4D4D),

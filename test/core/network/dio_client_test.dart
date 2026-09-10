@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:engseg_mobile/core/network/dio_client.dart';
+import 'package:safecore_mobile/core/network/dio_client.dart';
 
 class MockSecureStorage extends Mock implements FlutterSecureStorage {}
 

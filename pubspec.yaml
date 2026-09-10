@@ -1,4 +1,4 @@
-name: engseg_mobile
+name: safecore_mobile
 description: EngSeg SGS mobile app for field safety records.
 publish_to: "none"
 version: 0.1.0+1

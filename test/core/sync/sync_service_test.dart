@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:engseg_mobile/core/sync/sync_service.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/rascunho_local.dart';
-import 'package:engseg_mobile/features/ocorrencias/repository/draft_repository.dart';
+import 'package:safecore_mobile/core/sync/sync_service.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/rascunho_local.dart';
+import 'package:safecore_mobile/features/ocorrencias/repository/draft_repository.dart';
 
 class MockDio extends Mock implements Dio {}
 class MockDraftRepository extends Mock implements DraftRepository {}

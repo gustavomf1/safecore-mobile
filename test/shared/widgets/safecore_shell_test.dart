@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:engseg_mobile/features/auth/model/login_response.dart';
-import 'package:engseg_mobile/features/auth/provider/auth_provider.dart';
-import 'package:engseg_mobile/shared/widgets/engseg_shell.dart';
+import 'package:safecore_mobile/features/auth/model/login_response.dart';
+import 'package:safecore_mobile/features/auth/provider/auth_provider.dart';
+import 'package:safecore_mobile/shared/widgets/safecore_shell.dart';
 
 class _FakeAuthNotifier extends AuthNotifier {
   _FakeAuthNotifier(this._session);
@@ -29,7 +29,7 @@ Widget _wrap(LoginResponse? session) {
     initialLocation: '/feed',
     routes: [
       ShellRoute(
-        builder: (_, __, child) => EngSegShell(child: child),
+        builder: (_, __, child) => SafeCoreShell(child: child),
         routes: [
           GoRoute(path: '/feed', builder: (_, __) => const SizedBox()),
         ],

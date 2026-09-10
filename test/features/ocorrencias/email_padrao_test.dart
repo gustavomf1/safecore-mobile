@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/email_padrao.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/email_padrao.dart';
 
 void main() {
   test('EmailPadrao parseia corretamente', () {

@@ -1,8 +1,8 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:engseg_mobile/core/database/app_database.dart';
-import 'package:engseg_mobile/features/ocorrencias/model/rascunho_local.dart';
-import 'package:engseg_mobile/features/ocorrencias/repository/draft_repository_impl.dart';
+import 'package:safecore_mobile/core/database/app_database.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/rascunho_local.dart';
+import 'package:safecore_mobile/features/ocorrencias/repository/draft_repository_impl.dart';
 
 void main() {
   late AppDatabase db;

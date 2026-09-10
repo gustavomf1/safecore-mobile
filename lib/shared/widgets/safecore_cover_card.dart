@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
-import 'eng_auth_image.dart';
+import 'safecore_auth_image.dart';
 import 'motion_helpers.dart';
 
-class EngCoverCard extends StatelessWidget {
+class SafeCoreCoverCard extends StatelessWidget {
   final String id;
   final String? codigo;
   final String titulo;
@@ -14,7 +14,7 @@ class EngCoverCard extends StatelessWidget {
   final String? meta;
   final VoidCallback onTap;
 
-  const EngCoverCard({
+  const SafeCoreCoverCard({
     super.key,
     required this.id,
     this.codigo,
@@ -121,7 +121,7 @@ class EngCoverCard extends StatelessWidget {
   Widget _buildCover() {
     // Caminho 1: imagem
     if (hasImageCover && coverUrl != null) {
-      return EngAuthImage(url: coverUrl!, fit: BoxFit.cover);
+      return SafeCoreAuthImage(url: coverUrl!, fit: BoxFit.cover);
     }
     // Caminho 2: evidência não-imagem (pdf, video, etc.)
     if (hasAnyCover) {

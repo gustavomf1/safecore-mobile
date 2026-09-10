@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:engseg_mobile/features/auth/repository/auth_repository_impl.dart';
+import 'package:safecore_mobile/features/auth/repository/auth_repository_impl.dart';
 
 class MockDio extends Mock implements Dio {}
 class MockSecureStorage extends Mock implements FlutterSecureStorage {}

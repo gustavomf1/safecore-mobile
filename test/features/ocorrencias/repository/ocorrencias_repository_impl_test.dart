@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:engseg_mobile/features/ocorrencias/repository/ocorrencias_repository_impl.dart';
-import 'package:engseg_mobile/core/network/dio_client.dart';
+import 'package:safecore_mobile/features/ocorrencias/repository/ocorrencias_repository_impl.dart';
+import 'package:safecore_mobile/core/network/dio_client.dart';
 
 class MockDio extends Mock implements Dio {}
 

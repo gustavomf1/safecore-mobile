@@ -4,12 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/auth/provider/auth_provider.dart';
 import '../theme/tokens.dart';
 
-class EngAuthImage extends ConsumerWidget {
+class SafeCoreAuthImage extends ConsumerWidget {
   final String url;
   final BoxFit fit;
   final Widget? errorWidget;
 
-  const EngAuthImage({
+  const SafeCoreAuthImage({
     super.key,
     required this.url,
     this.fit = BoxFit.cover,
