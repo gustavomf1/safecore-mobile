@@ -2,13 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:engseg_mobile/core/config/app_config.dart';
 
 void main() {
-  // O host é o IP LAN da máquina de dev (editado localmente conforme a rede),
-  // então o teste checa a forma da URL, não um host fixo.
   test('AppConfig has correct base URLs', () {
-    expect(AppConfig.apiBaseUrl, startsWith('http://'));
-    expect(AppConfig.apiBaseUrl, endsWith(':8080'));
-    expect(AppConfig.bffBaseUrl, startsWith('http://'));
-    expect(AppConfig.bffBaseUrl, endsWith(':8081'));
+    expect(AppConfig.apiBaseUrl, equals('https://api.safecoreteste.online'));
+    expect(AppConfig.bffBaseUrl, equals('https://mobile-api.safecoreteste.online'));
   });
 
   test('AppConfig has correct timeouts', () {

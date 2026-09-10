@@ -16,7 +16,7 @@ void main() {
   test('buildDio returns Dio with correct baseUrl and connectTimeout', () {
     when(() => storage.read(key: 'jwt_token')).thenAnswer((_) async => null);
     final dio = buildDio(storage);
-    expect(dio.options.baseUrl, endsWith(':8080'));
+    expect(dio.options.baseUrl, equals('https://api.safecoreteste.online'));
     expect(dio.options.connectTimeout, const Duration(seconds: 30));
   });
 
@@ -75,7 +75,6 @@ void main() {
     when(() => storage.read(key: 'jwt_token')).thenAnswer((_) async => null);
     final dio = buildDio(storage);
 
-    expect(dio.options.baseUrl, startsWith('http://'));
-    expect(dio.options.baseUrl, contains('8080'));
+    expect(dio.options.baseUrl, equals('https://api.safecoreteste.online'));
   });
 }
