@@ -79,12 +79,12 @@ class _FeedPageState extends ConsumerState<FeedPage> {
         : const AsyncData<List<OcorrenciaSummary>>([]);
 
     return Scaffold(
-      backgroundColor: EngSegColors.dark.bgBase,
+      backgroundColor: SafeCoreColors.dark.bgBase,
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(
-          color: EngSegColors.dark.accent,
-          backgroundColor: EngSegColors.dark.bgElevated,
+          color: SafeCoreColors.dark.accent,
+          backgroundColor: SafeCoreColors.dark.bgElevated,
           onRefresh: () async {
             ref.invalidate(ocorrenciasProvider(providerKey));
             await ref
@@ -196,9 +196,9 @@ class _EmptyState extends StatelessWidget {
       padding: const EdgeInsets.only(top: 80),
       child: Column(
         children: [
-          Icon(Icons.inbox_outlined, size: 48, color: EngSegColors.dark.fg3),
+          Icon(Icons.inbox_outlined, size: 48, color: SafeCoreColors.dark.fg3),
           const SizedBox(height: 12),
-          Text(message, style: TextStyle(color: EngSegColors.dark.fg2, fontSize: 14)),
+          Text(message, style: TextStyle(color: SafeCoreColors.dark.fg2, fontSize: 14)),
         ],
       ),
     );
@@ -215,11 +215,11 @@ class _ErrorState extends StatelessWidget {
       padding: const EdgeInsets.only(top: 80),
       child: Column(
         children: [
-          Icon(Icons.error_outline, size: 48, color: EngSegColors.dark.statusRedFg),
+          Icon(Icons.error_outline, size: 48, color: SafeCoreColors.dark.statusRedFg),
           const SizedBox(height: 12),
-          Text('Erro ao carregar', style: TextStyle(color: EngSegColors.dark.statusRedFg, fontSize: 14)),
+          Text('Erro ao carregar', style: TextStyle(color: SafeCoreColors.dark.statusRedFg, fontSize: 14)),
           const SizedBox(height: 4),
-          Text(message, style: TextStyle(color: EngSegColors.dark.fg3, fontSize: 12)),
+          Text(message, style: TextStyle(color: SafeCoreColors.dark.fg3, fontSize: 12)),
         ],
       ),
     );

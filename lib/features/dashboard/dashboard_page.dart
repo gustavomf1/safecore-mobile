@@ -27,7 +27,7 @@ class DashboardPage extends ConsumerWidget {
             const SizedBox(height: 8),
             const Text('Dashboard', style: TextStyle(color: ProtoColors.text, fontSize: 24, fontWeight: FontWeight.w900, height: 1)),
             const SizedBox(height: 4),
-            const Text('EngSeg · Seguranca do Trabalho', style: TextStyle(color: ProtoColors.muted, fontSize: 12, fontWeight: FontWeight.w700)),
+            const Text('SafeCore · Seguranca do Trabalho', style: TextStyle(color: ProtoColors.muted, fontSize: 12, fontWeight: FontWeight.w700)),
             const SizedBox(height: 14),
             Container(
               height: 32,

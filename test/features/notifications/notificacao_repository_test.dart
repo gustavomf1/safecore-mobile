@@ -31,7 +31,7 @@ void main() {
             'id': 'notif-1',
             'ncId': 'nc-1',
             'tipo': 'NC_ATIVADA',
-            'titulo': 'EngSeg — NC Teste',
+            'titulo': 'SafeCore — NC Teste',
             'corpo': 'corpo do push',
             'lida': false,
             'criadoEm': '2026-06-19T10:00:00',
@@ -43,7 +43,7 @@ void main() {
 
     final result = await repo.listar();
     expect(result.length, 1);
-    expect(result.first.titulo, 'EngSeg — NC Teste');
+    expect(result.first.titulo, 'SafeCore — NC Teste');
     expect(result.first.lida, false);
   });
 

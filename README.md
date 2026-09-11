@@ -1,6 +1,6 @@
-# EngSeg Mobile
+# SafeCore Mobile
 
-Aplicativo Flutter do EngSeg SGS para registro de Nao Conformidades e Desvios em campo.
+Aplicativo Flutter do SafeCore SGS para registro de Nao Conformidades e Desvios em campo.
 
 ## Estado atual
 
@@ -10,7 +10,7 @@ Esta base foi criada a partir do handoff de UI/UX em:
 
 Ela inclui:
 
-- Tema claro/escuro com tokens EngSeg.
+- Tema claro/escuro com tokens SafeCore.
 - Navegacao com `go_router`.
 - Shell com bottom nav e FAB central.
 - Telas mockadas: splash, login, feed, detalhe, notificacoes, dashboard, rascunhos, perfil, camera placeholder e wizard NC/Desvio.

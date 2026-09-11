@@ -28,7 +28,7 @@ Future<OcorrenciaFilterResult?> showOcorrenciaFilterSheet(
 }) {
   return showModalBottomSheet<OcorrenciaFilterResult>(
     context: context,
-    backgroundColor: EngSegColors.dark.bgSurface,
+    backgroundColor: SafeCoreColors.dark.bgSurface,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
     builder: (_) => _FilterSheetContent(
@@ -100,9 +100,9 @@ class _FilterSheetContentState extends State<_FilterSheetContent> {
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
           colorScheme: ColorScheme.dark(
-            primary: EngSegColors.dark.accent,
-            surface: EngSegColors.dark.bgElevated,
-            onSurface: EngSegColors.dark.fg0,
+            primary: SafeCoreColors.dark.accent,
+            surface: SafeCoreColors.dark.bgElevated,
+            onSurface: SafeCoreColors.dark.fg0,
           ),
         ),
         child: child!,
@@ -134,10 +134,10 @@ class _FilterSheetContentState extends State<_FilterSheetContent> {
                   width: 40,
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(color: EngSegColors.dark.fg3, borderRadius: BorderRadius.circular(99)),
+                  decoration: BoxDecoration(color: SafeCoreColors.dark.fg3, borderRadius: BorderRadius.circular(99)),
                 ),
               ),
-              Text('Filtros', style: TextStyle(color: EngSegColors.dark.fg0, fontSize: 17, fontWeight: FontWeight.w900)),
+              Text('Filtros', style: TextStyle(color: SafeCoreColors.dark.fg0, fontSize: 17, fontWeight: FontWeight.w900)),
               const SizedBox(height: 18),
               const _Label('STATUS'),
               const SizedBox(height: 8),
@@ -186,11 +186,11 @@ class _FilterSheetContentState extends State<_FilterSheetContent> {
                     child: OutlinedButton(
                       onPressed: _limpar,
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: EngSegColors.dark.borderSoft),
+                        side: BorderSide(color: SafeCoreColors.dark.borderSoft),
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(EngSegRadius.md)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SafeCoreRadius.md)),
                       ),
-                      child: Text('Limpar', style: TextStyle(color: EngSegColors.dark.fg1, fontWeight: FontWeight.w800)),
+                      child: Text('Limpar', style: TextStyle(color: SafeCoreColors.dark.fg1, fontWeight: FontWeight.w800)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -200,9 +200,9 @@ class _FilterSheetContentState extends State<_FilterSheetContent> {
                         OcorrenciaFilterResult(status: _status, papel: _papel, dataInicio: _inicio, dataFim: _fim),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: EngSegColors.dark.accent,
+                        backgroundColor: SafeCoreColors.dark.accent,
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(EngSegRadius.md)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SafeCoreRadius.md)),
                       ),
                       child: const Text('Aplicar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
                     ),
@@ -224,7 +224,7 @@ class _Label extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
         text,
-        style: TextStyle(color: EngSegColors.dark.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4),
+        style: TextStyle(color: SafeCoreColors.dark.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4),
       );
 }
 
@@ -238,15 +238,15 @@ class _FilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(EngSegRadius.pill),
+      borderRadius: BorderRadius.circular(SafeCoreRadius.pill),
       onTap: onTap,
       child: AnimatedContainer(
-        duration: EngSegMotion.fast,
+        duration: SafeCoreMotion.fast,
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
         decoration: BoxDecoration(
-          color: selected ? EngSegColors.dark.accent.withValues(alpha: 0.15) : EngSegColors.dark.bgElevated,
-          borderRadius: BorderRadius.circular(EngSegRadius.pill),
-          border: Border.all(color: selected ? EngSegColors.dark.accent : EngSegColors.dark.borderSoft),
+          color: selected ? SafeCoreColors.dark.accent.withValues(alpha: 0.15) : SafeCoreColors.dark.bgElevated,
+          borderRadius: BorderRadius.circular(SafeCoreRadius.pill),
+          border: Border.all(color: selected ? SafeCoreColors.dark.accent : SafeCoreColors.dark.borderSoft),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -254,7 +254,7 @@ class _FilterChip extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: selected ? EngSegColors.dark.accent : EngSegColors.dark.fg1,
+                color: selected ? SafeCoreColors.dark.accent : SafeCoreColors.dark.fg1,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
@@ -263,8 +263,8 @@ class _FilterChip extends StatelessWidget {
               const SizedBox(width: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                decoration: BoxDecoration(color: EngSegColors.dark.bgBase, borderRadius: BorderRadius.circular(99)),
-                child: Text('$count', style: TextStyle(color: EngSegColors.dark.fg2, fontSize: 10, fontWeight: FontWeight.w700)),
+                decoration: BoxDecoration(color: SafeCoreColors.dark.bgBase, borderRadius: BorderRadius.circular(99)),
+                child: Text('$count', style: TextStyle(color: SafeCoreColors.dark.fg2, fontSize: 10, fontWeight: FontWeight.w700)),
               ),
             ],
           ],
@@ -286,24 +286,24 @@ class _DateField extends StatelessWidget {
         ? '${value!.day.toString().padLeft(2, '0')}/${value!.month.toString().padLeft(2, '0')}/${value!.year}'
         : label;
     return InkWell(
-      borderRadius: BorderRadius.circular(EngSegRadius.sm),
+      borderRadius: BorderRadius.circular(SafeCoreRadius.sm),
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
         decoration: BoxDecoration(
-          color: EngSegColors.dark.bgElevated,
-          borderRadius: BorderRadius.circular(EngSegRadius.sm),
-          border: Border.all(color: EngSegColors.dark.borderSoft),
+          color: SafeCoreColors.dark.bgElevated,
+          borderRadius: BorderRadius.circular(SafeCoreRadius.sm),
+          border: Border.all(color: SafeCoreColors.dark.borderSoft),
         ),
         child: Row(
           children: [
-            Icon(Icons.calendar_today_rounded, size: 14, color: EngSegColors.dark.fg2),
+            Icon(Icons.calendar_today_rounded, size: 14, color: SafeCoreColors.dark.fg2),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 text,
                 style: TextStyle(
-                  color: value != null ? EngSegColors.dark.fg0 : EngSegColors.dark.fg3,
+                  color: value != null ? SafeCoreColors.dark.fg0 : SafeCoreColors.dark.fg3,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),

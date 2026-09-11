@@ -92,12 +92,12 @@ class _DesvioFeedPageState extends ConsumerState<DesvioFeedPage> {
         : const AsyncData<List<OcorrenciaSummary>>([]);
 
     return Scaffold(
-      backgroundColor: EngSegColors.dark.bgBase,
+      backgroundColor: SafeCoreColors.dark.bgBase,
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(
-          color: EngSegColors.dark.accent,
-          backgroundColor: EngSegColors.dark.bgElevated,
+          color: SafeCoreColors.dark.accent,
+          backgroundColor: SafeCoreColors.dark.bgElevated,
           onRefresh: () async {
             ref.invalidate(ocorrenciasProvider(providerKey));
             await ref
@@ -134,16 +134,16 @@ class _DesvioFeedPageState extends ConsumerState<DesvioFeedPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.error_outline,
-                            size: 48, color: EngSegColors.dark.statusRedFg),
+                            size: 48, color: SafeCoreColors.dark.statusRedFg),
                         const SizedBox(height: 12),
                         Text('Erro ao carregar',
                             style: TextStyle(
-                                color: EngSegColors.dark.statusRedFg,
+                                color: SafeCoreColors.dark.statusRedFg,
                                 fontSize: 14)),
                         const SizedBox(height: 4),
                         Text('$e',
                             style: TextStyle(
-                                color: EngSegColors.dark.fg3, fontSize: 12)),
+                                color: SafeCoreColors.dark.fg3, fontSize: 12)),
                       ],
                     ),
                   ),
@@ -156,11 +156,11 @@ class _DesvioFeedPageState extends ConsumerState<DesvioFeedPage> {
                       child: Column(
                         children: [
                           Icon(Icons.inbox_outlined,
-                              size: 48, color: EngSegColors.dark.fg3),
+                              size: 48, color: SafeCoreColors.dark.fg3),
                           const SizedBox(height: 12),
                           Text('Nenhum desvio encontrado',
                               style: TextStyle(
-                                  color: EngSegColors.dark.fg2, fontSize: 14)),
+                                  color: SafeCoreColors.dark.fg2, fontSize: 14)),
                         ],
                       ),
                     );
@@ -195,8 +195,8 @@ class _DesvioFeedPageState extends ConsumerState<DesvioFeedPage> {
       pills: [
         SafeCorePill(
           label: 'Desvio',
-          bg: EngSegColors.dark.statusYellowBg,
-          fg: EngSegColors.dark.statusYellowFg,
+          bg: SafeCoreColors.dark.statusYellowBg,
+          fg: SafeCoreColors.dark.statusYellowFg,
         ),
         SafeCorePill(
           label: StatusColorHelper.desvioLabel(dv.status),

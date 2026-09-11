@@ -21,7 +21,7 @@ class SafeCorePill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(EngSegRadius.pill),
+        borderRadius: BorderRadius.circular(SafeCoreRadius.pill),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

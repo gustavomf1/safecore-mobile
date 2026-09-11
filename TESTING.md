@@ -1,4 +1,4 @@
-# EngSeg Mobile — Guia de Teste Completo
+# SafeCore Mobile — Guia de Teste Completo
 
 ## Pré-requisitos
 
@@ -12,7 +12,7 @@
 ## Passo 1: Firebase — criar projeto e registrar app
 
 1. Acessa https://console.firebase.google.com
-2. "Criar projeto" → nome: `EngSeg` → desativa Google Analytics (opcional)
+2. "Criar projeto" → nome: `SafeCore` → desativa Google Analytics (opcional)
 3. No projeto criado → "Adicionar app" → ícone Android
 4. Package name: `com.example.engseg_mobile`
 5. Baixa o `google-services.json` gerado
@@ -51,7 +51,7 @@ Em `android/app/src/main/AndroidManifest.xml`, adiciona `android:usesCleartextTr
 ```xml
 <application
     android:usesCleartextTraffic="true"
-    android:label="engseg_mobile"
+    android:label="SafeCore"
     ...>
 ```
 
@@ -87,7 +87,7 @@ docker-compose logs -f engseg-mobile-backend
 ## Passo 5: Rodar o app
 
 ```bash
-cd /home/mag/Documents/mobile/engseg-mobile
+cd /home/mag/Documents/mobile/safecore-mobile
 flutter run
 ```
 

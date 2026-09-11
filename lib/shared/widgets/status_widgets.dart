@@ -15,7 +15,7 @@ class StatusPill extends StatelessWidget {
     final (bg, fg) = _colors(context.c, tone);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: mini ? 8 : 10, vertical: mini ? 3 : 4),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(EngSegRadius.pill)),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(SafeCoreRadius.pill)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -70,7 +70,7 @@ Color severityColor(BuildContext context, String severity) {
   };
 }
 
-(Color, Color) _colors(EngSegColors c, String tone) {
+(Color, Color) _colors(SafeCoreColors c, String tone) {
   return switch (tone) {
     'green' => (c.statusGreenBg, c.statusGreenFg),
     'yellow' => (c.statusYellowBg, c.statusYellowFg),
@@ -94,9 +94,9 @@ class SectionCard extends StatelessWidget {
       padding: padding,
       decoration: BoxDecoration(
         color: context.c.bgSurface,
-        borderRadius: BorderRadius.circular(EngSegRadius.md),
+        borderRadius: BorderRadius.circular(SafeCoreRadius.md),
         border: Border.all(color: context.c.borderSoft),
-        boxShadow: EngSegShadows.sm,
+        boxShadow: SafeCoreShadows.sm,
       ),
       child: child,
     );
