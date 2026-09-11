@@ -27,14 +27,14 @@ class SafeCoreAuthImage extends ConsumerWidget {
       fit: fit,
       fadeInDuration: const Duration(milliseconds: 200),
       placeholder: (_, __) => Container(
-        color: EngSegColors.dark.bgElevated,
+        color: SafeCoreColors.dark.bgElevated,
         child: Center(
           child: SizedBox(
             width: 20,
             height: 20,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              color: EngSegColors.dark.accent,
+              color: SafeCoreColors.dark.accent,
             ),
           ),
         ),
@@ -42,10 +42,10 @@ class SafeCoreAuthImage extends ConsumerWidget {
       errorWidget: (_, __, ___) =>
           errorWidget ??
           Container(
-            color: EngSegColors.dark.bgElevated,
+            color: SafeCoreColors.dark.bgElevated,
             child: Icon(
               Icons.broken_image_outlined,
-              color: EngSegColors.dark.fg2,
+              color: SafeCoreColors.dark.fg2,
               size: 32,
             ),
           ),

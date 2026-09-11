@@ -24,26 +24,26 @@ class OcorrenciaSearchBar extends StatelessWidget {
           child: TextField(
             controller: controller,
             onChanged: onChanged,
-            style: TextStyle(color: EngSegColors.dark.fg0, fontSize: 13),
+            style: TextStyle(color: SafeCoreColors.dark.fg0, fontSize: 13),
             decoration: InputDecoration(
               isDense: true,
               hintText: 'Buscar por título, localização ou código...',
-              hintStyle: TextStyle(color: EngSegColors.dark.fg3, fontSize: 13),
-              prefixIcon: Icon(Icons.search_rounded, size: 19, color: EngSegColors.dark.fg2),
+              hintStyle: TextStyle(color: SafeCoreColors.dark.fg3, fontSize: 13),
+              prefixIcon: Icon(Icons.search_rounded, size: 19, color: SafeCoreColors.dark.fg2),
               filled: true,
-              fillColor: EngSegColors.dark.bgSurface,
+              fillColor: SafeCoreColors.dark.bgSurface,
               contentPadding: const EdgeInsets.symmetric(vertical: 13),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(EngSegRadius.md),
-                borderSide: BorderSide(color: EngSegColors.dark.borderSoft),
+                borderRadius: BorderRadius.circular(SafeCoreRadius.md),
+                borderSide: BorderSide(color: SafeCoreColors.dark.borderSoft),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(EngSegRadius.md),
-                borderSide: BorderSide(color: EngSegColors.dark.borderSoft),
+                borderRadius: BorderRadius.circular(SafeCoreRadius.md),
+                borderSide: BorderSide(color: SafeCoreColors.dark.borderSoft),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(EngSegRadius.md),
-                borderSide: BorderSide(color: EngSegColors.dark.accent, width: 1.4),
+                borderRadius: BorderRadius.circular(SafeCoreRadius.md),
+                borderSide: BorderSide(color: SafeCoreColors.dark.accent, width: 1.4),
               ),
             ),
           ),
@@ -64,16 +64,16 @@ class _FilterButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final active = count > 0;
     return InkWell(
-      borderRadius: BorderRadius.circular(EngSegRadius.md),
+      borderRadius: BorderRadius.circular(SafeCoreRadius.md),
       onTap: onTap,
       child: Container(
         width: 46,
         height: 46,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: active ? EngSegColors.dark.accent.withValues(alpha: 0.15) : EngSegColors.dark.bgSurface,
-          borderRadius: BorderRadius.circular(EngSegRadius.md),
-          border: Border.all(color: active ? EngSegColors.dark.accent : EngSegColors.dark.borderSoft),
+          color: active ? SafeCoreColors.dark.accent.withValues(alpha: 0.15) : SafeCoreColors.dark.bgSurface,
+          borderRadius: BorderRadius.circular(SafeCoreRadius.md),
+          border: Border.all(color: active ? SafeCoreColors.dark.accent : SafeCoreColors.dark.borderSoft),
         ),
         child: Stack(
           clipBehavior: Clip.none,
@@ -82,7 +82,7 @@ class _FilterButton extends StatelessWidget {
               child: Icon(
                 Icons.tune_rounded,
                 size: 20,
-                color: active ? EngSegColors.dark.accent : EngSegColors.dark.fg2,
+                color: active ? SafeCoreColors.dark.accent : SafeCoreColors.dark.fg2,
               ),
             ),
             if (active)
@@ -92,7 +92,7 @@ class _FilterButton extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(3),
                   constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                  decoration: BoxDecoration(color: EngSegColors.dark.accent, shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: SafeCoreColors.dark.accent, shape: BoxShape.circle),
                   child: Text(
                     '$count',
                     textAlign: TextAlign.center,

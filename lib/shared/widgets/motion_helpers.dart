@@ -58,12 +58,12 @@ extension StaggeredEntrance on Widget {
   Widget staggered(int index,
       {Duration itemDelay = const Duration(milliseconds: 55)}) {
     return animate(delay: itemDelay * index)
-        .fadeIn(duration: EngSegMotion.base, curve: EngSegMotion.curve)
+        .fadeIn(duration: SafeCoreMotion.base, curve: SafeCoreMotion.curve)
         .slideY(
           begin: 0.04,
           end: 0,
-          duration: EngSegMotion.base,
-          curve: EngSegMotion.curve,
+          duration: SafeCoreMotion.base,
+          curve: SafeCoreMotion.curve,
         );
   }
 }

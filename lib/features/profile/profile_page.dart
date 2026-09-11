@@ -131,7 +131,7 @@ class ProfilePage extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             const Center(
-              child: Text('EngSeg/SGS · v1.0.0 (build 2026.05.06)', style: TextStyle(color: ProtoColors.muted, fontSize: 11)),
+              child: Text('SafeCore/SGS · v1.0.0 (build 2026.05.06)', style: TextStyle(color: ProtoColors.muted, fontSize: 11)),
             ),
           ],
         ),

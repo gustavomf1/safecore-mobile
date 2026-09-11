@@ -18,11 +18,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  runApp(const ProviderScope(child: EngSegApp()));
+  runApp(const ProviderScope(child: SafeCoreApp()));
 }
 
-class EngSegApp extends ConsumerWidget {
-  const EngSegApp({super.key});
+class SafeCoreApp extends ConsumerWidget {
+  const SafeCoreApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,9 +31,9 @@ class EngSegApp extends ConsumerWidget {
     return _AppConnectivityListener(
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
-        title: 'EngSeg',
-        theme: engSegThemeLight(),
-        darkTheme: engSegThemeDark(),
+        title: 'SafeCore',
+        theme: safeCoreThemeLight(),
+        darkTheme: safeCoreThemeDark(),
         themeMode: ThemeMode.system,
         routerConfig: router,
         scaffoldMessengerKey: scaffoldMessengerKey,
@@ -84,7 +84,7 @@ class _MobileViewport extends StatelessWidget {
     final width = MediaQuery.sizeOf(context).width;
     if (width <= 520) return child;
 
-    final colors = Theme.of(context).extension<EngSegColors>()!;
+    final colors = Theme.of(context).extension<SafeCoreColors>()!;
     return ColoredBox(
       color: colors.bgBase,
       child: Center(

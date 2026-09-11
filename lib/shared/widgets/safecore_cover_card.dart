@@ -36,7 +36,7 @@ class SafeCoreCoverCard extends StatelessWidget {
         child: Hero(
           tag: 'cover-$id',
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(EngSegRadius.md),
+            borderRadius: BorderRadius.circular(SafeCoreRadius.md),
             child: AspectRatio(
               aspectRatio: 16 / 9,
               child: Stack(
@@ -74,7 +74,7 @@ class SafeCoreCoverCard extends StatelessWidget {
                           Text(
                             codigo!,
                             style: TextStyle(
-                              color: EngSegColors.dark.accent,
+                              color: SafeCoreColors.dark.accent,
                               fontSize: 11,
                               fontWeight: FontWeight.w900,
                               fontFamily: 'monospace',
@@ -88,7 +88,7 @@ class SafeCoreCoverCard extends StatelessWidget {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: EngSegColors.dark.fg0,
+                            color: SafeCoreColors.dark.fg0,
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                             height: 1.3,
@@ -101,7 +101,7 @@ class SafeCoreCoverCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: EngSegColors.dark.fg2,
+                              color: SafeCoreColors.dark.fg2,
                               fontSize: 11,
                             ),
                           ),
@@ -126,16 +126,16 @@ class SafeCoreCoverCard extends StatelessWidget {
     // Caminho 2: evidência não-imagem (pdf, video, etc.)
     if (hasAnyCover) {
       return Container(
-        color: EngSegColors.dark.bgElevated,
+        color: SafeCoreColors.dark.bgElevated,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.insert_drive_file_outlined,
-                color: EngSegColors.dark.fg2, size: 36),
+                color: SafeCoreColors.dark.fg2, size: 36),
             const SizedBox(height: 6),
             Text(
               'Documento anexado',
-              style: TextStyle(color: EngSegColors.dark.fg2, fontSize: 12),
+              style: TextStyle(color: SafeCoreColors.dark.fg2, fontSize: 12),
             ),
           ],
         ),
@@ -143,10 +143,10 @@ class SafeCoreCoverCard extends StatelessWidget {
     }
     // Caminho 3: sem evidência
     return Container(
-      color: EngSegColors.dark.bgElevated,
+      color: SafeCoreColors.dark.bgElevated,
       child: Center(
         child: Icon(Icons.shield_outlined,
-            color: EngSegColors.dark.fg3, size: 40),
+            color: SafeCoreColors.dark.fg3, size: 40),
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class EngSegColors extends ThemeExtension<EngSegColors> {
+class SafeCoreColors extends ThemeExtension<SafeCoreColors> {
   final Color bgBase;
   final Color bgSurface;
   final Color bgElevated;
@@ -25,7 +25,7 @@ class EngSegColors extends ThemeExtension<EngSegColors> {
   final Color sevAlto;
   final Color sevCritico;
 
-  const EngSegColors({
+  const SafeCoreColors({
     required this.bgBase,
     required this.bgSurface,
     required this.bgElevated,
@@ -58,7 +58,7 @@ class EngSegColors extends ThemeExtension<EngSegColors> {
     required this.sevCritico,
   });
 
-  static const light = EngSegColors(
+  static const light = SafeCoreColors(
     bgBase: Color(0xFFF1F5F9),
     bgSurface: Color(0xFFFFFFFF),
     bgElevated: Color(0xFFF8FAFC),
@@ -91,7 +91,7 @@ class EngSegColors extends ThemeExtension<EngSegColors> {
     sevCritico: Color(0xFFF85149),
   );
 
-  static const dark = EngSegColors(
+  static const dark = SafeCoreColors(
     bgBase: Color(0xFF0B1118),        // ProtoColors.bg
     bgSurface: Color(0xFF151A21),     // ProtoColors.surface
     bgElevated: Color(0xFF1A2028),    // ProtoColors.surface2
@@ -125,14 +125,14 @@ class EngSegColors extends ThemeExtension<EngSegColors> {
   );
 
   @override
-  EngSegColors copyWith() => this;
+  SafeCoreColors copyWith() => this;
 
   @override
-  EngSegColors lerp(ThemeExtension<EngSegColors>? other, double t) =>
-      t < .5 ? this : other as EngSegColors;
+  SafeCoreColors lerp(ThemeExtension<SafeCoreColors>? other, double t) =>
+      t < .5 ? this : other as SafeCoreColors;
 }
 
-class EngSegRadius {
+class SafeCoreRadius {
   static const sm = 8.0;
   static const md = 12.0;
   static const lg = 16.0;
@@ -140,7 +140,7 @@ class EngSegRadius {
   static const pill = 999.0;
 }
 
-class EngSegShadows {
+class SafeCoreShadows {
   static const sm = [
     BoxShadow(color: Color(0x12000000), offset: Offset(0, 1), blurRadius: 3),
   ];
@@ -152,21 +152,21 @@ class EngSegShadows {
   ];
 }
 
-extension EngSegTheme on BuildContext {
-  EngSegColors get c => Theme.of(this).extension<EngSegColors>()!;
+extension SafeCoreTheme on BuildContext {
+  SafeCoreColors get c => Theme.of(this).extension<SafeCoreColors>()!;
 }
 
-ThemeData engSegThemeLight() => _theme(EngSegColors.light, Brightness.light);
-ThemeData engSegThemeDark() => _theme(EngSegColors.dark, Brightness.dark);
+ThemeData safeCoreThemeLight() => _theme(SafeCoreColors.light, Brightness.light);
+ThemeData safeCoreThemeDark() => _theme(SafeCoreColors.dark, Brightness.dark);
 
-class EngSegMotion {
+class SafeCoreMotion {
   static const fast = Duration(milliseconds: 180);
   static const base = Duration(milliseconds: 240);
   static const standard = Duration(milliseconds: 300);
   static const curve = Curves.easeOutCubic;
 }
 
-ThemeData _theme(EngSegColors c, Brightness brightness) {
+ThemeData _theme(SafeCoreColors c, Brightness brightness) {
   final isDark = brightness == Brightness.dark;
   return ThemeData(
     useMaterial3: true,
@@ -194,15 +194,15 @@ ThemeData _theme(EngSegColors c, Brightness brightness) {
       filled: true,
       fillColor: c.bgSurface,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(EngSegRadius.sm),
+        borderRadius: BorderRadius.circular(SafeCoreRadius.sm),
         borderSide: BorderSide(color: c.borderSoft),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(EngSegRadius.sm),
+        borderRadius: BorderRadius.circular(SafeCoreRadius.sm),
         borderSide: BorderSide(color: c.borderSoft),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(EngSegRadius.sm),
+        borderRadius: BorderRadius.circular(SafeCoreRadius.sm),
         borderSide: BorderSide(color: c.accent, width: 1.6),
       ),
     ),

@@ -70,7 +70,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                         ),
                       ),
                       const SizedBox(height: 14),
-                      const Text('EngSeg', style: TextStyle(color: ProtoColors.text, fontSize: 22, fontWeight: FontWeight.w900)),
+                      const Text('SafeCore', style: TextStyle(color: ProtoColors.text, fontSize: 22, fontWeight: FontWeight.w900)),
                       const SizedBox(height: 8),
                       const Text('SISTEMA DE GESTAO DE SEGURANCA', style: TextStyle(color: ProtoColors.muted, fontSize: 10, letterSpacing: .8, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 28),

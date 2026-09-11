@@ -25,7 +25,7 @@ final _itemNc = NotificacaoItem(
   id: 'notif-1',
   ncId: 'nc-1',
   tipo: 'NC_ATIVADA',
-  titulo: 'EngSeg — NC Teste',
+  titulo: 'SafeCore — NC Teste',
   corpo: 'corpo do push',
   lida: false,
   criadoEm: DateTime(2026, 6, 19, 10, 0),
@@ -35,7 +35,7 @@ final _itemDesvio = NotificacaoItem(
   id: 'notif-2',
   desvioId: 'dev-1',
   tipo: 'DESVIO_ATIVADO',
-  titulo: 'EngSeg — Desvio Teste',
+  titulo: 'SafeCore — Desvio Teste',
   corpo: 'corpo desvio',
   lida: false,
   criadoEm: DateTime(2026, 6, 19, 11, 0),
@@ -47,7 +47,7 @@ void main() {
       notificacoesProvider.overrideWith((ref) async => [_itemNc]),
     ]));
     await tester.pumpAndSettle();
-    expect(find.text('EngSeg — NC Teste'), findsOneWidget);
+    expect(find.text('SafeCore — NC Teste'), findsOneWidget);
     expect(find.text('corpo do push'), findsOneWidget);
   });
 
@@ -69,7 +69,7 @@ void main() {
     ]));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('EngSeg — NC Teste'));
+    await tester.tap(find.text('SafeCore — NC Teste'));
     await tester.pumpAndSettle();
 
     expect(find.text('NC nc-1'), findsOneWidget);
@@ -85,7 +85,7 @@ void main() {
     ]));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('EngSeg — Desvio Teste'));
+    await tester.tap(find.text('SafeCore — Desvio Teste'));
     await tester.pumpAndSettle();
 
     expect(find.text('Desvio dev-1'), findsOneWidget);

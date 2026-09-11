@@ -20,14 +20,14 @@ class SafeCoreSkeleton extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: EngSegColors.dark.bgElevated,
+        color: SafeCoreColors.dark.bgElevated,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
     )
         .animate(onPlay: (c) => c.repeat())
         .shimmer(
           duration: const Duration(milliseconds: 1200),
-          color: EngSegColors.dark.bgMuted,
+          color: SafeCoreColors.dark.bgMuted,
         );
   }
 }
@@ -42,7 +42,7 @@ class CoverCardSkeleton extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SafeCoreSkeleton(height: 180, borderRadius: EngSegRadius.md),
+          SafeCoreSkeleton(height: 180, borderRadius: SafeCoreRadius.md),
           SizedBox(height: 10),
           Row(children: [
             SafeCoreSkeleton(width: 60, height: 22, borderRadius: 999),

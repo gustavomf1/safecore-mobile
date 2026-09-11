@@ -6,24 +6,24 @@ typedef StatusColors = ({Color bg, Color fg});
 class StatusColorHelper {
   static StatusColors ncColors(String status, {bool vencida = false}) {
     if (vencida) {
-      return (bg: const Color(0xFF4A1017), fg: EngSegColors.dark.statusRedFg);
+      return (bg: const Color(0xFF4A1017), fg: SafeCoreColors.dark.statusRedFg);
     }
     return switch (status) {
       'CONCLUIDA' || 'FECHADA' || 'APROVADA' => (
-          bg: EngSegColors.dark.statusGreenBg,
-          fg: EngSegColors.dark.statusGreenFg,
+          bg: SafeCoreColors.dark.statusGreenBg,
+          fg: SafeCoreColors.dark.statusGreenFg,
         ),
       'EM_EXECUCAO' => (
-          bg: EngSegColors.dark.statusIndigoBg,
-          fg: EngSegColors.dark.statusIndigoFg,
+          bg: SafeCoreColors.dark.statusIndigoBg,
+          fg: SafeCoreColors.dark.statusIndigoFg,
         ),
       'AGUARDANDO_TRATATIVA' => (
-          bg: EngSegColors.dark.statusBlueBg,
-          fg: EngSegColors.dark.statusBlueFg,
+          bg: SafeCoreColors.dark.statusBlueBg,
+          fg: SafeCoreColors.dark.statusBlueFg,
         ),
       _ => (
-          bg: EngSegColors.dark.statusYellowBg,
-          fg: EngSegColors.dark.statusYellowFg,
+          bg: SafeCoreColors.dark.statusYellowBg,
+          fg: SafeCoreColors.dark.statusYellowFg,
         ),
     };
   }
@@ -31,16 +31,16 @@ class StatusColorHelper {
   static StatusColors desvioColors(String status) {
     return switch (status) {
       'CONCLUIDO' || 'FECHADO' || 'APROVADO' => (
-          bg: EngSegColors.dark.statusGreenBg,
-          fg: EngSegColors.dark.statusGreenFg,
+          bg: SafeCoreColors.dark.statusGreenBg,
+          fg: SafeCoreColors.dark.statusGreenFg,
         ),
       'EM_ANALISE' => (
-          bg: EngSegColors.dark.statusYellowBg,
-          fg: EngSegColors.dark.statusYellowFg,
+          bg: SafeCoreColors.dark.statusYellowBg,
+          fg: SafeCoreColors.dark.statusYellowFg,
         ),
       _ => (
-          bg: EngSegColors.dark.bgMuted,
-          fg: EngSegColors.dark.fg2,
+          bg: SafeCoreColors.dark.bgMuted,
+          fg: SafeCoreColors.dark.fg2,
         ),
     };
   }
