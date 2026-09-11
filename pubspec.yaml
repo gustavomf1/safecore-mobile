@@ -1,5 +1,5 @@
 name: safecore_mobile
-description: EngSeg SGS mobile app for field safety records.
+description: SafeCore mobile app for field safety records.
 publish_to: "none"
 version: 0.1.0+1
 
@@ -43,6 +43,15 @@ dev_dependencies:
   drift_dev: ^2.20.0
   build_runner: ^2.4.13
   mocktail: ^1.0.4
+  flutter_launcher_icons: ^0.14.3
 
 flutter:
   uses-material-design: true
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/icon.png"
+  adaptive_icon_background: "#0a0e1a"
+  adaptive_icon_foreground: "assets/icon/icon.png"
+  min_sdk_android: 21
