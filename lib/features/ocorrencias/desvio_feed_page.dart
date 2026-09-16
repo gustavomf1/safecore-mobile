@@ -23,7 +23,10 @@ class DesvioFeedPage extends ConsumerStatefulWidget {
   ConsumerState<DesvioFeedPage> createState() => _DesvioFeedPageState();
 }
 
-class _DesvioFeedPageState extends ConsumerState<DesvioFeedPage> {
+class _DesvioFeedPageState extends ConsumerState<DesvioFeedPage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   final _searchController = TextEditingController();
   String _busca = '';
   String _status = kTodosBucket;
@@ -78,6 +81,7 @@ class _DesvioFeedPageState extends ConsumerState<DesvioFeedPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final session = ref.watch(authProvider).valueOrNull;
     final isExterno = session?.perfil == 'EXTERNO';
     final workspace = ref.watch(workspaceProvider);

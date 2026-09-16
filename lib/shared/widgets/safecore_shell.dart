@@ -3,20 +3,87 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/provider/auth_provider.dart';
+import '../../features/notifications/notif_page.dart';
+import '../../features/ocorrencias/desvio_feed_page.dart';
+import '../../features/ocorrencias/feed_page.dart';
+import '../../features/profile/profile_page.dart';
 import 'prototype_ui.dart';
 
-class SafeCoreShell extends ConsumerWidget {
+const _tabPaths = ['/feed', '/desvios', '/notif', '/profile'];
+
+class SafeCoreShell extends ConsumerStatefulWidget {
   final Widget child;
 
   const SafeCoreShell({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SafeCoreShell> createState() => _SafeCoreShellState();
+}
+
+class _SafeCoreShellState extends ConsumerState<SafeCoreShell> {
+  final _tabs = const [FeedPage(), DesvioFeedPage(), NotifPage(), ProfilePage()];
+
+  PageController? _pageController;
+  int _currentIndex = 0;
+
+  @override
+  void dispose() {
+    _pageController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final location = GoRouterState.of(context).uri.path;
+    final tabIndex = _tabPaths.indexOf(location);
+    if (tabIndex == -1 || tabIndex == _currentIndex) return;
+    _currentIndex = tabIndex;
+    final controller = _pageController;
+    if (controller != null && controller.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && controller.hasClients) controller.jumpToPage(tabIndex);
+      });
+    }
+  }
+
+  void _onTabTapped(int index) {
+    final controller = _pageController;
+    if (controller != null && controller.hasClients) {
+      controller.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeOutCubic,
+      );
+    } else {
+      context.go(_tabPaths[index]);
+    }
+  }
+
+  void _onPageChanged(int index) {
+    _currentIndex = index;
+    final target = _tabPaths[index];
+    if (GoRouterState.of(context).uri.path != target) context.go(target);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final perfil = ref.watch(authProvider).valueOrNull?.perfil;
     final isExterno = perfil == 'EXTERNO';
+    final location = GoRouterState.of(context).uri.path;
+    final isTabRoute = _tabPaths.contains(location);
+
+    final body = isTabRoute
+        ? PageView(
+            controller: _pageController ??= PageController(initialPage: _currentIndex),
+            onPageChanged: _onPageChanged,
+            children: _tabs,
+          )
+        : widget.child;
+
     return Scaffold(
       backgroundColor: ProtoColors.bg,
-      body: child,
+      body: body,
       floatingActionButtonLocation: isExterno ? null : FloatingActionButtonLocation.centerDocked,
       floatingActionButton: isExterno
           ? null
@@ -38,13 +105,13 @@ class SafeCoreShell extends ConsumerWidget {
         height: 84,
         padding: const EdgeInsets.fromLTRB(10, 8, 10, 18),
         decoration: const BoxDecoration(color: ProtoColors.surface, border: Border(top: BorderSide(color: ProtoColors.border))),
-        child: const Row(
+        child: Row(
           children: [
-            _NavItem(path: '/feed', icon: Icons.shield_outlined, label: 'NCs'),
-            _NavItem(path: '/desvios', icon: Icons.local_fire_department_outlined, label: 'Desvios'),
-            Expanded(child: SizedBox()),
-            _NavItem(path: '/notif', icon: Icons.notifications_none_rounded, label: 'Avisos'),
-            _NavItem(path: '/profile', icon: Icons.person_outline_rounded, label: 'Perfil'),
+            _NavItem(index: 0, path: '/feed', icon: Icons.shield_outlined, label: 'NCs', onTap: _onTabTapped),
+            _NavItem(index: 1, path: '/desvios', icon: Icons.local_fire_department_outlined, label: 'Desvios', onTap: _onTabTapped),
+            const Expanded(child: SizedBox()),
+            _NavItem(index: 2, path: '/notif', icon: Icons.notifications_none_rounded, label: 'Avisos', onTap: _onTabTapped),
+            _NavItem(index: 3, path: '/profile', icon: Icons.person_outline_rounded, label: 'Perfil', onTap: _onTabTapped),
           ],
         ),
       ),
@@ -101,11 +168,13 @@ class SafeCoreShell extends ConsumerWidget {
 }
 
 class _NavItem extends StatelessWidget {
+  final int index;
   final String path;
   final IconData icon;
   final String label;
+  final ValueChanged<int> onTap;
 
-  const _NavItem({required this.path, required this.icon, required this.label});
+  const _NavItem({required this.index, required this.path, required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +183,7 @@ class _NavItem extends StatelessWidget {
     return Expanded(
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => context.go(path),
+        onTap: () => onTap(index),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
