@@ -16,18 +16,19 @@ class SafeCoreSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: SafeCoreColors.dark.bgElevated,
+        color: c.bgElevated,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
     )
-        .animate(onPlay: (c) => c.repeat())
+        .animate(onPlay: (a) => a.repeat())
         .shimmer(
           duration: const Duration(milliseconds: 1200),
-          color: SafeCoreColors.dark.bgMuted,
+          color: c.bgMuted,
         );
   }
 }

@@ -82,6 +82,7 @@ class _DesvioFeedPageState extends ConsumerState<DesvioFeedPage> with AutomaticK
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final c = context.c;
     final session = ref.watch(authProvider).valueOrNull;
     final isExterno = session?.perfil == 'EXTERNO';
     final workspace = ref.watch(workspaceProvider);
@@ -96,12 +97,12 @@ class _DesvioFeedPageState extends ConsumerState<DesvioFeedPage> with AutomaticK
         : const AsyncData<List<OcorrenciaSummary>>([]);
 
     return Scaffold(
-      backgroundColor: SafeCoreColors.dark.bgBase,
+      backgroundColor: c.bgBase,
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(
-          color: SafeCoreColors.dark.accent,
-          backgroundColor: SafeCoreColors.dark.bgElevated,
+          color: c.accent,
+          backgroundColor: c.bgElevated,
           onRefresh: () async {
             ref.invalidate(ocorrenciasProvider(providerKey));
             await ref
@@ -137,17 +138,11 @@ class _DesvioFeedPageState extends ConsumerState<DesvioFeedPage> with AutomaticK
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.error_outline,
-                            size: 48, color: SafeCoreColors.dark.statusRedFg),
+                        Icon(Icons.error_outline, size: 48, color: c.statusRedFg),
                         const SizedBox(height: 12),
-                        Text('Erro ao carregar',
-                            style: TextStyle(
-                                color: SafeCoreColors.dark.statusRedFg,
-                                fontSize: 14)),
+                        Text('Erro ao carregar', style: SafeCoreType.subtitle.copyWith(color: c.statusRedFg)),
                         const SizedBox(height: 4),
-                        Text('$e',
-                            style: TextStyle(
-                                color: SafeCoreColors.dark.fg3, fontSize: 12)),
+                        Text('$e', style: SafeCoreType.body.copyWith(color: c.fg3)),
                       ],
                     ),
                   ),
@@ -159,12 +154,9 @@ class _DesvioFeedPageState extends ConsumerState<DesvioFeedPage> with AutomaticK
                       padding: const EdgeInsets.only(top: 68),
                       child: Column(
                         children: [
-                          Icon(Icons.inbox_outlined,
-                              size: 48, color: SafeCoreColors.dark.fg3),
+                          Icon(Icons.inbox_outlined, size: 48, color: c.fg3),
                           const SizedBox(height: 12),
-                          Text('Nenhum desvio encontrado',
-                              style: TextStyle(
-                                  color: SafeCoreColors.dark.fg2, fontSize: 14)),
+                          Text('Nenhum desvio encontrado', style: SafeCoreType.subtitle.copyWith(color: c.fg2)),
                         ],
                       ),
                     );
@@ -185,7 +177,8 @@ class _DesvioFeedPageState extends ConsumerState<DesvioFeedPage> with AutomaticK
   }
 
   Widget _buildCard(OcorrenciaSummary dv) {
-    final dvColors = StatusColorHelper.desvioColors(dv.status);
+    final c = context.c;
+    final dvColors = StatusColorHelper.desvioColors(c, dv.status);
     final coverUrl = dv.primeiraEvidenciaId != null
         ? '${AppConfig.apiBaseUrl}/api/evidencias/${dv.primeiraEvidenciaId}/download'
         : null;
@@ -199,8 +192,8 @@ class _DesvioFeedPageState extends ConsumerState<DesvioFeedPage> with AutomaticK
       pills: [
         SafeCorePill(
           label: 'Desvio',
-          bg: SafeCoreColors.dark.statusYellowBg,
-          fg: SafeCoreColors.dark.statusYellowFg,
+          bg: c.statusYellowBg,
+          fg: c.statusYellowFg,
         ),
         SafeCorePill(
           label: StatusColorHelper.desvioLabel(dv.status),

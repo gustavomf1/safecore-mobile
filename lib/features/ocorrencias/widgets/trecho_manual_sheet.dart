@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../shared/widgets/prototype_ui.dart';
+import '../../../shared/theme/tokens.dart';
 
 class TrechoManualResult {
   final String? clausulaReferencia;
@@ -70,11 +70,12 @@ class _TrechoManualSheetState extends State<_TrechoManualSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-      decoration: const BoxDecoration(
-        color: ProtoColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+      decoration: BoxDecoration(
+        color: c.bgSurface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -84,73 +85,73 @@ class _TrechoManualSheetState extends State<_TrechoManualSheet> {
             child: Container(
               width: 38,
               height: 4,
-              decoration: BoxDecoration(color: ProtoColors.muted, borderRadius: BorderRadius.circular(99)),
+              decoration: BoxDecoration(color: c.fg2, borderRadius: BorderRadius.circular(99)),
             ),
           ),
           const SizedBox(height: 16),
           Row(children: [
-            const Icon(Icons.edit_outlined, color: ProtoColors.blue, size: 18),
+            Icon(Icons.edit_outlined, color: c.accent, size: 18),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Escrever trecho manual',
-                      style: TextStyle(color: ProtoColors.text, fontSize: 16, fontWeight: FontWeight.w900)),
-                  Text(widget.code, style: const TextStyle(color: ProtoColors.muted, fontSize: 12)),
+                  Text('Escrever trecho manual',
+                      style: TextStyle(color: c.fg0, fontSize: 16, fontWeight: FontWeight.w900)),
+                  Text(widget.code, style: TextStyle(color: c.fg2, fontSize: 12)),
                 ],
               ),
             ),
             GestureDetector(
               onTap: () => Navigator.pop(context),
-              child: const Icon(Icons.close, color: ProtoColors.muted),
+              child: Icon(Icons.close, color: c.fg2),
             ),
           ]),
           const SizedBox(height: 16),
-          const Text('Cláusula / Item',
-              style: TextStyle(color: ProtoColors.text, fontSize: 13, fontWeight: FontWeight.w700)),
+          Text('Cláusula / Item',
+              style: TextStyle(color: c.fg0, fontSize: 13, fontWeight: FontWeight.w700)),
           const SizedBox(height: 4),
-          const Text('opcional', style: TextStyle(color: ProtoColors.muted, fontSize: 11)),
+          Text('opcional', style: TextStyle(color: c.fg2, fontSize: 11)),
           const SizedBox(height: 8),
           Container(
             height: 44,
             decoration: BoxDecoration(
-                color: ProtoColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: ProtoColors.border)),
+                color: c.bgElevated, borderRadius: BorderRadius.circular(10), border: Border.all(color: c.borderSoft)),
             child: TextField(
               controller: _clauseRefCtrl,
-              style: const TextStyle(color: ProtoColors.text, fontSize: 13),
-              decoration: const InputDecoration(
+              style: TextStyle(color: c.fg0, fontSize: 13),
+              decoration: InputDecoration(
                 hintText: 'Ex: 12.38, item 4.2…',
-                hintStyle: TextStyle(color: ProtoColors.muted, fontSize: 13),
-                contentPadding: EdgeInsets.symmetric(horizontal: 14),
+                hintStyle: TextStyle(color: c.fg2, fontSize: 13),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14),
                 border: InputBorder.none,
               ),
             ),
           ),
           const SizedBox(height: 14),
-          const Row(children: [
-            Text('Texto do trecho', style: TextStyle(color: ProtoColors.text, fontSize: 13, fontWeight: FontWeight.w700)),
-            SizedBox(width: 6),
-            Text('*', style: TextStyle(color: ProtoColors.red, fontSize: 13, fontWeight: FontWeight.w900)),
+          Row(children: [
+            Text('Texto do trecho', style: TextStyle(color: c.fg0, fontSize: 13, fontWeight: FontWeight.w700)),
+            const SizedBox(width: 6),
+            Text('*', style: TextStyle(color: c.statusRedFg, fontSize: 13, fontWeight: FontWeight.w900)),
           ]),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
-                color: ProtoColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: ProtoColors.border)),
+                color: c.bgElevated, borderRadius: BorderRadius.circular(10), border: Border.all(color: c.borderSoft)),
             child: TextField(
               controller: _textCtrl,
               maxLines: 5,
-              style: const TextStyle(color: ProtoColors.text, fontSize: 13, height: 1.4),
-              decoration: const InputDecoration(
+              style: TextStyle(color: c.fg0, fontSize: 13, height: 1.4),
+              decoration: InputDecoration(
                 hintText: 'Cole ou escreva o trecho da norma aqui…',
-                hintStyle: TextStyle(color: ProtoColors.muted, fontSize: 13),
-                contentPadding: EdgeInsets.all(14),
+                hintStyle: TextStyle(color: c.fg2, fontSize: 13),
+                contentPadding: const EdgeInsets.all(14),
                 border: InputBorder.none,
               ),
             ),
           ),
           const SizedBox(height: 4),
-          Text('$_charCount caracteres', style: const TextStyle(color: ProtoColors.muted2, fontSize: 11)),
+          Text('$_charCount caracteres', style: TextStyle(color: c.fg3, fontSize: 11)),
           const SizedBox(height: 16),
           Row(children: [
             Expanded(
@@ -158,8 +159,8 @@ class _TrechoManualSheetState extends State<_TrechoManualSheet> {
                 height: 46,
                 child: OutlinedButton(
                   style: OutlinedButton.styleFrom(
-                      foregroundColor: ProtoColors.text,
-                      side: const BorderSide(color: ProtoColors.border),
+                      foregroundColor: c.fg0,
+                      side: BorderSide(color: c.borderSoft),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                   onPressed: () => Navigator.pop(context),
                   child: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.w900)),
@@ -177,8 +178,8 @@ class _TrechoManualSheetState extends State<_TrechoManualSheet> {
                     final result = _result;
                     return FilledButton.icon(
                       style: FilledButton.styleFrom(
-                        backgroundColor: result != null ? ProtoColors.blue : ProtoColors.surface2,
-                        foregroundColor: result != null ? Colors.white : ProtoColors.muted,
+                        backgroundColor: result != null ? c.accent : c.bgElevated,
+                        foregroundColor: result != null ? Colors.white : c.fg2,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       onPressed: result != null ? () => Navigator.pop(context, result) : null,

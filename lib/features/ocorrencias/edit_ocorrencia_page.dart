@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../shared/theme/tokens.dart';
 import 'detail_page.dart' show ncDetailProvider;
 import 'model/criar_desvio_request.dart';
 import 'model/criar_nc_request.dart';
@@ -19,20 +20,6 @@ import 'repository/nc_trecho_norma_repository_impl.dart';
 import 'repository/support_repository_impl.dart';
 import 'widgets/trecho_manual_sheet.dart';
 
-class _EColors {
-  static const bg = Color(0xFF0B1118);
-  static const surface = Color(0xFF151A21);
-  static const surface2 = Color(0xFF1A2028);
-  static const border = Color(0xFF26303B);
-  static const text = Color(0xFFF8FBFF);
-  static const muted = Color(0xFF566170);
-  static const muted2 = Color(0xFF3F4A57);
-  static const blue = Color(0xFF58A6FF);
-  static const red = Color(0xFFFF4D4D);
-  static const green = Color(0xFF3FB950);
-  static const orange = Color(0xFFFF7A1A);
-}
-
 class EditOcorrenciaPage extends ConsumerWidget {
   final String tipo; // 'nc' | 'desvio'
   final String id;
@@ -42,6 +29,7 @@ class EditOcorrenciaPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.c;
     if (isNc) {
       final ncAsync = ref.watch(ncDetailProvider(id));
       final trechosAsync = ref.watch(ncTrechosProvider(id));
@@ -51,7 +39,7 @@ class EditOcorrenciaPage extends ConsumerWidget {
       if (ncAsync.hasError) {
         return _EditScaffold(
           child: Center(
-            child: Text('Erro ao carregar: ${ncAsync.error}', style: const TextStyle(color: _EColors.red)),
+            child: Text('Erro ao carregar: ${ncAsync.error}', style: TextStyle(color: c.statusRedFg)),
           ),
         );
       }
@@ -71,7 +59,7 @@ class EditOcorrenciaPage extends ConsumerWidget {
       loading: () => const _EditScaffold(child: Center(child: CircularProgressIndicator())),
       error: (err, _) => _EditScaffold(
         child: Center(
-          child: Text('Erro ao carregar: $err', style: const TextStyle(color: _EColors.red)),
+          child: Text('Erro ao carregar: $err', style: TextStyle(color: c.statusRedFg)),
         ),
       ),
       data: (d) => _EditForm(tipo: tipo, id: id, nc: null, desvio: d),
@@ -85,8 +73,9 @@ class _EditScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Scaffold(
-      backgroundColor: _EColors.bg,
+      backgroundColor: c.bgBase,
       body: SafeArea(
         child: Column(
           children: [
@@ -106,6 +95,7 @@ class _HeaderIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return SizedBox(
       width: 38,
       height: 38,
@@ -114,11 +104,11 @@ class _HeaderIconButton extends StatelessWidget {
           backgroundColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: _EColors.muted2),
+            side: BorderSide(color: c.fg3),
           ),
         ),
         onPressed: onTap,
-        icon: Icon(icon, size: 19, color: _EColors.text),
+        icon: Icon(icon, size: 19, color: c.fg0),
       ),
     );
   }
@@ -131,11 +121,12 @@ class _EditHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
-      decoration: const BoxDecoration(
-        color: _EColors.surface,
-        border: Border(bottom: BorderSide(color: _EColors.border)),
+      decoration: BoxDecoration(
+        color: c.bgSurface,
+        border: Border(bottom: BorderSide(color: c.borderSoft)),
       ),
       child: Row(
         children: [
@@ -149,13 +140,13 @@ class _EditHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title,
-                    style: const TextStyle(
-                        color: _EColors.text, fontSize: 14, fontWeight: FontWeight.w900)),
+                    style: TextStyle(
+                        color: c.fg0, fontSize: 14, fontWeight: FontWeight.w900)),
                 if (subtitle != null) ...[
                   const SizedBox(height: 4),
                   Text(subtitle!,
-                      style: const TextStyle(
-                          color: _EColors.muted, fontSize: 12, fontWeight: FontWeight.w700)),
+                      style: TextStyle(
+                          color: c.fg2, fontSize: 12, fontWeight: FontWeight.w700)),
                 ],
               ],
             ),
@@ -332,8 +323,9 @@ class _EditFormState extends ConsumerState<_EditForm> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Scaffold(
-      backgroundColor: _EColors.bg,
+      backgroundColor: c.bgBase,
       body: SafeArea(
         child: Column(
           children: [
@@ -355,6 +347,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
   }
 
   Widget _buildForm(BuildContext context) {
+    final c = context.c;
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
       children: [
@@ -363,11 +356,11 @@ class _EditFormState extends ConsumerState<_EditForm> {
                 margin: const EdgeInsets.only(bottom: 14),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0x22FF4D4D),
+                  color: c.statusRedFg.withValues(alpha: .13),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: _EColors.red.withValues(alpha: .4)),
+                  border: Border.all(color: c.statusRedFg.withValues(alpha: .4)),
                 ),
-                child: Text(_error!, style: const TextStyle(color: _EColors.red, fontSize: 13)),
+                child: Text(_error!, style: TextStyle(color: c.statusRedFg, fontSize: 13)),
               ),
             _EField(
               label: 'Título',
@@ -396,7 +389,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
               checked: _regraDeOuro,
               title: 'Regra de Ouro',
               subtitle: 'Marque se a ocorrência viola uma regra crítica de segurança',
-              color: _EColors.red,
+              color: c.statusRedFg,
               onTap: () => setState(() => _regraDeOuro = !_regraDeOuro),
             ),
             if (isNc) ...[
@@ -405,7 +398,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
                 checked: _reincidencia,
                 title: 'Reincidência',
                 subtitle: 'Marque se esta NC é recorrência de uma ocorrência anterior',
-                color: _EColors.orange,
+                color: c.statusOrangeFg,
                 onTap: () => setState(() {
                   _reincidencia = !_reincidencia;
                   if (!_reincidencia) _ncAnteriorId = null;
@@ -486,8 +479,8 @@ class _EditFormState extends ConsumerState<_EditForm> {
             _EField(
               label: 'Responsável pela Tratativa',
               child: _empresaContratadaId == null
-                  ? const Text('Empresa contratada não definida nesta ocorrência.',
-                      style: TextStyle(color: _EColors.muted2, fontSize: 12))
+                  ? Text('Empresa contratada não definida nesta ocorrência.',
+                      style: TextStyle(color: c.fg3, fontSize: 12))
                   : _ResponsavelField(
                       sourceId: _empresaContratadaId!,
                       porEmpresa: true,
@@ -497,11 +490,11 @@ class _EditFormState extends ConsumerState<_EditForm> {
                     ),
             ),
             if (_empresaContratadaId == null)
-              const Padding(
-                padding: EdgeInsets.only(bottom: 12),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
                 child: Text(
                   'Esta ocorrência não tem empresa contratada definida e não pode ser salva pelo app. Edite pelo sistema web.',
-                  style: TextStyle(color: _EColors.red, fontSize: 12),
+                  style: TextStyle(color: c.statusRedFg, fontSize: 12),
                 ),
               ),
       ],
@@ -517,17 +510,18 @@ class _EField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label.toUpperCase(),
-            style: const TextStyle(
-                color: _EColors.muted, fontSize: 12, letterSpacing: .45, fontWeight: FontWeight.w900)),
+            style: TextStyle(
+                color: c.fg2, fontSize: 12, letterSpacing: .45, fontWeight: FontWeight.w900)),
         const SizedBox(height: 8),
         child,
         if (helper != null) ...[
           const SizedBox(height: 6),
-          Text(helper!, style: const TextStyle(color: _EColors.muted2, fontSize: 11)),
+          Text(helper!, style: TextStyle(color: c.fg3, fontSize: 11)),
         ],
       ],
     );
@@ -541,25 +535,26 @@ class _EInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return TextField(
       controller: controller,
       maxLines: maxLines,
-      style: const TextStyle(color: _EColors.text, fontSize: 14),
+      style: TextStyle(color: c.fg0, fontSize: 14),
       decoration: InputDecoration(
         filled: true,
-        fillColor: _EColors.surface2,
+        fillColor: c.bgElevated,
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _EColors.border),
+          borderSide: BorderSide(color: c.borderSoft),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _EColors.border),
+          borderSide: BorderSide(color: c.borderSoft),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _EColors.blue),
+          borderSide: BorderSide(color: c.accent),
         ),
       ),
     );
@@ -580,14 +575,15 @@ class _NcAnteriorField extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.c;
     final async = ref.watch(ncListProvider(estabelecimentoId));
     return async.when(
-      loading: () => const SizedBox(
+      loading: () => SizedBox(
         height: 18,
         width: 18,
-        child: CircularProgressIndicator(strokeWidth: 2, color: _EColors.orange),
+        child: CircularProgressIndicator(strokeWidth: 2, color: c.statusOrangeFg),
       ),
-      error: (_, __) => const Text('Erro ao carregar NCs', style: TextStyle(color: _EColors.red, fontSize: 12)),
+      error: (_, __) => Text('Erro ao carregar NCs', style: TextStyle(color: c.statusRedFg, fontSize: 12)),
       data: (todos) {
         final ncs = todos.where((nc) => nc.id != excludeId).toList();
         final warning = selectedId == null ? null : reincidenciaChainEnd(ncs, selectedId!, excludeId: excludeId);
@@ -597,20 +593,20 @@ class _NcAnteriorField extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: _EColors.surface2,
+                color: c.bgElevated,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: warning != null ? _EColors.orange : _EColors.orange.withValues(alpha: .5)),
+                border: Border.all(color: warning != null ? c.statusOrangeFg : c.statusOrangeFg.withValues(alpha: .5)),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String?>(
                   isExpanded: true,
-                  dropdownColor: _EColors.surface,
+                  dropdownColor: c.bgSurface,
                   value: ncs.any((nc) => nc.id == selectedId) ? selectedId : null,
-                  hint: const Text('Selecionar NC anterior', style: TextStyle(color: _EColors.muted, fontSize: 13)),
-                  style: const TextStyle(color: _EColors.text, fontSize: 13),
+                  hint: Text('Selecionar NC anterior', style: TextStyle(color: c.fg2, fontSize: 13)),
+                  style: TextStyle(color: c.fg0, fontSize: 13),
                   items: [
-                    const DropdownMenuItem(
-                        value: null, child: Text('— Nenhuma', style: TextStyle(color: _EColors.muted, fontSize: 13))),
+                    DropdownMenuItem(
+                        value: null, child: Text('— Nenhuma', style: TextStyle(color: c.fg2, fontSize: 13))),
                     ...ncs.map((nc) => DropdownMenuItem(
                           value: nc.id,
                           child: Text('${nc.titulo} · ${nc.status}', maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -638,38 +634,39 @@ class _ReincidenciaWarning extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: _EColors.orange.withValues(alpha: .08),
+        color: c.statusOrangeFg.withValues(alpha: .08),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: _EColors.orange.withValues(alpha: .4)),
+        border: Border.all(color: c.statusOrangeFg.withValues(alpha: .4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('⚠ Esta NC já possui uma reincidência registrada',
-              style: TextStyle(color: _EColors.orange, fontSize: 12, fontWeight: FontWeight.w800)),
+          Text('⚠ Esta NC já possui uma reincidência registrada',
+              style: TextStyle(color: c.statusOrangeFg, fontSize: 12, fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
-          const Text('Para manter o rastro linear, selecione a última NC da cadeia:',
-              style: TextStyle(color: _EColors.muted, fontSize: 11)),
+          Text('Para manter o rastro linear, selecione a última NC da cadeia:',
+              style: TextStyle(color: c.fg2, fontSize: 11)),
           const SizedBox(height: 8),
           Text(ultimaNcTitulo,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: _EColors.text, fontSize: 12, fontWeight: FontWeight.w900)),
+              style: TextStyle(color: c.fg0, fontSize: 12, fontWeight: FontWeight.w900)),
           const SizedBox(height: 8),
           GestureDetector(
             onTap: onUsarEsta,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: _EColors.orange.withValues(alpha: .18),
+                color: c.statusOrangeFg.withValues(alpha: .18),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: _EColors.orange),
+                border: Border.all(color: c.statusOrangeFg),
               ),
-              child: const Text('Usar esta NC',
-                  style: TextStyle(color: _EColors.orange, fontSize: 12, fontWeight: FontWeight.w800)),
+              child: Text('Usar esta NC',
+                  style: TextStyle(color: c.statusOrangeFg, fontSize: 12, fontWeight: FontWeight.w800)),
             ),
           ),
         ],
@@ -686,34 +683,35 @@ class _LocalizacaoField extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.c;
     final async = ref.watch(localizacoesProvider(estabelecimentoId));
     return async.when(
       loading: () => const SizedBox(
         height: 46,
         child: Center(child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))),
       ),
-      error: (_, __) => const Text('Erro ao carregar localizações', style: TextStyle(color: _EColors.red, fontSize: 12)),
+      error: (_, __) => Text('Erro ao carregar localizações', style: TextStyle(color: c.statusRedFg, fontSize: 12)),
       data: (locs) {
         final items = locs.cast<Localizacao>();
         return Container(
           height: 46,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
-            color: _EColors.surface2,
+            color: c.bgElevated,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: _EColors.border),
+            border: Border.all(color: c.borderSoft),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String?>(
               value: items.any((l) => l.id == selected) ? selected : null,
-              hint: const Text('Selecione...', style: TextStyle(color: _EColors.muted, fontSize: 14)),
+              hint: Text('Selecione...', style: TextStyle(color: c.fg2, fontSize: 14)),
               isExpanded: true,
-              dropdownColor: _EColors.surface2,
-              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: _EColors.muted),
+              dropdownColor: c.bgElevated,
+              icon: Icon(Icons.keyboard_arrow_down_rounded, color: c.fg2),
               items: items
                   .map((l) => DropdownMenuItem<String?>(
                         value: l.id,
-                        child: Text(l.nome, style: const TextStyle(color: _EColors.text, fontSize: 14)),
+                        child: Text(l.nome, style: TextStyle(color: c.fg0, fontSize: 14)),
                       ))
                   .toList(),
               onChanged: onChanged,
@@ -740,11 +738,14 @@ const _probOpts = [
   (value: 4, label: 'Provável', color: Color(0xFFf97316)),
 ];
 
-Color _riskColor(int score) {
-  if (score <= 4) return _EColors.green;
-  if (score <= 9) return const Color(0xFFDCA31D);
-  if (score <= 15) return _EColors.orange;
-  return _EColors.red;
+// Risco usa os tokens de severidade do design system (sevBaixo..sevCritico),
+// que são deliberadamente quase invariantes entre temas — um score "Crítico"
+// deve continuar lendo como crítico tanto no claro quanto no escuro.
+Color _riskColor(int score, SafeCoreColors c) {
+  if (score <= 4) return c.sevBaixo;
+  if (score <= 9) return c.sevMedio;
+  if (score <= 15) return c.sevAlto;
+  return c.sevCritico;
 }
 
 String _riskLabel(int score) {
@@ -768,41 +769,42 @@ class _RiscoPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     final score = severidade * probabilidade;
     final hasScore = severidade > 0 && probabilidade > 0;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: _EColors.surface,
+        color: c.bgSurface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _EColors.border),
+        border: Border.all(color: c.borderSoft),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('SEVERIDADE',
-              style: TextStyle(color: _EColors.muted, fontSize: 11, letterSpacing: .4, fontWeight: FontWeight.w900)),
+          Text('SEVERIDADE',
+              style: TextStyle(color: c.fg2, fontSize: 11, letterSpacing: .4, fontWeight: FontWeight.w900)),
           const SizedBox(height: 8),
           _RampRow(
               value: severidade,
               options: _sevOpts,
               onPick: (v) => onSeveridade(severidade == v ? 0 : v)),
           const SizedBox(height: 18),
-          const Text('PROBABILIDADE',
-              style: TextStyle(color: _EColors.muted, fontSize: 11, letterSpacing: .4, fontWeight: FontWeight.w900)),
+          Text('PROBABILIDADE',
+              style: TextStyle(color: c.fg2, fontSize: 11, letterSpacing: .4, fontWeight: FontWeight.w900)),
           const SizedBox(height: 8),
           _RampRow(
               value: probabilidade,
               options: _probOpts,
               onPick: (v) => onProbabilidade(probabilidade == v ? 0 : v)),
           const SizedBox(height: 20),
-          const Row(
+          Row(
             children: [
               Expanded(
                   child: Text('Matriz de Risco 5×4',
-                      style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 13, fontWeight: FontWeight.w900))),
+                      style: TextStyle(color: c.fg2, fontSize: 13, fontWeight: FontWeight.w900))),
               Text('SEV × PROB',
-                  style: TextStyle(color: _EColors.muted, fontSize: 10, fontWeight: FontWeight.w800)),
+                  style: TextStyle(color: c.fg2, fontSize: 10, fontWeight: FontWeight.w800)),
             ],
           ),
           const SizedBox(height: 12),
@@ -820,7 +822,7 @@ class _RiscoPicker extends StatelessWidget {
                     width: 28,
                     child: Text('S$s',
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: _EColors.muted, fontSize: 11, fontWeight: FontWeight.w800))),
+                        style: TextStyle(color: c.fg2, fontSize: 11, fontWeight: FontWeight.w800))),
                 for (int p = 1; p <= 4; p++)
                   Expanded(
                     child: GestureDetector(
@@ -834,7 +836,7 @@ class _RiscoPicker extends StatelessWidget {
                         margin: const EdgeInsets.all(2.5),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: _riskColor(s * p),
+                          color: _riskColor(s * p, c),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: severidade == s && probabilidade == p ? Colors.white : Colors.transparent,
@@ -856,23 +858,23 @@ class _RiscoPicker extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                  color: _EColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: _EColors.border)),
+                  color: c.bgElevated, borderRadius: BorderRadius.circular(10), border: Border.all(color: c.borderSoft)),
               child: Row(
                 children: [
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('PONTUAÇÃO',
-                            style: TextStyle(color: _EColors.muted, fontSize: 10, fontWeight: FontWeight.w900)),
+                        Text('PONTUAÇÃO',
+                            style: TextStyle(color: c.fg2, fontSize: 10, fontWeight: FontWeight.w900)),
                         const SizedBox(height: 4),
                         Text(_riskLabel(score),
-                            style: TextStyle(color: _riskColor(score), fontSize: 12, fontWeight: FontWeight.w900)),
+                            style: TextStyle(color: _riskColor(score, c), fontSize: 12, fontWeight: FontWeight.w900)),
                       ],
                     ),
                   ),
                   Text('$score',
-                      style: TextStyle(color: _riskColor(score), fontSize: 25, fontWeight: FontWeight.w900)),
+                      style: TextStyle(color: _riskColor(score, c), fontSize: 25, fontWeight: FontWeight.w900)),
                 ],
               ),
             ),
@@ -890,7 +892,7 @@ class _Axis extends StatelessWidget {
   Widget build(BuildContext context) => Expanded(
       child: Center(
           child: Text(text,
-              style: const TextStyle(color: _EColors.muted, fontSize: 11, fontWeight: FontWeight.w800))));
+              style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w800))));
 }
 
 class _RampRow extends StatelessWidget {
@@ -901,6 +903,7 @@ class _RampRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Row(
       children: options.map((o) {
         final active = value == o.value;
@@ -912,22 +915,22 @@ class _RampRow extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 2),
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
-                color: active ? o.color.withValues(alpha: .18) : _EColors.surface2,
+                color: active ? o.color.withValues(alpha: .18) : c.bgElevated,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: active ? o.color : _EColors.border),
+                border: Border.all(color: active ? o.color : c.borderSoft),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text('${o.value}',
-                      style: TextStyle(color: active ? o.color : _EColors.text, fontSize: 16, fontWeight: FontWeight.w900)),
+                      style: TextStyle(color: active ? o.color : c.fg0, fontSize: 16, fontWeight: FontWeight.w900)),
                   const SizedBox(height: 3),
                   Text(
                     o.label,
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: active ? o.color : _EColors.muted, fontSize: 9, fontWeight: FontWeight.w700),
+                    style: TextStyle(color: active ? o.color : c.fg2, fontSize: 9, fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
@@ -964,17 +967,18 @@ class _NormasChecklist extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.c;
     final async = ref.watch(normasProvider);
     return async.when(
       loading: () => const SizedBox(
         height: 46,
         child: Center(child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))),
       ),
-      error: (_, __) => const Text('Erro ao carregar normas', style: TextStyle(color: _EColors.red, fontSize: 12)),
+      error: (_, __) => Text('Erro ao carregar normas', style: TextStyle(color: c.statusRedFg, fontSize: 12)),
       data: (normas) {
         final items = normas.cast<Norma>();
         if (items.isEmpty) {
-          return const Text('Nenhuma norma cadastrada.', style: TextStyle(color: _EColors.muted2, fontSize: 12));
+          return Text('Nenhuma norma cadastrada.', style: TextStyle(color: c.fg3, fontSize: 12));
         }
         return Column(
           children: items.map((n) {
@@ -985,9 +989,9 @@ class _NormasChecklist extends ConsumerWidget {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 decoration: BoxDecoration(
-                  color: checked ? _EColors.blue.withValues(alpha: .08) : _EColors.surface,
+                  color: checked ? c.accent.withValues(alpha: .08) : c.bgSurface,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: checked ? _EColors.blue : _EColors.border),
+                  border: Border.all(color: checked ? c.accent : c.borderSoft),
                 ),
                 child: Column(children: [
                   InkWell(
@@ -1002,9 +1006,9 @@ class _NormasChecklist extends ConsumerWidget {
                           width: 20,
                           height: 20,
                           decoration: BoxDecoration(
-                            color: checked ? _EColors.blue : Colors.transparent,
+                            color: checked ? c.accent : Colors.transparent,
                             borderRadius: BorderRadius.circular(5),
-                            border: Border.all(color: checked ? _EColors.blue : _EColors.muted2, width: 1.5),
+                            border: Border.all(color: checked ? c.accent : c.fg3, width: 1.5),
                           ),
                           child: checked ? const Icon(Icons.check, color: Colors.white, size: 13) : null,
                         ),
@@ -1012,7 +1016,7 @@ class _NormasChecklist extends ConsumerWidget {
                         Expanded(
                           child: Text(n.nome,
                               style: TextStyle(
-                                  color: checked ? _EColors.blue : _EColors.text,
+                                  color: checked ? c.accent : c.fg0,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w700)),
                         ),
@@ -1020,7 +1024,7 @@ class _NormasChecklist extends ConsumerWidget {
                     ),
                   ),
                   if (checked) ...[
-                    Container(height: 1, color: _EColors.border),
+                    Container(height: 1, color: c.borderSoft),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
                       child: Column(
@@ -1032,26 +1036,26 @@ class _NormasChecklist extends ConsumerWidget {
                               padding: const EdgeInsets.all(10),
                               margin: const EdgeInsets.only(bottom: 10),
                               decoration: BoxDecoration(
-                                color: _EColors.surface2,
+                                color: c.bgElevated,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: _EColors.muted2),
+                                border: Border.all(color: c.fg3),
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Icon(Icons.format_quote, color: _EColors.blue, size: 14),
+                                  Icon(Icons.format_quote, color: c.accent, size: 14),
                                   const SizedBox(width: 6),
                                   Expanded(
                                     child: Text(
                                       trecho.clausulaReferencia != null
                                           ? '${trecho.clausulaReferencia} — ${trecho.textoEditado}'
                                           : trecho.textoEditado,
-                                      style: const TextStyle(color: _EColors.text, fontSize: 12, height: 1.4),
+                                      style: TextStyle(color: c.fg0, fontSize: 12, height: 1.4),
                                     ),
                                   ),
                                   GestureDetector(
                                     onTap: () => onTrechoChanged(n.id, null),
-                                    child: const Icon(Icons.close, color: _EColors.muted, size: 14),
+                                    child: Icon(Icons.close, color: c.fg2, size: 14),
                                   ),
                                 ],
                               ),
@@ -1062,15 +1066,15 @@ class _NormasChecklist extends ConsumerWidget {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
-                                color: _EColors.surface2,
+                                color: c.bgElevated,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: _EColors.border),
+                                border: Border.all(color: c.borderSoft),
                               ),
-                              child: const Row(mainAxisSize: MainAxisSize.min, children: [
-                                Icon(Icons.edit_outlined, color: _EColors.muted, size: 13),
-                                SizedBox(width: 5),
+                              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                                Icon(Icons.edit_outlined, color: c.fg2, size: 13),
+                                const SizedBox(width: 5),
                                 Text('Escrever manual',
-                                    style: TextStyle(color: _EColors.text, fontSize: 12, fontWeight: FontWeight.w700)),
+                                    style: TextStyle(color: c.fg0, fontSize: 12, fontWeight: FontWeight.w700)),
                               ]),
                             ),
                           ),
@@ -1104,6 +1108,7 @@ class _ResponsavelField extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.c;
     final async = porEmpresa
         ? ref.watch(usuariosPorEmpresaProvider(sourceId))
         : ref.watch(usuariosProvider(sourceId));
@@ -1112,7 +1117,7 @@ class _ResponsavelField extends ConsumerWidget {
         height: 46,
         child: Center(child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))),
       ),
-      error: (_, __) => const Text('Erro ao carregar usuários', style: TextStyle(color: _EColors.red, fontSize: 12)),
+      error: (_, __) => Text('Erro ao carregar usuários', style: TextStyle(color: c.statusRedFg, fontSize: 12)),
       data: (todos) {
         final usuarios = todos.cast<UsuarioSummary>().where((u) => filterPerfis.contains(u.perfil)).toList();
         final selected = usuarios.where((u) => u.id == selectedId).cast<UsuarioSummary?>().firstOrNull;
@@ -1122,25 +1127,25 @@ class _ResponsavelField extends ConsumerWidget {
             height: 46,
             padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
-              color: _EColors.surface2,
+              color: c.bgElevated,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: _EColors.border),
+              border: Border.all(color: c.borderSoft),
             ),
             child: Row(
               children: [
-                const Icon(Icons.person_outline_rounded, color: _EColors.muted, size: 16),
+                Icon(Icons.person_outline_rounded, color: c.fg2, size: 16),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     selected?.nome ?? 'Selecionar responsável',
                     style: TextStyle(
-                      color: selected != null ? _EColors.text : _EColors.muted,
+                      color: selected != null ? c.fg0 : c.fg2,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
-                const Icon(Icons.keyboard_arrow_down_rounded, color: _EColors.muted, size: 18),
+                Icon(Icons.keyboard_arrow_down_rounded, color: c.fg2, size: 18),
               ],
             ),
           ),
@@ -1150,27 +1155,28 @@ class _ResponsavelField extends ConsumerWidget {
   }
 
   void _showPicker(BuildContext context, List<UsuarioSummary> usuarios, UsuarioSummary? selected) {
+    final c = context.c;
     // showModalBottomSheet resolve com `null` tanto quando o usuário toca fora
     // da sheet (cancelar) quanto quando escolhe explicitamente uma opção que
     // representa "nenhum". _PickResult existe só para distinguir os dois casos:
     // resultado `null` = cancelou (ignorar); `_PickResult(null)` = escolheu limpar.
     showModalBottomSheet<_PickResult>(
       context: context,
-      backgroundColor: _EColors.surface,
+      backgroundColor: c.bgSurface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (sheetContext) => SafeArea(
         child: ListView(
           shrinkWrap: true,
           children: [
             ListTile(
-              title: const Text('— Nenhum —', style: TextStyle(color: _EColors.muted, fontSize: 14)),
+              title: Text('— Nenhum —', style: TextStyle(color: c.fg2, fontSize: 14)),
               onTap: () => Navigator.pop(sheetContext, const _PickResult(null)),
             ),
             for (final u in usuarios)
               ListTile(
-                title: Text(u.nome, style: const TextStyle(color: _EColors.text, fontSize: 14)),
-                subtitle: Text(u.perfil, style: const TextStyle(color: _EColors.muted2, fontSize: 11)),
-                trailing: u.id == selected?.id ? const Icon(Icons.check, color: _EColors.green) : null,
+                title: Text(u.nome, style: TextStyle(color: c.fg0, fontSize: 14)),
+                subtitle: Text(u.perfil, style: TextStyle(color: c.fg3, fontSize: 11)),
+                trailing: u.id == selected?.id ? Icon(Icons.check, color: c.statusGreenFg) : null,
                 onTap: () => Navigator.pop(sheetContext, _PickResult(u)),
               ),
           ],
@@ -1204,15 +1210,16 @@ class _SignalCheckRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: checked ? color.withValues(alpha: .07) : _EColors.surface,
+          color: checked ? color.withValues(alpha: .07) : c.bgSurface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: checked ? color : _EColors.border),
+          border: Border.all(color: checked ? color : c.borderSoft),
         ),
         child: Row(
           children: [
@@ -1223,7 +1230,7 @@ class _SignalCheckRow extends StatelessWidget {
               decoration: BoxDecoration(
                 color: checked ? color : Colors.transparent,
                 borderRadius: BorderRadius.circular(5),
-                border: Border.all(color: checked ? color : _EColors.muted2, width: 1.5),
+                border: Border.all(color: checked ? color : c.fg3, width: 1.5),
               ),
               child: checked ? const Icon(Icons.check, color: Colors.white, size: 13) : null,
             ),
@@ -1234,12 +1241,12 @@ class _SignalCheckRow extends StatelessWidget {
                 children: [
                   Text(title,
                       style: TextStyle(
-                          color: checked ? color : _EColors.text,
+                          color: checked ? color : c.fg0,
                           fontSize: 13,
                           fontWeight: FontWeight.w800)),
                   const SizedBox(height: 2),
                   Text(subtitle,
-                      style: const TextStyle(color: _EColors.muted, fontSize: 11, height: 1.3)),
+                      style: TextStyle(color: c.fg2, fontSize: 11, height: 1.3)),
                 ],
               ),
             ),
@@ -1264,13 +1271,14 @@ class _EditFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return SafeArea(
       top: false,
       child: Container(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-        decoration: const BoxDecoration(
-          color: _EColors.surface,
-          border: Border(top: BorderSide(color: _EColors.border)),
+        decoration: BoxDecoration(
+          color: c.bgSurface,
+          border: Border(top: BorderSide(color: c.borderSoft)),
         ),
         child: Row(
           children: [
@@ -1314,12 +1322,13 @@ class _EditFooterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return SizedBox(
       height: 48,
       child: FilledButton.icon(
         style: FilledButton.styleFrom(
-          backgroundColor: primary ? _EColors.blue : _EColors.surface2,
-          foregroundColor: primary ? Colors.white : _EColors.text,
+          backgroundColor: primary ? c.accent : c.bgElevated,
+          foregroundColor: primary ? Colors.white : c.fg0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
         onPressed: onTap,

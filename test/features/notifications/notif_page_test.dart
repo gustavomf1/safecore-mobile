@@ -7,6 +7,7 @@ import 'package:safecore_mobile/features/notifications/notif_page.dart';
 import 'package:safecore_mobile/features/notifications/model/notificacao_item.dart';
 import 'package:safecore_mobile/features/notifications/repository/notificacao_repository.dart';
 import 'package:safecore_mobile/features/notifications/repository/notificacao_repository_impl.dart';
+import 'package:safecore_mobile/shared/theme/tokens.dart';
 
 class _MockNotificacaoRepository extends Mock implements NotificacaoRepository {}
 
@@ -18,7 +19,7 @@ GoRouter _buildRouter() => GoRouter(routes: [
 
 Widget _wrap(List<Override> overrides) => ProviderScope(
       overrides: overrides,
-      child: MaterialApp.router(routerConfig: _buildRouter()),
+      child: MaterialApp.router(theme: safeCoreThemeDark(), routerConfig: _buildRouter()),
     );
 
 final _itemNc = NotificacaoItem(

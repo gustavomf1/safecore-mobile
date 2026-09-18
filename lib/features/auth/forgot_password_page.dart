@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../shared/widgets/prototype_ui.dart';
+import '../../shared/theme/tokens.dart';
 import 'repository/auth_repository_impl.dart';
 
 class ForgotPasswordPage extends ConsumerStatefulWidget {
@@ -20,7 +20,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ProtoColors.bg,
+      backgroundColor: context.c.bgBase,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -179,6 +179,7 @@ class _StepCodigoState extends ConsumerState<_StepCodigo> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     final masked = _maskEmail(widget.email);
     return _ForgotCard(
       onBack: widget.onBack,
@@ -197,22 +198,22 @@ class _StepCodigoState extends ConsumerState<_StepCodigo> {
                 textAlign: TextAlign.center,
                 maxLength: 1,
                 keyboardType: TextInputType.number,
-                style: const TextStyle(color: ProtoColors.text, fontSize: 20, fontWeight: FontWeight.w800),
+                style: SafeCoreType.title.copyWith(color: c.fg0, fontSize: 20),
                 decoration: InputDecoration(
                   counterText: '',
                   filled: true,
-                  fillColor: ProtoColors.surface2,
+                  fillColor: c.bgElevated,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: err ? ProtoColors.red : ProtoColors.border),
+                    borderSide: BorderSide(color: err ? c.statusRedFg : c.borderSoft),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: err ? ProtoColors.red : ProtoColors.border),
+                    borderSide: BorderSide(color: err ? c.statusRedFg : c.borderSoft),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: ProtoColors.blue),
+                    borderSide: BorderSide(color: c.accent),
                   ),
                 ),
                 onChanged: (v) => _onChanged(i, v),
@@ -291,6 +292,7 @@ class _StepNovaSenhaState extends ConsumerState<_StepNovaSenha> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     final checks = _checks;
     return _ForgotCard(
       onBack: null,
@@ -299,7 +301,7 @@ class _StepNovaSenhaState extends ConsumerState<_StepNovaSenha> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Nova senha', style: TextStyle(color: ProtoColors.muted, fontSize: 11, fontWeight: FontWeight.w800)),
+          Text('Nova senha', style: SafeCoreType.label.copyWith(color: c.fg2)),
           const SizedBox(height: 6),
           _ForgotInput(
             controller: pw,
@@ -320,18 +322,15 @@ class _StepNovaSenhaState extends ConsumerState<_StepNovaSenha> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(met ? Icons.check_circle : Icons.circle_outlined,
-                      size: 13, color: met ? ProtoColors.green : ProtoColors.muted),
+                      size: 13, color: met ? c.statusGreenFg : c.fg2),
                   const SizedBox(width: 4),
-                  Text(r.$2, style: TextStyle(
-                    color: met ? ProtoColors.text : ProtoColors.muted,
-                    fontSize: 11, fontWeight: FontWeight.w700,
-                  )),
+                  Text(r.$2, style: SafeCoreType.body.copyWith(color: met ? c.fg0 : c.fg2)),
                 ],
               );
             }).toList(),
           ),
           const SizedBox(height: 16),
-          const Text('Confirmar nova senha', style: TextStyle(color: ProtoColors.muted, fontSize: 11, fontWeight: FontWeight.w800)),
+          Text('Confirmar nova senha', style: SafeCoreType.label.copyWith(color: c.fg2)),
           const SizedBox(height: 6),
           _ForgotInput(
             controller: pw2,
@@ -345,10 +344,10 @@ class _StepNovaSenhaState extends ConsumerState<_StepNovaSenha> {
             Row(
               children: [
                 Icon(_match ? Icons.check_circle : Icons.cancel,
-                    size: 14, color: _match ? ProtoColors.green : ProtoColors.red),
+                    size: 14, color: _match ? c.statusGreenFg : c.statusRedFg),
                 const SizedBox(width: 6),
                 Text(_match ? 'As senhas coincidem' : 'As senhas não coincidem',
-                    style: TextStyle(color: _match ? ProtoColors.green : ProtoColors.red, fontSize: 11, fontWeight: FontWeight.w700)),
+                    style: SafeCoreType.body.copyWith(color: _match ? c.statusGreenFg : c.statusRedFg)),
               ],
             ),
           ],
@@ -374,12 +373,13 @@ class _StepSucesso extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: ProtoColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ProtoColors.border),
+        color: c.bgSurface,
+        borderRadius: BorderRadius.circular(SafeCoreRadius.lg),
+        border: Border.all(color: c.borderSoft),
       ),
       constraints: const BoxConstraints(maxWidth: 380),
       child: Column(
@@ -388,16 +388,16 @@ class _StepSucesso extends StatelessWidget {
           Container(
             width: 64,
             height: 64,
-            decoration: const BoxDecoration(color: ProtoColors.green, shape: BoxShape.circle),
+            decoration: BoxDecoration(color: c.statusGreenFg, shape: BoxShape.circle),
             child: const Icon(Icons.check_rounded, color: Colors.white, size: 34),
           ),
           const SizedBox(height: 18),
-          const Text('Senha alterada!', style: TextStyle(color: ProtoColors.text, fontSize: 20, fontWeight: FontWeight.w900)),
+          Text('Senha alterada!', style: SafeCoreType.title.copyWith(color: c.fg0, fontSize: 20)),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Sua senha foi redefinida com sucesso. Já pode acessar o sistema com a nova senha.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: ProtoColors.muted, fontSize: 12, height: 1.45),
+            style: SafeCoreType.bodyRegular.copyWith(color: c.fg2, fontSize: 12, height: 1.45),
           ),
           const SizedBox(height: 22),
           SizedBox(
@@ -405,12 +405,12 @@ class _StepSucesso extends StatelessWidget {
             height: 52,
             child: FilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor: ProtoColors.blue,
+                backgroundColor: c.accent,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SafeCoreRadius.md)),
               ),
               onPressed: () => context.go('/login'),
-              child: const Text('Ir para o login', style: TextStyle(fontWeight: FontWeight.w800)),
+              child: Text('Ir para o login', style: SafeCoreType.subtitle.copyWith(color: Colors.white)),
             ),
           ),
         ],
@@ -434,12 +434,13 @@ class _ForgotCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: ProtoColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ProtoColors.border),
+        color: c.bgSurface,
+        borderRadius: BorderRadius.circular(SafeCoreRadius.lg),
+        border: Border.all(color: c.borderSoft),
       ),
       constraints: const BoxConstraints(maxWidth: 380),
       child: Column(
@@ -450,13 +451,13 @@ class _ForgotCard extends StatelessWidget {
             TextButton.icon(
               onPressed: onBack,
               style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 32)),
-              icon: const Icon(Icons.arrow_back_rounded, size: 15, color: ProtoColors.muted),
-              label: const Text('Voltar', style: TextStyle(color: ProtoColors.muted, fontSize: 12, fontWeight: FontWeight.w800)),
+              icon: Icon(Icons.arrow_back_rounded, size: 15, color: c.fg2),
+              label: Text('Voltar', style: SafeCoreType.label.copyWith(color: c.fg2)),
             ),
           if (onBack != null) const SizedBox(height: 8),
-          Text(title, style: const TextStyle(color: ProtoColors.text, fontSize: 20, fontWeight: FontWeight.w900)),
+          Text(title, style: SafeCoreType.title.copyWith(color: c.fg0, fontSize: 20)),
           const SizedBox(height: 6),
-          Text(subtitle, style: const TextStyle(color: ProtoColors.muted, fontSize: 12, height: 1.45)),
+          Text(subtitle, style: SafeCoreType.bodyRegular.copyWith(color: c.fg2, fontSize: 12, height: 1.45)),
           const SizedBox(height: 20),
           child,
         ],
@@ -488,28 +489,29 @@ class _ForgotInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Container(
       height: 50,
       decoration: BoxDecoration(
-        color: ProtoColors.surface2,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: ProtoColors.border),
+        color: c.bgElevated,
+        borderRadius: BorderRadius.circular(SafeCoreRadius.md),
+        border: Border.all(color: c.borderSoft),
       ),
       child: TextField(
         controller: controller,
         obscureText: obscure,
         keyboardType: keyboardType,
         onChanged: onChanged,
-        style: const TextStyle(color: ProtoColors.text, fontSize: 12, fontWeight: FontWeight.w700),
+        style: SafeCoreType.bodyMedium.copyWith(color: c.fg0),
         decoration: InputDecoration(
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
           filled: false,
           hintText: hint,
-          prefixIcon: Icon(icon, size: 16, color: ProtoColors.muted),
+          prefixIcon: Icon(icon, size: 16, color: c.fg2),
           suffixIcon: trailing == null ? null : IconButton(
-            icon: Icon(trailing, size: 16, color: ProtoColors.muted),
+            icon: Icon(trailing, size: 16, color: c.fg2),
             onPressed: onTrailingTap,
           ),
           contentPadding: const EdgeInsets.symmetric(vertical: 15),
@@ -534,14 +536,15 @@ class _PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return SizedBox(
       width: double.infinity,
       height: 52,
       child: FilledButton(
         style: FilledButton.styleFrom(
-          backgroundColor: ProtoColors.blue,
+          backgroundColor: c.accent,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SafeCoreRadius.md)),
         ),
         onPressed: (enabled && !loading) ? onPressed : null,
         child: loading
@@ -549,7 +552,7 @@ class _PrimaryButton extends StatelessWidget {
                 width: 18, height: 18,
                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
               )
-            : Text(label, style: const TextStyle(fontWeight: FontWeight.w800)),
+            : Text(label, style: SafeCoreType.subtitle.copyWith(color: Colors.white)),
       ),
     );
   }
@@ -561,11 +564,12 @@ class _ErrorLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Row(
       children: [
-        const Icon(Icons.error_outline_rounded, color: ProtoColors.red, size: 14),
+        Icon(Icons.error_outline_rounded, color: c.statusRedFg, size: 14),
         const SizedBox(width: 6),
-        Expanded(child: Text(message, style: const TextStyle(color: ProtoColors.red, fontSize: 12, fontWeight: FontWeight.w700))),
+        Expanded(child: Text(message, style: SafeCoreType.body.copyWith(color: c.statusRedFg))),
       ],
     );
   }

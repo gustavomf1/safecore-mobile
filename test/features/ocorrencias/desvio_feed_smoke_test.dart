@@ -14,6 +14,7 @@ import 'package:safecore_mobile/features/ocorrencias/repository/ocorrencias_repo
 import 'package:safecore_mobile/features/ocorrencias/desvio_feed_page.dart';
 import 'package:safecore_mobile/shared/widgets/safecore_cover_card.dart';
 import 'package:safecore_mobile/shared/widgets/safecore_skeleton.dart';
+import 'package:safecore_mobile/shared/theme/tokens.dart';
 
 class MockAuthNotifier extends AsyncNotifier<LoginResponse?>
     with Mock
@@ -38,7 +39,7 @@ final _router = GoRouter(routes: [
 
 Widget _wrap(List<Override> overrides) => ProviderScope(
       overrides: overrides,
-      child: MaterialApp.router(routerConfig: _router),
+      child: MaterialApp.router(theme: safeCoreThemeDark(), routerConfig: _router),
     );
 
 const _dv = OcorrenciaSummary(

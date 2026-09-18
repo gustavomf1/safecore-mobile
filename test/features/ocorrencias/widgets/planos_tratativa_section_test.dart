@@ -3,8 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:safecore_mobile/features/ocorrencias/model/desvio_detail.dart';
 import 'package:safecore_mobile/features/ocorrencias/model/trativa_desvio.dart';
 import 'package:safecore_mobile/features/ocorrencias/widgets/planos_tratativa_section.dart';
+import 'package:safecore_mobile/shared/theme/tokens.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
+      theme: safeCoreThemeDark(),
       home: Scaffold(body: SingleChildScrollView(child: child)),
     );
 

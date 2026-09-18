@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../shared/theme/tokens.dart';
 import '../../../shared/widgets/prototype_ui.dart';
 import '../repository/email_padrao_repository.dart';
 
@@ -48,6 +49,7 @@ class _EmailEditorState extends ConsumerState<EmailEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     final padraoAsync = ref.watch(emailsPadraoProvider((
       estabelecimentoId: widget.estabelecimentoId,
       empresaId: widget.empresaId,
@@ -59,10 +61,10 @@ class _EmailEditorState extends ConsumerState<EmailEditor> {
         const ProtoSectionTitle('Notificacoes por e-mail'),
         const SizedBox(height: 8),
         padraoAsync.when(
-          loading: () => const SizedBox(
+          loading: () => SizedBox(
             height: 18,
             width: 18,
-            child: CircularProgressIndicator(strokeWidth: 2, color: ProtoColors.blue),
+            child: CircularProgressIndicator(strokeWidth: 2, color: c.accent),
           ),
           error: (_, __) => const SizedBox.shrink(),
           data: (lista) {
@@ -87,8 +89,8 @@ class _EmailEditorState extends ConsumerState<EmailEditor> {
                   child: ProtoPill(
                     label: e.email,
                     icon: excluido ? Icons.close_rounded : Icons.check_rounded,
-                    bg: excluido ? ProtoColors.surface2 : const Color(0xFF0B3A1C),
-                    fg: excluido ? ProtoColors.muted : ProtoColors.green,
+                    bg: excluido ? c.bgElevated : c.statusGreenBg,
+                    fg: excluido ? c.fg2 : c.statusGreenFg,
                   ),
                 );
               }).toList(),
@@ -101,14 +103,14 @@ class _EmailEditorState extends ConsumerState<EmailEditor> {
             Expanded(
               child: TextField(
                 controller: _controller,
-                style: const TextStyle(color: ProtoColors.text, fontSize: 13),
+                style: TextStyle(color: c.fg0, fontSize: 13),
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Adicionar e-mail manual',
-                  hintStyle: TextStyle(color: ProtoColors.muted, fontSize: 13),
+                  hintStyle: TextStyle(color: c.fg2, fontSize: 13),
                   isDense: true,
                   enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: ProtoColors.border),
+                    borderSide: BorderSide(color: c.borderSoft),
                   ),
                 ),
                 onSubmitted: (_) => _addManual(),
@@ -134,8 +136,8 @@ class _EmailEditorState extends ConsumerState<EmailEditor> {
                       child: ProtoPill(
                         label: entry.value,
                         icon: Icons.close_rounded,
-                        bg: const Color(0xFF1A2A4A),
-                        fg: ProtoColors.blue,
+                        bg: c.accent.withValues(alpha: .15),
+                        fg: c.accent,
                       ),
                     ))
                 .toList(),

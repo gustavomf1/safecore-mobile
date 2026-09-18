@@ -7,7 +7,7 @@ import '../ocorrencias/model/estabelecimento.dart';
 import '../ocorrencias/repository/support_repository_impl.dart';
 import '../auth/model/workspace_state.dart';
 import 'provider/auth_provider.dart';
-import '../../shared/widgets/prototype_ui.dart';
+import '../../shared/theme/tokens.dart';
 
 enum _Step { empresa, estabelecimento, empresaFilha }
 
@@ -59,8 +59,9 @@ class _WorkspaceSelectPageState extends ConsumerState<WorkspaceSelectPage> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Scaffold(
-      backgroundColor: ProtoColors.bg,
+      backgroundColor: c.bgBase,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,7 +72,7 @@ class _WorkspaceSelectPageState extends ConsumerState<WorkspaceSelectPage> {
                 children: [
                   if (step != _Step.empresa)
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_rounded, color: ProtoColors.text),
+                      icon: Icon(Icons.arrow_back_rounded, color: c.fg0),
                       onPressed: _voltar,
                     ),
                   Expanded(
@@ -84,11 +85,7 @@ class _WorkspaceSelectPageState extends ConsumerState<WorkspaceSelectPage> {
                               : step == _Step.estabelecimento
                                   ? 'Selecionar estabelecimento'
                                   : 'Empresa contratada',
-                          style: const TextStyle(
-                            color: ProtoColors.text,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900,
-                          ),
+                          style: SafeCoreType.headline.copyWith(color: c.fg0),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -97,7 +94,7 @@ class _WorkspaceSelectPageState extends ConsumerState<WorkspaceSelectPage> {
                               : step == _Step.estabelecimento
                                   ? empresaSelecionada?.nome ?? ''
                                   : estabelecimentoSelecionado?.nome ?? '',
-                          style: const TextStyle(color: ProtoColors.muted, fontSize: 13),
+                          style: SafeCoreType.bodyRegular.copyWith(color: c.fg2, fontSize: 13),
                         ),
                       ],
                     ),
@@ -160,20 +157,17 @@ class _Dot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Container(
       width: 28,
       height: 28,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: active ? ProtoColors.blue : ProtoColors.surface,
+        color: active ? c.accent : c.bgSurface,
         shape: BoxShape.circle,
-        border: Border.all(color: active ? ProtoColors.blue : ProtoColors.border),
+        border: Border.all(color: active ? c.accent : c.borderSoft),
       ),
-      child: Text(label,
-          style: TextStyle(
-              color: active ? Colors.white : ProtoColors.muted,
-              fontSize: 12,
-              fontWeight: FontWeight.w900)),
+      child: Text(label, style: SafeCoreType.label.copyWith(color: active ? Colors.white : c.fg2, fontSize: 12)),
     );
   }
 }
@@ -184,10 +178,11 @@ class _Line extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Expanded(
       child: Container(
         height: 2,
-        color: active ? ProtoColors.blue : ProtoColors.border,
+        color: active ? c.accent : c.borderSoft,
       ),
     );
   }
@@ -199,10 +194,11 @@ class _ListaEmpresas extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.c;
     final async = ref.watch(empresasMaeProvider);
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Erro: $e', style: const TextStyle(color: ProtoColors.red))),
+      error: (e, _) => Center(child: Text('Erro: $e', style: TextStyle(color: c.statusRedFg))),
       data: (list) => _Lista(
         items: list.map((e) => _Item(id: e.id, nome: e.nome, onTap: () => onSelect(e))).toList(),
       ),
@@ -217,14 +213,15 @@ class _ListaEstabelecimentos extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.c;
     final async = ref.watch(estabelecimentosProvider);
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Erro: $e', style: const TextStyle(color: ProtoColors.red))),
+      error: (e, _) => Center(child: Text('Erro: $e', style: TextStyle(color: c.statusRedFg))),
       data: (list) {
         final filtrados = list.where((e) => e.empresaId == empresaId).toList();
         if (filtrados.isEmpty) {
-          return const Center(child: Text('Nenhum estabelecimento encontrado.', style: TextStyle(color: ProtoColors.muted)));
+          return Center(child: Text('Nenhum estabelecimento encontrado.', style: SafeCoreType.body.copyWith(color: c.fg2)));
         }
         return _Lista(
           items: filtrados.map((e) => _Item(id: e.id, nome: e.nome, onTap: () => onSelect(e))).toList(),
@@ -241,13 +238,14 @@ class _ListaEmpresasFilhas extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.c;
     final async = ref.watch(empresasDoEstabelecimentoProvider(estabelecimentoId));
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Erro: $e', style: const TextStyle(color: ProtoColors.red))),
+      error: (e, _) => Center(child: Text('Erro: $e', style: TextStyle(color: c.statusRedFg))),
       data: (list) {
         if (list.isEmpty) {
-          return const Center(child: Text('Nenhuma empresa contratada encontrada.', style: TextStyle(color: ProtoColors.muted)));
+          return Center(child: Text('Nenhuma empresa contratada encontrada.', style: SafeCoreType.body.copyWith(color: c.fg2)));
         }
         return _Lista(
           items: list.map((e) => _Item(id: e.id, nome: e.nome, onTap: () => onSelect(e))).toList(),
@@ -280,26 +278,23 @@ class _Item extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return InkWell(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(SafeCoreRadius.md),
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: ProtoColors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: ProtoColors.border),
+          color: c.bgSurface,
+          borderRadius: BorderRadius.circular(SafeCoreRadius.md),
+          border: Border.all(color: c.borderSoft),
         ),
         child: Row(
           children: [
             Expanded(
-              child: Text(nome,
-                  style: const TextStyle(
-                      color: ProtoColors.text,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700)),
+              child: Text(nome, style: SafeCoreType.bodyStrong.copyWith(color: c.fg0, fontSize: 14)),
             ),
-            const Icon(Icons.arrow_forward_ios_rounded, color: ProtoColors.muted, size: 14),
+            Icon(Icons.arrow_forward_ios_rounded, color: c.fg2, size: 14),
           ],
         ),
       ),

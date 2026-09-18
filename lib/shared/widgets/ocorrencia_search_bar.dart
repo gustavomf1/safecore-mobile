@@ -17,6 +17,7 @@ class OcorrenciaSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -24,26 +25,26 @@ class OcorrenciaSearchBar extends StatelessWidget {
           child: TextField(
             controller: controller,
             onChanged: onChanged,
-            style: TextStyle(color: SafeCoreColors.dark.fg0, fontSize: 13),
+            style: SafeCoreType.bodyMedium.copyWith(color: c.fg0),
             decoration: InputDecoration(
               isDense: true,
               hintText: 'Buscar por título, localização ou código...',
-              hintStyle: TextStyle(color: SafeCoreColors.dark.fg3, fontSize: 13),
-              prefixIcon: Icon(Icons.search_rounded, size: 19, color: SafeCoreColors.dark.fg2),
+              hintStyle: SafeCoreType.bodyMedium.copyWith(color: c.fg2),
+              prefixIcon: Icon(Icons.search_rounded, size: 19, color: c.fg2),
               filled: true,
-              fillColor: SafeCoreColors.dark.bgSurface,
+              fillColor: c.bgSurface,
               contentPadding: const EdgeInsets.symmetric(vertical: 13),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(SafeCoreRadius.md),
-                borderSide: BorderSide(color: SafeCoreColors.dark.borderSoft),
+                borderSide: BorderSide(color: c.borderSoft),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(SafeCoreRadius.md),
-                borderSide: BorderSide(color: SafeCoreColors.dark.borderSoft),
+                borderSide: BorderSide(color: c.borderSoft),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(SafeCoreRadius.md),
-                borderSide: BorderSide(color: SafeCoreColors.dark.accent, width: 1.4),
+                borderSide: BorderSide(color: c.accent, width: 1.4),
               ),
             ),
           ),
@@ -62,6 +63,7 @@ class _FilterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     final active = count > 0;
     return InkWell(
       borderRadius: BorderRadius.circular(SafeCoreRadius.md),
@@ -71,9 +73,9 @@ class _FilterButton extends StatelessWidget {
         height: 46,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: active ? SafeCoreColors.dark.accent.withValues(alpha: 0.15) : SafeCoreColors.dark.bgSurface,
+          color: active ? c.accent.withValues(alpha: 0.15) : c.bgSurface,
           borderRadius: BorderRadius.circular(SafeCoreRadius.md),
-          border: Border.all(color: active ? SafeCoreColors.dark.accent : SafeCoreColors.dark.borderSoft),
+          border: Border.all(color: active ? c.accent : c.borderSoft),
         ),
         child: Stack(
           clipBehavior: Clip.none,
@@ -82,7 +84,7 @@ class _FilterButton extends StatelessWidget {
               child: Icon(
                 Icons.tune_rounded,
                 size: 20,
-                color: active ? SafeCoreColors.dark.accent : SafeCoreColors.dark.fg2,
+                color: active ? c.accent : c.fg2,
               ),
             ),
             if (active)
@@ -92,7 +94,7 @@ class _FilterButton extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(3),
                   constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                  decoration: BoxDecoration(color: SafeCoreColors.dark.accent, shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: c.accent, shape: BoxShape.circle),
                   child: Text(
                     '$count',
                     textAlign: TextAlign.center,

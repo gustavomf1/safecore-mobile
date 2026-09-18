@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:safecore_mobile/features/auth/model/login_response.dart';
 import 'package:safecore_mobile/features/auth/provider/auth_provider.dart';
 import 'package:safecore_mobile/shared/widgets/safecore_shell.dart';
+import 'package:safecore_mobile/shared/theme/tokens.dart';
 
 class _FakeAuthNotifier extends AuthNotifier {
   _FakeAuthNotifier(this._session);
@@ -41,7 +42,7 @@ Widget _wrap(LoginResponse? session) {
     overrides: [
       authProvider.overrideWith(() => _FakeAuthNotifier(session)),
     ],
-    child: MaterialApp.router(routerConfig: router),
+    child: MaterialApp.router(theme: safeCoreThemeDark(), routerConfig: router),
   );
 }
 

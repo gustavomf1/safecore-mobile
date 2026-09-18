@@ -8,12 +8,14 @@ import 'package:mocktail/mocktail.dart';
 import 'package:safecore_mobile/features/ocorrencias/model/desvio_action_requests.dart';
 import 'package:safecore_mobile/features/ocorrencias/repository/desvio_repository.dart';
 import 'package:safecore_mobile/features/ocorrencias/repository/desvio_repository_impl.dart';
+import 'package:safecore_mobile/shared/theme/tokens.dart';
 
 class MockDesvioRepository extends Mock implements DesvioRepository {}
 
 Widget _wrapWithRepo(Widget child, DesvioRepository repo) => ProviderScope(
       overrides: [desvioRepositoryProvider.overrideWithValue(repo)],
       child: MaterialApp(
+        theme: safeCoreThemeDark(),
         home: Scaffold(body: SingleChildScrollView(child: child)),
       ),
     );
@@ -44,6 +46,7 @@ DesvioDetail _buildDesvio() => const DesvioDetail(
 
 Widget _wrap(Widget child) => ProviderScope(
       child: MaterialApp(
+        theme: safeCoreThemeDark(),
         home: Scaffold(body: SingleChildScrollView(child: child)),
       ),
     );

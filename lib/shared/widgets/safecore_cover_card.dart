@@ -29,6 +29,7 @@ class SafeCoreCoverCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return TapScale(
       onTap: onTap,
       child: Padding(
@@ -42,7 +43,7 @@ class SafeCoreCoverCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  _buildCover(),
+                  _buildCover(c),
                   // scrim gradiente
                   const DecoratedBox(
                     decoration: BoxDecoration(
@@ -74,7 +75,7 @@ class SafeCoreCoverCard extends StatelessWidget {
                           Text(
                             codigo!,
                             style: TextStyle(
-                              color: SafeCoreColors.dark.accent,
+                              color: c.accent,
                               fontSize: 11,
                               fontWeight: FontWeight.w900,
                               fontFamily: 'monospace',
@@ -87,12 +88,7 @@ class SafeCoreCoverCard extends StatelessWidget {
                           titulo,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: SafeCoreColors.dark.fg0,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            height: 1.3,
-                          ),
+                          style: SafeCoreType.subtitle.copyWith(color: c.fg0, height: 1.3),
                         ),
                         if (meta != null && meta!.isNotEmpty) ...[
                           const SizedBox(height: 3),
@@ -100,10 +96,7 @@ class SafeCoreCoverCard extends StatelessWidget {
                             meta!,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: SafeCoreColors.dark.fg2,
-                              fontSize: 11,
-                            ),
+                            style: SafeCoreType.body.copyWith(color: c.fg2),
                           ),
                         ],
                       ],
@@ -118,7 +111,7 @@ class SafeCoreCoverCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCover() {
+  Widget _buildCover(SafeCoreColors c) {
     // Caminho 1: imagem
     if (hasImageCover && coverUrl != null) {
       return SafeCoreAuthImage(url: coverUrl!, fit: BoxFit.cover);
@@ -126,16 +119,15 @@ class SafeCoreCoverCard extends StatelessWidget {
     // Caminho 2: evidência não-imagem (pdf, video, etc.)
     if (hasAnyCover) {
       return Container(
-        color: SafeCoreColors.dark.bgElevated,
+        color: c.bgElevated,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.insert_drive_file_outlined,
-                color: SafeCoreColors.dark.fg2, size: 36),
+            Icon(Icons.insert_drive_file_outlined, color: c.fg2, size: 36),
             const SizedBox(height: 6),
             Text(
               'Documento anexado',
-              style: TextStyle(color: SafeCoreColors.dark.fg2, fontSize: 12),
+              style: SafeCoreType.body.copyWith(color: c.fg2),
             ),
           ],
         ),
@@ -143,10 +135,9 @@ class SafeCoreCoverCard extends StatelessWidget {
     }
     // Caminho 3: sem evidência
     return Container(
-      color: SafeCoreColors.dark.bgElevated,
+      color: c.bgElevated,
       child: Center(
-        child: Icon(Icons.shield_outlined,
-            color: SafeCoreColors.dark.fg3, size: 40),
+        child: Icon(Icons.shield_outlined, color: c.fg3, size: 40),
       ),
     );
   }

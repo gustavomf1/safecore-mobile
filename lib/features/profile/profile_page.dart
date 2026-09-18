@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../shared/theme/tokens.dart';
 import '../../shared/widgets/prototype_ui.dart';
 import '../auth/provider/auth_provider.dart';
 
@@ -27,6 +28,7 @@ class ProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.c;
     final user = ref.watch(authProvider).valueOrNull;
     final workspace = ref.watch(workspaceProvider);
 
@@ -36,7 +38,7 @@ class ProfilePage extends ConsumerWidget {
     final initials = _initials(nome);
 
     return Scaffold(
-      backgroundColor: ProtoColors.bg,
+      backgroundColor: c.bgBase,
       body: SafeArea(
         bottom: false,
         child: ListView(
@@ -44,7 +46,7 @@ class ProfilePage extends ConsumerWidget {
           children: [
             // ── Avatar + identidade ────────────────────────────────────────
             ProtoCard(
-              color: ProtoColors.hero,
+              color: c.bgMuted,
               child: Row(
                 children: [
                   Container(
@@ -52,12 +54,12 @@ class ProfilePage extends ConsumerWidget {
                     height: 64,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [ProtoColors.blue, ProtoColors.purple],
+                      gradient: LinearGradient(
+                        colors: [c.accent, c.accentHover],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(SafeCoreRadius.lg),
                     ),
                     child: Text(initials, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),
                   ),
@@ -66,17 +68,17 @@ class ProfilePage extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(nome, style: const TextStyle(color: ProtoColors.text, fontSize: 18, fontWeight: FontWeight.w900)),
+                        Text(nome, style: SafeCoreType.title.copyWith(color: c.fg0)),
                         const SizedBox(height: 4),
-                        Text(email, style: const TextStyle(color: ProtoColors.muted, fontSize: 12, fontWeight: FontWeight.w700)),
+                        Text(email, style: SafeCoreType.body.copyWith(color: c.fg2)),
                         const SizedBox(height: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: ProtoColors.blue.withValues(alpha: .18),
+                            color: c.accent.withValues(alpha: .18),
                             borderRadius: BorderRadius.circular(999),
                           ),
-                          child: Text(perfil, style: const TextStyle(color: ProtoColors.blue, fontSize: 11, fontWeight: FontWeight.w900)),
+                          child: Text(perfil, style: SafeCoreType.label.copyWith(color: c.accent)),
                         ),
                       ],
                     ),
@@ -98,8 +100,8 @@ class ProfilePage extends ConsumerWidget {
                     _Kv(label: 'Contratante', value: workspace.empresa.nome),
                     _Kv(label: 'Estabelecimento', value: workspace.estabelecimento.nome),
                   ] else
-                    const _Kv(label: 'Workspace', value: 'Não selecionado', valueColor: ProtoColors.muted),
-                  const _Kv(label: 'Status', value: 'Online', valueColor: ProtoColors.green),
+                    _Kv(label: 'Workspace', value: 'Não selecionado', valueColor: c.fg2),
+                  _Kv(label: 'Status', value: 'Online', valueColor: c.statusGreenFg),
                 ],
               ),
             ),
@@ -116,22 +118,22 @@ class ProfilePage extends ConsumerWidget {
               onTap: () async {
                 await ref.read(authProvider.notifier).logout();
               },
-              child: const ProtoCard(
+              child: ProtoCard(
                 child: Center(
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.logout_rounded, color: ProtoColors.red, size: 16),
-                      SizedBox(width: 8),
-                      Text('Sair da conta', style: TextStyle(color: ProtoColors.red, fontWeight: FontWeight.w900)),
+                      Icon(Icons.logout_rounded, color: c.statusRedFg, size: 16),
+                      const SizedBox(width: 8),
+                      Text('Sair da conta', style: SafeCoreType.subtitle.copyWith(color: c.statusRedFg)),
                     ],
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            const Center(
-              child: Text('SafeCore/SGS · v1.0.0 (build 2026.05.06)', style: TextStyle(color: ProtoColors.muted, fontSize: 11)),
+            Center(
+              child: Text('SafeCore/SGS · v1.0.0 (build 2026.05.06)', style: SafeCoreType.micro.copyWith(color: c.fg2)),
             ),
           ],
         ),
@@ -143,18 +145,19 @@ class ProfilePage extends ConsumerWidget {
 class _Kv extends StatelessWidget {
   final String label;
   final String value;
-  final Color valueColor;
+  final Color? valueColor;
 
-  const _Kv({required this.label, required this.value, this.valueColor = ProtoColors.text});
+  const _Kv({required this.label, required this.value, this.valueColor});
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: Row(
         children: [
-          Expanded(child: Text(label, style: const TextStyle(color: ProtoColors.muted, fontSize: 13, fontWeight: FontWeight.w700))),
-          Flexible(child: Text(value, style: TextStyle(color: valueColor, fontSize: 13, fontWeight: FontWeight.w900), textAlign: TextAlign.end)),
+          Expanded(child: Text(label, style: SafeCoreType.body.copyWith(color: c.fg2))),
+          Flexible(child: Text(value, style: SafeCoreType.bodyStrong.copyWith(color: valueColor ?? c.fg0), textAlign: TextAlign.end)),
         ],
       ),
     );
@@ -171,6 +174,7 @@ class _ProfileRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Padding(
       padding: const EdgeInsets.only(bottom: 9),
       child: InkWell(
@@ -180,12 +184,12 @@ class _ProfileRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
           child: Row(
             children: [
-              Container(width: 32, height: 32, decoration: BoxDecoration(color: ProtoColors.surface2, borderRadius: BorderRadius.circular(9)), child: Icon(icon, color: ProtoColors.text, size: 17)),
+              Container(width: 32, height: 32, decoration: BoxDecoration(color: c.bgElevated, borderRadius: BorderRadius.circular(9)), child: Icon(icon, color: c.fg0, size: 17)),
               const SizedBox(width: 12),
-              Expanded(child: Text(label, style: const TextStyle(color: ProtoColors.text, fontSize: 15, fontWeight: FontWeight.w900))),
-              if (value.isNotEmpty) Text(value, style: const TextStyle(color: ProtoColors.muted, fontSize: 12, fontWeight: FontWeight.w700)),
+              Expanded(child: Text(label, style: SafeCoreType.title.copyWith(color: c.fg0, fontSize: 15))),
+              if (value.isNotEmpty) Text(value, style: SafeCoreType.body.copyWith(color: c.fg2)),
               const SizedBox(width: 8),
-              const Icon(Icons.chevron_right_rounded, color: ProtoColors.muted, size: 18),
+              Icon(Icons.chevron_right_rounded, color: c.fg2, size: 18),
             ],
           ),
         ),

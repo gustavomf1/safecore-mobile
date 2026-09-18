@@ -69,6 +69,7 @@ class _FeedPageState extends ConsumerState<FeedPage> with AutomaticKeepAliveClie
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final c = context.c;
     final session = ref.watch(authProvider).valueOrNull;
     final isExterno = session?.perfil == 'EXTERNO';
     final workspace = ref.watch(workspaceProvider);
@@ -83,12 +84,12 @@ class _FeedPageState extends ConsumerState<FeedPage> with AutomaticKeepAliveClie
         : const AsyncData<List<OcorrenciaSummary>>([]);
 
     return Scaffold(
-      backgroundColor: SafeCoreColors.dark.bgBase,
+      backgroundColor: c.bgBase,
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(
-          color: SafeCoreColors.dark.accent,
-          backgroundColor: SafeCoreColors.dark.bgElevated,
+          color: c.accent,
+          backgroundColor: c.bgElevated,
           onRefresh: () async {
             ref.invalidate(ocorrenciasProvider(providerKey));
             await ref
@@ -154,7 +155,8 @@ class _FeedPageState extends ConsumerState<FeedPage> with AutomaticKeepAliveClie
   }
 
   Widget _buildCard(OcorrenciaSummary nc) {
-    final ncColors = StatusColorHelper.ncColors(nc.status, vencida: nc.vencida);
+    final c = context.c;
+    final ncColors = StatusColorHelper.ncColors(c, nc.status, vencida: nc.vencida);
     final coverUrl = nc.primeiraEvidenciaId != null
         ? '${AppConfig.apiBaseUrl}/api/evidencias/${nc.primeiraEvidenciaId}/download'
         : null;
@@ -167,10 +169,10 @@ class _FeedPageState extends ConsumerState<FeedPage> with AutomaticKeepAliveClie
       hasImageCover: nc.hasImageCover,
       hasAnyCover: nc.hasAnyCover,
       pills: [
-        const SafeCorePill(
+        SafeCorePill(
           label: 'NC',
-          bg: Color(0xFF4A1017),
-          fg: Color(0xFFFF4D4D),
+          bg: c.statusRedBg,
+          fg: c.statusRedFg,
         ),
         SafeCorePill(
           label: StatusColorHelper.ncLabel(nc.status),
@@ -178,10 +180,10 @@ class _FeedPageState extends ConsumerState<FeedPage> with AutomaticKeepAliveClie
           fg: ncColors.fg,
         ),
         if (nc.vencida)
-          const SafeCorePill(
+          SafeCorePill(
             label: 'Vencida',
-            bg: Color(0xFF4A1017),
-            fg: Color(0xFFFF4D4D),
+            bg: c.statusRedBg,
+            fg: c.statusRedFg,
           ),
       ],
       meta: '${nc.estabelecimentoNome} · ${nc.nivelRisco ?? ''}',
@@ -196,13 +198,14 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Padding(
       padding: const EdgeInsets.only(top: 80),
       child: Column(
         children: [
-          Icon(Icons.inbox_outlined, size: 48, color: SafeCoreColors.dark.fg3),
+          Icon(Icons.inbox_outlined, size: 48, color: c.fg3),
           const SizedBox(height: 12),
-          Text(message, style: TextStyle(color: SafeCoreColors.dark.fg2, fontSize: 14)),
+          Text(message, style: SafeCoreType.subtitle.copyWith(color: c.fg2)),
         ],
       ),
     );
@@ -215,15 +218,16 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Padding(
       padding: const EdgeInsets.only(top: 80),
       child: Column(
         children: [
-          Icon(Icons.error_outline, size: 48, color: SafeCoreColors.dark.statusRedFg),
+          Icon(Icons.error_outline, size: 48, color: c.statusRedFg),
           const SizedBox(height: 12),
-          Text('Erro ao carregar', style: TextStyle(color: SafeCoreColors.dark.statusRedFg, fontSize: 14)),
+          Text('Erro ao carregar', style: SafeCoreType.subtitle.copyWith(color: c.statusRedFg)),
           const SizedBox(height: 4),
-          Text(message, style: TextStyle(color: SafeCoreColors.dark.fg3, fontSize: 12)),
+          Text(message, style: SafeCoreType.body.copyWith(color: c.fg3)),
         ],
       ),
     );

@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:safecore_mobile/features/auth/model/login_response.dart';
 import 'package:safecore_mobile/features/auth/provider/auth_provider.dart';
 import 'package:safecore_mobile/shared/widgets/safecore_auth_image.dart';
+import 'package:safecore_mobile/shared/theme/tokens.dart';
 
 class MockAuthNotifier extends AsyncNotifier<LoginResponse?>
     with Mock
@@ -28,8 +29,9 @@ void main() {
         overrides: [
           authProvider.overrideWith(MockAuthNotifier.new),
         ],
-        child: const MaterialApp(
-          home: Scaffold(
+        child: MaterialApp(
+          theme: safeCoreThemeDark(),
+          home: const Scaffold(
             body: SafeCoreAuthImage(url: 'http://localhost/api/evidencias/1/download'),
           ),
         ),
@@ -46,8 +48,9 @@ void main() {
         overrides: [
           authProvider.overrideWith(MockAuthNotifier.new),
         ],
-        child: const MaterialApp(
-          home: Scaffold(
+        child: MaterialApp(
+          theme: safeCoreThemeDark(),
+          home: const Scaffold(
             body: SafeCoreAuthImage(
               url: 'http://localhost/api/evidencias/404/download',
               errorWidget: SizedBox(key: Key('err'), width: 10, height: 10),

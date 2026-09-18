@@ -28,7 +28,7 @@ Future<OcorrenciaFilterResult?> showOcorrenciaFilterSheet(
 }) {
   return showModalBottomSheet<OcorrenciaFilterResult>(
     context: context,
-    backgroundColor: SafeCoreColors.dark.bgSurface,
+    backgroundColor: context.c.bgSurface,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
     builder: (_) => _FilterSheetContent(
@@ -92,6 +92,8 @@ class _FilterSheetContentState extends State<_FilterSheetContent> {
 
   Future<void> _pickDate({required bool isInicio}) async {
     final now = DateTime.now();
+    final c = context.c;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final picked = await showDatePicker(
       context: context,
       initialDate: (isInicio ? _inicio : _fim) ?? now,
@@ -99,11 +101,9 @@ class _FilterSheetContentState extends State<_FilterSheetContent> {
       lastDate: DateTime(now.year + 1),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: ColorScheme.dark(
-            primary: SafeCoreColors.dark.accent,
-            surface: SafeCoreColors.dark.bgElevated,
-            onSurface: SafeCoreColors.dark.fg0,
-          ),
+          colorScheme: isDark
+              ? ColorScheme.dark(primary: c.accent, surface: c.bgElevated, onSurface: c.fg0)
+              : ColorScheme.light(primary: c.accent, surface: c.bgElevated, onSurface: c.fg0),
         ),
         child: child!,
       ),
@@ -121,6 +121,7 @@ class _FilterSheetContentState extends State<_FilterSheetContent> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.fromLTRB(20, 16, 20, 16 + MediaQuery.of(context).viewInsets.bottom),
@@ -134,10 +135,10 @@ class _FilterSheetContentState extends State<_FilterSheetContent> {
                   width: 40,
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(color: SafeCoreColors.dark.fg3, borderRadius: BorderRadius.circular(99)),
+                  decoration: BoxDecoration(color: c.fg3, borderRadius: BorderRadius.circular(99)),
                 ),
               ),
-              Text('Filtros', style: TextStyle(color: SafeCoreColors.dark.fg0, fontSize: 17, fontWeight: FontWeight.w900)),
+              Text('Filtros', style: SafeCoreType.title.copyWith(color: c.fg0)),
               const SizedBox(height: 18),
               const _Label('STATUS'),
               const SizedBox(height: 8),
@@ -186,11 +187,11 @@ class _FilterSheetContentState extends State<_FilterSheetContent> {
                     child: OutlinedButton(
                       onPressed: _limpar,
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: SafeCoreColors.dark.borderSoft),
+                        side: BorderSide(color: c.borderSoft),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SafeCoreRadius.md)),
                       ),
-                      child: Text('Limpar', style: TextStyle(color: SafeCoreColors.dark.fg1, fontWeight: FontWeight.w800)),
+                      child: Text('Limpar', style: SafeCoreType.subtitle.copyWith(color: c.fg1)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -200,11 +201,11 @@ class _FilterSheetContentState extends State<_FilterSheetContent> {
                         OcorrenciaFilterResult(status: _status, papel: _papel, dataInicio: _inicio, dataFim: _fim),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: SafeCoreColors.dark.accent,
+                        backgroundColor: c.accent,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SafeCoreRadius.md)),
                       ),
-                      child: const Text('Aplicar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
+                      child: Text('Aplicar', style: SafeCoreType.subtitle.copyWith(color: Colors.white)),
                     ),
                   ),
                 ],
@@ -224,7 +225,7 @@ class _Label extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
         text,
-        style: TextStyle(color: SafeCoreColors.dark.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4),
+        style: SafeCoreType.label.copyWith(color: context.c.fg2, letterSpacing: .4),
       );
 }
 
@@ -237,6 +238,7 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return InkWell(
       borderRadius: BorderRadius.circular(SafeCoreRadius.pill),
       onTap: onTap,
@@ -244,27 +246,23 @@ class _FilterChip extends StatelessWidget {
         duration: SafeCoreMotion.fast,
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
         decoration: BoxDecoration(
-          color: selected ? SafeCoreColors.dark.accent.withValues(alpha: 0.15) : SafeCoreColors.dark.bgElevated,
+          color: selected ? c.accent.withValues(alpha: 0.15) : c.bgElevated,
           borderRadius: BorderRadius.circular(SafeCoreRadius.pill),
-          border: Border.all(color: selected ? SafeCoreColors.dark.accent : SafeCoreColors.dark.borderSoft),
+          border: Border.all(color: selected ? c.accent : c.borderSoft),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               label,
-              style: TextStyle(
-                color: selected ? SafeCoreColors.dark.accent : SafeCoreColors.dark.fg1,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
+              style: SafeCoreType.body.copyWith(color: selected ? c.accent : c.fg1),
             ),
             if (count != null) ...[
               const SizedBox(width: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                decoration: BoxDecoration(color: SafeCoreColors.dark.bgBase, borderRadius: BorderRadius.circular(99)),
-                child: Text('$count', style: TextStyle(color: SafeCoreColors.dark.fg2, fontSize: 10, fontWeight: FontWeight.w700)),
+                decoration: BoxDecoration(color: c.bgBase, borderRadius: BorderRadius.circular(99)),
+                child: Text('$count', style: SafeCoreType.micro.copyWith(color: c.fg2)),
               ),
             ],
           ],
@@ -282,6 +280,7 @@ class _DateField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     final text = value != null
         ? '${value!.day.toString().padLeft(2, '0')}/${value!.month.toString().padLeft(2, '0')}/${value!.year}'
         : label;
@@ -291,22 +290,18 @@ class _DateField extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
         decoration: BoxDecoration(
-          color: SafeCoreColors.dark.bgElevated,
+          color: c.bgElevated,
           borderRadius: BorderRadius.circular(SafeCoreRadius.sm),
-          border: Border.all(color: SafeCoreColors.dark.borderSoft),
+          border: Border.all(color: c.borderSoft),
         ),
         child: Row(
           children: [
-            Icon(Icons.calendar_today_rounded, size: 14, color: SafeCoreColors.dark.fg2),
+            Icon(Icons.calendar_today_rounded, size: 14, color: c.fg2),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 text,
-                style: TextStyle(
-                  color: value != null ? SafeCoreColors.dark.fg0 : SafeCoreColors.dark.fg3,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: SafeCoreType.body.copyWith(color: value != null ? c.fg0 : c.fg3),
               ),
             ),
           ],

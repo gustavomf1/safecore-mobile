@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../shared/data/mock_data.dart';
+import '../../shared/theme/tokens.dart';
 import '../../shared/widgets/prototype_ui.dart';
 import '../auth/provider/auth_provider.dart';
 import 'campos_obrigatorios.dart';
@@ -54,7 +55,7 @@ Future<void> _downloadImage(BuildContext context, String url,
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Salvo em: ${file.path}'),
-          backgroundColor: const Color(0xFF0B3A1C),
+          backgroundColor: context.c.statusGreenBg,
         ),
       );
     }
@@ -62,7 +63,7 @@ Future<void> _downloadImage(BuildContext context, String url,
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao baixar: $e'),
-            backgroundColor: const Color(0xFF4A1017)),
+            backgroundColor: context.c.statusRedBg),
       );
     }
   }
@@ -107,6 +108,8 @@ class _ImageViewerState extends State<_ImageViewer> {
 
   @override
   Widget build(BuildContext context) {
+    // Full-screen media viewer: intentionally stays black regardless of app
+    // theme, matching the platform convention for photo viewers.
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -160,18 +163,19 @@ class DesvioDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.c;
     final async = ref.watch(desvioDetailProvider(id));
     final session = ref.watch(authProvider).valueOrNull;
     return Scaffold(
-      backgroundColor: ProtoColors.bg,
+      backgroundColor: c.bgBase,
       appBar: AppBar(
-        backgroundColor: ProtoColors.bg,
-        foregroundColor: ProtoColors.text,
+        backgroundColor: c.bgBase,
+        foregroundColor: c.fg0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.go('/desvios'),
         ),
-        title: const Text('Desvio'),
+        title: Text('Desvio', style: SafeCoreType.subtitle.copyWith(color: c.fg0)),
         actions: [
           async.maybeWhen(
             data: (d) {
@@ -191,7 +195,7 @@ class DesvioDetailPage extends ConsumerWidget {
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(
-          child: Text('Erro: $e', style: const TextStyle(color: ProtoColors.red)),
+          child: Text('Erro: $e', style: TextStyle(color: c.statusRedFg)),
         ),
         data: (d) => _Body(d: d),
       ),
@@ -228,13 +232,13 @@ class _BodyState extends ConsumerState<_Body> {
           : (message ?? 'Falha ao processar a ação.');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(texto), backgroundColor: ProtoColors.red),
+          SnackBar(content: Text(texto), backgroundColor: context.c.statusRedFg),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Falha: $e'), backgroundColor: ProtoColors.red),
+          SnackBar(content: Text('Falha: $e'), backgroundColor: context.c.statusRedFg),
         );
       }
     } finally {
@@ -244,6 +248,7 @@ class _BodyState extends ConsumerState<_Body> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     final fotos = ref.watch(desvioEvidenciasProvider(d.id)).valueOrNull ?? [];
     final session = ref.watch(authProvider).valueOrNull;
     final token = ref.watch(_jwtTokenProvider).valueOrNull;
@@ -264,54 +269,47 @@ class _BodyState extends ConsumerState<_Body> {
           tag: 'cover-${d.id}',
           child: Container(
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-          decoration: const BoxDecoration(
-            color: ProtoColors.surface,
-            border: Border(bottom: BorderSide(color: ProtoColors.border)),
+          decoration: BoxDecoration(
+            color: c.bgSurface,
+            border: Border(bottom: BorderSide(color: c.borderSoft)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(children: [
-                const ProtoPill(
+                ProtoPill(
                     label: 'Desvio',
-                    bg: Color(0xFF4A390A),
-                    fg: ProtoColors.yellow),
+                    bg: c.statusYellowBg,
+                    fg: c.statusYellowFg),
                 const SizedBox(width: 8),
                 ProtoPill(
                   label: statusLabel[d.status] ?? d.status,
-                  bg: ProtoColors.surface2,
-                  fg: ProtoColors.blue,
+                  bg: c.bgElevated,
+                  fg: c.accent,
                 ),
               ]),
               const SizedBox(height: 10),
               Text(d.titulo,
-                  style: const TextStyle(
-                      color: ProtoColors.text,
-                      fontSize: 18,
+                  style: SafeCoreType.title.copyWith(
+                      color: c.fg0,
                       fontWeight: FontWeight.w900,
                       height: 1.3)),
               const SizedBox(height: 6),
               Row(children: [
                 if (d.localizacaoNome != null) ...[
-                  const Icon(Icons.place_outlined,
-                      size: 13, color: ProtoColors.muted),
+                  Icon(Icons.place_outlined,
+                      size: 13, color: c.fg2),
                   const SizedBox(width: 4),
                   Text(d.localizacaoNome!,
-                      style: const TextStyle(
-                          color: ProtoColors.muted,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700)),
+                      style: SafeCoreType.body.copyWith(color: c.fg2)),
                   const SizedBox(width: 10),
                 ],
-                const Icon(Icons.calendar_today_outlined,
-                    size: 13, color: ProtoColors.muted),
+                Icon(Icons.calendar_today_outlined,
+                    size: 13, color: c.fg2),
                 const SizedBox(width: 4),
                 Text(
                   d.dataRegistro.isNotEmpty ? _formatDate(d.dataRegistro) : '—',
-                  style: const TextStyle(
-                      color: ProtoColors.muted,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700),
+                  style: SafeCoreType.body.copyWith(color: c.fg2),
                 ),
               ]),
             ],
@@ -351,9 +349,9 @@ class _BodyState extends ConsumerState<_Body> {
                         errorBuilder: (_, __, ___) => Container(
                           width: 260,
                           height: 190,
-                          color: ProtoColors.surface2,
-                          child: const Icon(Icons.broken_image_outlined,
-                              color: ProtoColors.muted, size: 40),
+                          color: c.bgElevated,
+                          child: Icon(Icons.broken_image_outlined,
+                              color: c.fg2, size: 40),
                         ),
                       ),
                       Positioned(
@@ -390,11 +388,11 @@ class _BodyState extends ConsumerState<_Body> {
                   children: [
                     _row2('Estabelecimento', d.estabelecimentoNome,
                         'Localização', d.localizacaoNome ?? '—'),
-                    const Divider(height: 1, color: ProtoColors.border),
+                    Divider(height: 1, color: c.borderSoft),
                     _row2('Data', d.dataRegistro.isNotEmpty ? _formatDate(d.dataRegistro) : '—',
                         'Registrado por', d.usuarioCriacaoNome ?? '—'),
                     if (d.orientacaoRealizada != null) ...[
-                      const Divider(height: 1, color: ProtoColors.border),
+                      Divider(height: 1, color: c.borderSoft),
                       _rowFull('Orientação Realizada', d.orientacaoRealizada!),
                     ],
                   ],
@@ -413,7 +411,7 @@ class _BodyState extends ConsumerState<_Body> {
                         child: _responsavelCell(
                             'RESP. PELO DESVIO',
                             d.responsavelDesvioNome ?? '—')),
-                    Container(width: 1, height: 56, color: ProtoColors.border),
+                    Container(width: 1, height: 56, color: c.borderSoft),
                     Expanded(
                         child: _responsavelCell(
                             'RESP. PELA TRATATIVA',
@@ -444,11 +442,7 @@ class _BodyState extends ConsumerState<_Body> {
 
   Widget _sectionLabel(String label) => Text(
         label.toUpperCase(),
-        style: const TextStyle(
-            color: ProtoColors.muted,
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
-            letterSpacing: .5),
+        style: SafeCoreType.label.copyWith(color: context.c.fg2, letterSpacing: .5),
       );
 
   Widget _row2(String k1, String v1, String k2, String v2) => Padding(
@@ -464,65 +458,67 @@ class _BodyState extends ConsumerState<_Body> {
         child: _cell(k, v),
       );
 
-  Widget _cell(String label, String value) => Column(
+  Widget _cell(String label, String value) {
+    final c = context.c;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: SafeCoreType.micro.copyWith(color: c.fg2, letterSpacing: .3)),
+        const SizedBox(height: 4),
+        Text(value,
+            style: TextStyle(
+                color: c.fg0,
+                fontSize: 13,
+                fontWeight: FontWeight.w700)),
+      ],
+    );
+  }
+
+  Widget _responsavelCell(String label, String nome) {
+    final c = context.c;
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
-              style: const TextStyle(
-                  color: ProtoColors.muted,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: .3)),
-          const SizedBox(height: 4),
-          Text(value,
-              style: const TextStyle(
-                  color: ProtoColors.text,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700)),
+              style: TextStyle(
+                  color: c.fg2,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: .4)),
+          const SizedBox(height: 6),
+          Text(nome,
+              style: TextStyle(
+                  color: c.fg0,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900)),
         ],
-      );
-
-  Widget _responsavelCell(String label, String nome) => Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label,
-                style: const TextStyle(
-                    color: ProtoColors.muted,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: .4)),
-            const SizedBox(height: 6),
-            Text(nome,
-                style: const TextStyle(
-                    color: ProtoColors.text,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900)),
-          ],
-        ),
-      );
+      ),
+    );
+  }
 
   List<Widget> _actions({
     required bool canTratar,
     required bool isApprover,
     required bool isCriador,
   }) {
+    final c = context.c;
     switch (d.status) {
       case 'ABERTO':
         if (!isCriador) return [];
         return [
-          _btn('Enviar para Tratativa', Icons.send_rounded, ProtoColors.blue,
+          _btn('Enviar para Tratativa', Icons.send_rounded, c.accent,
               () => _confirmarOuAvisarFaltantes(context)),
         ];
       case 'AGUARDANDO_TRATATIVA':
         if (!canTratar) return [];
         return [
-          _btn('Adicionar tratativa', Icons.add_rounded, ProtoColors.blue,
+          _btn('Adicionar tratativa', Icons.add_rounded, c.accent,
               _openAddTratativa),
           const SizedBox(height: 10),
           if (d.temTratativasPendentesNaoSubmetidas)
-            _btn('Submeter tratativas', Icons.send_rounded, ProtoColors.green,
+            _btn('Submeter tratativas', Icons.send_rounded, c.statusGreenFg,
                 () => _run(() => ref.read(desvioRepositoryProvider).submeterTratativa(
                     d.id, const SubmeterTrativaDesvioRequest()))),
         ];
@@ -603,7 +599,7 @@ class _BodyState extends ConsumerState<_Body> {
     final result = await showModalBottomSheet<_NovaTratativa>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: ProtoColors.surface,
+      backgroundColor: context.c.bgSurface,
       builder: (_) => const _AddTratativaSheet(),
     );
     if (result == null) return;
@@ -661,9 +657,10 @@ class _AddTratativaSheetState extends State<_AddTratativaSheet> {
   }
 
   Future<void> _addFotos() async {
+    final c = context.c;
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
-      backgroundColor: ProtoColors.surface,
+      backgroundColor: c.bgSurface,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (ctx) => SafeArea(
@@ -674,32 +671,32 @@ class _AddTratativaSheetState extends State<_AddTratativaSheet> {
               width: 40, height: 4,
               margin: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                  color: ProtoColors.muted2, borderRadius: BorderRadius.circular(99)),
+                  color: c.fg3, borderRadius: BorderRadius.circular(99)),
             ),
             ListTile(
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                    color: ProtoColors.blue.withValues(alpha: .15),
+                    color: c.accent.withValues(alpha: .15),
                     borderRadius: BorderRadius.circular(10)),
-                child: const Icon(Icons.camera_alt_rounded, color: ProtoColors.blue, size: 20),
+                child: Icon(Icons.camera_alt_rounded, color: c.accent, size: 20),
               ),
-              title: const Text('Tirar foto',
-                  style: TextStyle(color: ProtoColors.text, fontWeight: FontWeight.w700)),
+              title: Text('Tirar foto',
+                  style: TextStyle(color: c.fg0, fontWeight: FontWeight.w700)),
               onTap: () => Navigator.pop(ctx, ImageSource.camera),
             ),
             ListTile(
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                    color: ProtoColors.blue.withValues(alpha: .15),
+                    color: c.accent.withValues(alpha: .15),
                     borderRadius: BorderRadius.circular(10)),
-                child: const Icon(Icons.photo_library_rounded, color: ProtoColors.blue, size: 20),
+                child: Icon(Icons.photo_library_rounded, color: c.accent, size: 20),
               ),
-              title: const Text('Selecionar da galeria',
-                  style: TextStyle(color: ProtoColors.text, fontWeight: FontWeight.w700)),
-              subtitle: const Text('Múltiplas fotos',
-                  style: TextStyle(color: ProtoColors.muted, fontSize: 12)),
+              title: Text('Selecionar da galeria',
+                  style: TextStyle(color: c.fg0, fontWeight: FontWeight.w700)),
+              subtitle: Text('Múltiplas fotos',
+                  style: TextStyle(color: c.fg2, fontSize: 12)),
               onTap: () => Navigator.pop(ctx, ImageSource.gallery),
             ),
             const SizedBox(height: 12),
@@ -719,32 +716,36 @@ class _AddTratativaSheetState extends State<_AddTratativaSheet> {
 
   Widget _fieldLabel(String label) => Text(
         label,
-        style: const TextStyle(
-            color: Color(0xFFD7E8FF),
+        style: TextStyle(
+            color: context.c.fg2,
             fontSize: 11,
             fontWeight: FontWeight.w900,
             letterSpacing: .4),
       );
 
-  InputDecoration _fieldDecoration(String hint) => InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: ProtoColors.muted, fontSize: 13),
-        filled: true,
-        fillColor: ProtoColors.surface2,
-        contentPadding: const EdgeInsets.all(14),
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: ProtoColors.border)),
-        enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: ProtoColors.border)),
-        focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: ProtoColors.blue, width: 1.5)),
-      );
+  InputDecoration _fieldDecoration(String hint) {
+    final c = context.c;
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(color: c.fg2, fontSize: 13),
+      filled: true,
+      fillColor: c.bgElevated,
+      contentPadding: const EdgeInsets.all(14),
+      border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: c.borderSoft)),
+      enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: c.borderSoft)),
+      focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: c.accent, width: 1.5)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Padding(
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).viewInsets.bottom + 24),
       child: Column(
@@ -756,7 +757,7 @@ class _AddTratativaSheetState extends State<_AddTratativaSheet> {
               width: 40, height: 4,
               margin: const EdgeInsets.only(bottom: 14),
               decoration: BoxDecoration(
-                  color: ProtoColors.muted2, borderRadius: BorderRadius.circular(99)),
+                  color: c.fg3, borderRadius: BorderRadius.circular(99)),
             ),
           ),
           const ProtoSectionTitle('Nova tratativa'),
@@ -765,8 +766,8 @@ class _AddTratativaSheetState extends State<_AddTratativaSheet> {
           const SizedBox(height: 6),
           TextField(
             controller: _titulo,
-            style: const TextStyle(
-                color: ProtoColors.text, fontSize: 14, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                color: c.fg0, fontSize: 14, fontWeight: FontWeight.w600),
             decoration: _fieldDecoration('Ex: Instalação de proteção coletiva'),
           ),
           const SizedBox(height: 14),
@@ -776,7 +777,7 @@ class _AddTratativaSheetState extends State<_AddTratativaSheet> {
             controller: _descricao,
             maxLines: 4,
             minLines: 3,
-            style: const TextStyle(color: ProtoColors.text, fontSize: 13, height: 1.4),
+            style: TextStyle(color: c.fg0, fontSize: 13, height: 1.4),
             decoration: _fieldDecoration('Descreva o que foi feito...'),
           ),
           const SizedBox(height: 14),
@@ -795,19 +796,19 @@ class _AddTratativaSheetState extends State<_AddTratativaSheet> {
                     child: Container(
                       width: 84,
                       decoration: BoxDecoration(
-                        color: ProtoColors.surface2,
+                        color: c.bgElevated,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: ProtoColors.border),
+                        border: Border.all(color: c.borderSoft),
                       ),
-                      child: const Column(
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.add_photo_alternate_rounded,
-                              color: ProtoColors.blue, size: 22),
-                          SizedBox(height: 4),
+                              color: c.accent, size: 22),
+                          const SizedBox(height: 4),
                           Text('Adicionar',
                               style: TextStyle(
-                                  color: ProtoColors.blue,
+                                  color: c.accent,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700)),
                         ],
@@ -842,7 +843,7 @@ class _AddTratativaSheetState extends State<_AddTratativaSheet> {
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: ProtoColors.blue,
+                backgroundColor: c.accent,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
@@ -851,9 +852,9 @@ class _AddTratativaSheetState extends State<_AddTratativaSheet> {
                 if (_titulo.text.trim().isEmpty ||
                     _descricao.text.trim().isEmpty ||
                     _fotos.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('Título, descrição e ao menos 1 foto são obrigatórios'),
-                      backgroundColor: ProtoColors.red));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: const Text('Título, descrição e ao menos 1 foto são obrigatórios'),
+                      backgroundColor: c.statusRedFg));
                   return;
                 }
                 Navigator.pop(context,
