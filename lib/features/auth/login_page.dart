@@ -17,6 +17,7 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
   final password = TextEditingController();
   bool loading = false;
   bool remember = true;
+  bool showPassword = false;
   String? _errorMsg;
 
   late final AnimationController _spinController;
@@ -140,7 +141,14 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
                                       children: [
                                         _LoginInput(controller: email, icon: Icons.mail_rounded, hint: 'seu@email.com.br', keyboardType: TextInputType.emailAddress),
                                         const SizedBox(height: 10),
-                                        _LoginInput(controller: password, icon: Icons.lock_rounded, hint: 'Senha', obscure: true, trailing: Icons.visibility_rounded),
+                                        _LoginInput(
+                                          controller: password,
+                                          icon: Icons.lock_rounded,
+                                          hint: 'Senha',
+                                          obscure: !showPassword,
+                                          trailing: showPassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                                          onTrailingTap: () => setState(() => showPassword = !showPassword),
+                                        ),
                                         if (_errorMsg != null) ...[
                                           const SizedBox(height: 8),
                                           Row(
@@ -241,6 +249,7 @@ class _LoginInput extends StatelessWidget {
   final TextEditingController controller;
   final IconData icon;
   final IconData? trailing;
+  final VoidCallback? onTrailingTap;
   final String hint;
   final bool obscure;
   final TextInputType? keyboardType;
@@ -250,6 +259,7 @@ class _LoginInput extends StatelessWidget {
     required this.icon,
     required this.hint,
     this.trailing,
+    this.onTrailingTap,
     this.obscure = false,
     this.keyboardType,
   });
@@ -274,8 +284,14 @@ class _LoginInput extends StatelessWidget {
           focusedBorder: InputBorder.none,
           filled: false,
           hintText: hint,
+          hintStyle: const TextStyle(color: ProtoColors.muted, fontSize: 12, fontWeight: FontWeight.w700),
           prefixIcon: Icon(icon, size: 16, color: ProtoColors.muted),
-          suffixIcon: trailing == null ? null : Icon(trailing, size: 16, color: ProtoColors.muted),
+          suffixIcon: trailing == null
+              ? null
+              : IconButton(
+                  icon: Icon(trailing, size: 16, color: ProtoColors.muted),
+                  onPressed: onTrailingTap,
+                ),
           contentPadding: const EdgeInsets.symmetric(vertical: 15),
         ),
       ),
