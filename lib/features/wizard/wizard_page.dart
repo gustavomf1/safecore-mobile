@@ -2136,26 +2136,34 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
                 child: Container(
                     color: context.c.bgBase.withValues(alpha: .70)))),
         Align(
-          alignment: Alignment.bottomCenter,
+          alignment: stage == 0 ? Alignment.bottomCenter : Alignment.center,
           child: Container(
             constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.92),
-            padding: EdgeInsets.fromLTRB(
-                20, 8, 20, 24 + MediaQuery.of(context).viewInsets.bottom),
+            margin: stage == 0
+                ? EdgeInsets.zero
+                : const EdgeInsets.symmetric(horizontal: 32),
+            padding: stage == 0
+                ? EdgeInsets.fromLTRB(
+                    20, 8, 20, 24 + MediaQuery.of(context).viewInsets.bottom)
+                : const EdgeInsets.fromLTRB(24, 28, 24, 24),
             decoration: BoxDecoration(
                 color: context.c.bgSurface,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(22))),
+                borderRadius: stage == 0
+                    ? const BorderRadius.vertical(top: Radius.circular(22))
+                    : BorderRadius.circular(22)),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                    width: 38,
-                    height: 4,
-                    decoration: BoxDecoration(
-                        color: context.c.fg2,
-                        borderRadius: BorderRadius.circular(99))),
-                const SizedBox(height: 22),
+                if (stage == 0) ...[
+                  Container(
+                      width: 38,
+                      height: 4,
+                      decoration: BoxDecoration(
+                          color: context.c.fg2,
+                          borderRadius: BorderRadius.circular(99))),
+                  const SizedBox(height: 22),
+                ],
                 if (stage == 0) ...[
                   // Header com tipo
                   Row(children: [
