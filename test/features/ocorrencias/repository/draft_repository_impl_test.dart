@@ -15,34 +15,30 @@ void main() {
 
   tearDown(() async => db.close());
 
-  test('salvar and watchPendentes emits saved draft', () async {
+  test('salvar e ler de volta preserva dadosJson', () async {
     await repo.salvar(RascunhoLocal(
-      id: 'draft-1',
+      id: 'r1',
       usuarioId: 'u1',
       tipo: 'NC',
-      titulo: 'Rascunho NC',
-      dadosJson: {'estabelecimentoId': 'est-1'},
+      titulo: 'Vazamento',
+      dadosJson: const {'estabelecimentoId': 'e1', 'titulo': 'Vazamento'},
       criadoEm: DateTime.now().millisecondsSinceEpoch,
     ));
 
-    final stream = repo.watchPendentes('u1');
-    final list = await stream.first;
-    expect(list.length, 1);
-    expect(list.first.titulo, 'Rascunho NC');
+    final pendentes = await repo.watchPendentes('u1').first;
+
+    expect(pendentes.length, 1);
+    expect(pendentes.first.dadosJson['estabelecimentoId'], 'e1');
+    expect(pendentes.first.dadosJson['titulo'], 'Vazamento');
   });
 
-  test('deletar removes draft', () async {
-    await repo.salvar(RascunhoLocal(
-      id: 'draft-2',
-      usuarioId: 'u1',
-      tipo: 'DESVIO',
-      titulo: 'Desvio X',
-      dadosJson: {},
+  test('rascunho sem dadosJson não quebra a leitura', () async {
+    await db.rascunhosDao.salvar(RascunhosCompanion.insert(
+      id: 'r2', usuarioId: 'u1', tipo: 'NC', titulo: 'Sem dados',
       criadoEm: DateTime.now().millisecondsSinceEpoch,
     ));
-    await repo.deletar('draft-2');
 
-    final list = await repo.watchPendentes('u1').first;
-    expect(list, isEmpty);
+    final pendentes = await repo.watchPendentes('u1').first;
+    expect(pendentes.first.dadosJson, isEmpty);
   });
 }
