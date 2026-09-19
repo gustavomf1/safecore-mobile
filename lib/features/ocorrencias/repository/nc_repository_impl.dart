@@ -9,6 +9,7 @@ import 'nc_repository.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/ocorrencias_cache_dao.dart';
+import '../../auth/provider/auth_provider.dart';
 
 // ── Workflow action helpers ────────────────────────────────────────────────
 Future<NcDetail> ativarNc(Dio dio, String ncId) async {
@@ -84,17 +85,20 @@ final ncListProvider = FutureProvider.family<List<NcSummary>, String?>(
 );
 
 final ncRepositoryProvider = Provider<NcRepository>((ref) {
+  final usuarioId = ref.watch(authProvider).valueOrNull?.id ?? '';
   return NcRepositoryImpl(
     dio: ref.watch(dioProvider),
     cacheDao: ref.watch(appDatabaseProvider).ocorrenciasCacheDao,
+    usuarioId: usuarioId,
   );
 });
 
 class NcRepositoryImpl implements NcRepository {
   final Dio dio;
   final OcorrenciasCacheDao? cacheDao;
+  final String usuarioId;
 
-  NcRepositoryImpl({required this.dio, required this.cacheDao});
+  NcRepositoryImpl({required this.dio, required this.cacheDao, required this.usuarioId});
 
   @override
   Future<List<NcSummary>> listar({
@@ -109,43 +113,47 @@ class NcRepositoryImpl implements NcRepository {
           if (status != null) 'status': status,
         },
       );
-      final list = (response.data ?? [])
-          .map((e) => NcSummary.fromJson(e as Map<String, dynamic>))
-          .toList();
+      final rawList = response.data ?? [];
+      final list = rawList.map((e) => NcSummary.fromJson(e as Map<String, dynamic>)).toList();
       await cacheDao?.limpar('NC');
-      for (final nc in list) {
+      for (var i = 0; i < rawList.length; i++) {
         await cacheDao?.salvar(OcorrenciasCacheCompanion.insert(
-          id: nc.id,
+          id: list[i].id,
           tipo: 'NC',
-          dadosJson: jsonEncode({'titulo': nc.titulo, 'status': nc.status}),
-          usuarioId: '',
+          nivel: 'SUMMARY',
+          dadosJson: jsonEncode(rawList[i]),
+          usuarioId: usuarioId,
           cachedEm: DateTime.now().millisecondsSinceEpoch,
         ));
       }
       return list;
     } on DioException catch (_) {
-      final cached = await cacheDao?.listarPorTipo('NC') ?? [];
-      return cached.map((c) {
-        final data = jsonDecode(c.dadosJson) as Map<String, dynamic>;
-        return NcSummary(
-          id: c.id,
-          titulo: data['titulo'] as String,
-          status: data['status'] as String,
-          nivelRisco: 'MEDIO',
-          estabelecimentoNome: '',
-          dataRegistro: '',
-          vencida: false,
-        );
-      }).toList();
+      final cached = await cacheDao?.listarPorTipoENivel('NC', 'SUMMARY', usuarioId) ?? [];
+      return cached
+          .map((c) => NcSummary.fromJson(jsonDecode(c.dadosJson) as Map<String, dynamic>))
+          .toList();
     }
   }
 
   @override
   Future<NcDetail> buscarPorId(String id) async {
-    final response = await dio.get<Map<String, dynamic>>(
-      '/api/nao-conformidades/$id',
-    );
-    return NcDetail.fromJson(response.data!);
+    try {
+      final response = await dio.get<Map<String, dynamic>>('/api/nao-conformidades/$id');
+      final detail = NcDetail.fromJson(response.data!);
+      await cacheDao?.salvar(OcorrenciasCacheCompanion.insert(
+        id: id,
+        tipo: 'NC',
+        nivel: 'DETAIL',
+        dadosJson: jsonEncode(response.data!),
+        usuarioId: usuarioId,
+        cachedEm: DateTime.now().millisecondsSinceEpoch,
+      ));
+      return detail;
+    } on DioException catch (_) {
+      final cached = await cacheDao?.buscar(id, 'DETAIL');
+      if (cached == null) rethrow;
+      return NcDetail.fromJson(jsonDecode(cached.dadosJson) as Map<String, dynamic>);
+    }
   }
 
   @override

@@ -8,12 +8,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/network/connectivity_provider.dart';
 import 'core/notifications/fcm_background_handler.dart';
 import 'core/router/app_router.dart';
+import 'core/router/navigator_key.dart';
 import 'core/sync/sync_service.dart';
 import 'core/sync/sync_status.dart';
 import 'features/auth/provider/auth_provider.dart';
 import 'shared/theme/tokens.dart';
-
-final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

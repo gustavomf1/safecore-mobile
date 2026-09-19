@@ -13,7 +13,7 @@ void main() {
   setUpAll(() => registerFallbackValue(RequestOptions(path: '')));
   setUp(() {
     dio = MockDio();
-    repo = DesvioRepositoryImpl(dio: dio);
+    repo = DesvioRepositoryImpl(dio: dio, cacheDao: null, usuarioId: 'u1');
   });
 
   test('buscarDetalhe parseia DesvioDetail', () async {

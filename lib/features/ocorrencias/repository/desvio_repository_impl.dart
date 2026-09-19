@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,9 +9,17 @@ import '../model/desvio_action_requests.dart';
 import 'desvio_repository.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/network/dio_client.dart';
+import '../../../core/database/app_database.dart';
+import '../../../core/database/ocorrencias_cache_dao.dart';
+import '../../auth/provider/auth_provider.dart';
 
 final desvioRepositoryProvider = Provider<DesvioRepository>((ref) {
-  return DesvioRepositoryImpl(dio: ref.watch(dioProvider));
+  final usuarioId = ref.watch(authProvider).valueOrNull?.id ?? '';
+  return DesvioRepositoryImpl(
+    dio: ref.watch(dioProvider),
+    cacheDao: ref.watch(appDatabaseProvider).ocorrenciasCacheDao,
+    usuarioId: usuarioId,
+  );
 });
 
 final desvioListProvider = FutureProvider.family<List<DesvioSummary>, String?>(
@@ -52,25 +61,61 @@ final desvioEvidenciasProvider = FutureProvider.family<List<String>, String>(
 
 class DesvioRepositoryImpl implements DesvioRepository {
   final Dio dio;
-  DesvioRepositoryImpl({required this.dio});
+  final OcorrenciasCacheDao? cacheDao;
+  final String usuarioId;
+
+  DesvioRepositoryImpl({required this.dio, required this.cacheDao, required this.usuarioId});
 
   @override
   Future<List<DesvioSummary>> listar({String? estabelecimentoId}) async {
-    final response = await dio.get<List<dynamic>>(
-      '/api/desvios',
-      queryParameters: {
-        if (estabelecimentoId != null) 'estabelecimentoId': estabelecimentoId,
-      },
-    );
-    return (response.data ?? [])
-        .map((e) => DesvioSummary.fromJson(e as Map<String, dynamic>))
-        .toList();
+    try {
+      final response = await dio.get<List<dynamic>>(
+        '/api/desvios',
+        queryParameters: {
+          if (estabelecimentoId != null) 'estabelecimentoId': estabelecimentoId,
+        },
+      );
+      final rawList = response.data ?? [];
+      final list = rawList.map((e) => DesvioSummary.fromJson(e as Map<String, dynamic>)).toList();
+      await cacheDao?.limpar('DESVIO');
+      for (var i = 0; i < rawList.length; i++) {
+        await cacheDao?.salvar(OcorrenciasCacheCompanion.insert(
+          id: list[i].id,
+          tipo: 'DESVIO',
+          nivel: 'SUMMARY',
+          dadosJson: jsonEncode(rawList[i]),
+          usuarioId: usuarioId,
+          cachedEm: DateTime.now().millisecondsSinceEpoch,
+        ));
+      }
+      return list;
+    } on DioException catch (_) {
+      final cached = await cacheDao?.listarPorTipoENivel('DESVIO', 'SUMMARY', usuarioId) ?? [];
+      return cached
+          .map((c) => DesvioSummary.fromJson(jsonDecode(c.dadosJson) as Map<String, dynamic>))
+          .toList();
+    }
   }
 
   @override
   Future<DesvioDetail> buscarDetalhe(String id) async {
-    final response = await dio.get<Map<String, dynamic>>('/api/desvios/$id');
-    return DesvioDetail.fromJson(response.data!);
+    try {
+      final response = await dio.get<Map<String, dynamic>>('/api/desvios/$id');
+      final detail = DesvioDetail.fromJson(response.data!);
+      await cacheDao?.salvar(OcorrenciasCacheCompanion.insert(
+        id: id,
+        tipo: 'DESVIO',
+        nivel: 'DETAIL',
+        dadosJson: jsonEncode(response.data!),
+        usuarioId: usuarioId,
+        cachedEm: DateTime.now().millisecondsSinceEpoch,
+      ));
+      return detail;
+    } on DioException catch (_) {
+      final cached = await cacheDao?.buscar(id, 'DETAIL');
+      if (cached == null) rethrow;
+      return DesvioDetail.fromJson(jsonDecode(cached.dadosJson) as Map<String, dynamic>);
+    }
   }
 
   @override

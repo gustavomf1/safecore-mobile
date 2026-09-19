@@ -5,6 +5,7 @@ import '../model/workspace_state.dart';
 import '../repository/auth_repository_impl.dart';
 import '../../../core/notifications/fcm_provider.dart';
 import '../../../core/network/auth_reset.dart';
+import '../../../core/database/app_database.dart';
 
 final authProvider = AsyncNotifierProvider<AuthNotifier, LoginResponse?>(
   AuthNotifier.new,
@@ -31,6 +32,7 @@ class AuthNotifier extends AsyncNotifier<LoginResponse?> {
 
   Future<void> logout() async {
     await ref.read(authRepositoryProvider).logout();
+    await ref.read(appDatabaseProvider).ocorrenciasCacheDao.limparTudo();
     ref.read(workspaceProvider.notifier).state = null;
     state = const AsyncData(null);
   }
