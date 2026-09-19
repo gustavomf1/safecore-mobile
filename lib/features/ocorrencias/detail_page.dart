@@ -17,6 +17,7 @@ import '../../shared/widgets/status_widgets.dart';
 import 'campos_obrigatorios.dart';
 import 'model/nc_detail.dart';
 import 'repository/nc_repository_impl.dart';
+import 'widgets/detail_shared.dart';
 
 // ── Date helpers ────────────────────────────────────────────────────────────
 String _fmtDate(String? iso) {
@@ -200,7 +201,8 @@ class _DetailHero extends StatelessWidget {
           Row(
             children: [
               _HeroIconButton(icon: Icons.chevron_left_rounded, onTap: () => context.pop()),
-              const Spacer(),
+              const SizedBox(width: 8),
+              Expanded(child: DetailIdBadge(prefix: 'NC', id: nc.id)),
               _HeroIconButton(icon: Icons.share_rounded, onTap: () {}),
               const SizedBox(width: 8),
               _HeroIconButton(icon: Icons.more_vert_rounded, onTap: () => _showMenu(context)),
@@ -235,6 +237,8 @@ class _DetailHero extends StatelessWidget {
                 _HeroMeta(icon: Icons.map_outlined, label: nc.localizacaoNome!),
             ],
           ),
+          const SizedBox(height: 14),
+          DetailProgressRail(stage: stageIndexForStatus(nc.status)),
         ],
       ),
     );
@@ -374,14 +378,35 @@ class _GeralTab extends StatelessWidget {
                     ),
                   ),
               ],
-              if (nc.descricao != null && nc.descricao!.isNotEmpty) ...[
-                const SizedBox(height: 10),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // ── Descrição ─────────────────────────────────────────────────────
+        if (nc.descricao != null && nc.descricao!.isNotEmpty) ...[
+          _DarkCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 const _SectionTitle('Descrição'),
-                const SizedBox(height: 6),
-                Text(nc.descricao!, style: TextStyle(color: context.c.fg0, fontSize: 13, height: 1.55)),
+                const SizedBox(height: 8),
+                ExpandableText(
+                  text: nc.descricao!,
+                  style: TextStyle(color: context.c.fg0, fontSize: 13, height: 1.55),
+                ),
               ],
-              if (nc.normas.isNotEmpty) ...[
-                const SizedBox(height: 12),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+
+        // ── Normas Vinculadas ────────────────────────────────────────────
+        if (nc.normas.isNotEmpty) ...[
+          _DarkCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 const _SectionTitle('Normas Vinculadas'),
                 const SizedBox(height: 8),
                 Wrap(
@@ -390,10 +415,10 @@ class _GeralTab extends StatelessWidget {
                   children: nc.normas.map((n) => _NormaBadge(norma: n)).toList(),
                 ),
               ],
-            ],
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
+          const SizedBox(height: 12),
+        ],
 
         // ── Responsáveis ──────────────────────────────────────────────────
         if (nc.responsavelTrativaNome != null || nc.responsavelNcNome != null)
@@ -1713,24 +1738,36 @@ class _HistoricoTab extends StatelessWidget {
   final NcDetail nc;
   const _HistoricoTab({required this.nc});
 
+  // Valores espelham TipoAcaoHistorico.java (safecore-api) — manter em sincronia.
   static String _acaoLabel(String? acao) => switch (acao?.toUpperCase()) {
-    'CRIACAO'          => 'NC registrada',
-    'ENVIO_PLANO'      => 'Plano de ação enviado',
-    'APROVACAO'        => 'NC aprovada',
-    'REJEICAO'         => 'NC rejeitada',
-    'CONCLUSAO'        => 'NC concluída',
-    'COMENTARIO'       => 'Comentário adicionado',
-    'EDICAO'           => 'NC editada',
-    _                  => acao ?? 'Ação',
+    'CRIACAO'                => 'NC registrada',
+    'SUBMISSAO_INVESTIGACAO' => 'Investigação enviada',
+    'APROVACAO_PLANO'        => 'Plano de ação aprovado',
+    'REJEICAO_PLANO'         => 'Plano de ação reprovado',
+    'SUBMISSAO_EVIDENCIAS'   => 'Evidências enviadas',
+    'APROVACAO_EVIDENCIAS'   => 'Evidências aprovadas',
+    'REJEICAO_EVIDENCIAS'    => 'Evidências reprovadas',
+    _                        => _humanize(acao),
   };
 
   static Color _acaoColor(String? acao, SafeCoreColors c) => switch (acao?.toUpperCase()) {
-    'CRIACAO'     => c.accent,
-    'APROVACAO'   => c.statusGreenFg,
-    'CONCLUSAO'   => c.statusGreenFg,
-    'REJEICAO'    => c.statusRedFg,
-    _             => c.fg2,
+    'CRIACAO'              => c.accent,
+    'APROVACAO_PLANO'      => c.statusGreenFg,
+    'APROVACAO_EVIDENCIAS' => c.statusGreenFg,
+    'REJEICAO_PLANO'       => c.statusRedFg,
+    'REJEICAO_EVIDENCIAS'  => c.statusRedFg,
+    _                      => c.fg2,
   };
+
+  /// Fallback para qualquer valor de ação ainda não mapeado: em vez de
+  /// mostrar o enum cru (ex.: "ALGO_NOVO"), formata como "Algo novo".
+  static String _humanize(String? raw) {
+    if (raw == null || raw.isEmpty) return 'Ação';
+    final words = raw.split('_').where((w) => w.isNotEmpty);
+    return words
+        .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
+        .join(' ');
+  }
 
   @override
   Widget build(BuildContext context) {

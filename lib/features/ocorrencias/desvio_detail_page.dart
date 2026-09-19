@@ -19,6 +19,7 @@ import 'model/desvio_detail.dart';
 import 'model/evidencia_metadata.dart';
 import 'repository/desvio_repository_impl.dart';
 import 'repository/evidencia_repository_impl.dart';
+import 'widgets/detail_shared.dart';
 import 'widgets/planos_tratativa_section.dart';
 import 'widgets/revisar_tratativas_section.dart';
 import 'widgets/tratativas_pendentes_section.dart';
@@ -168,36 +169,134 @@ class DesvioDetailPage extends ConsumerWidget {
     final session = ref.watch(authProvider).valueOrNull;
     return Scaffold(
       backgroundColor: c.bgBase,
-      appBar: AppBar(
-        backgroundColor: c.bgBase,
-        foregroundColor: c.fg0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.go('/desvios'),
-        ),
-        title: Text('Desvio', style: SafeCoreType.subtitle.copyWith(color: c.fg0)),
-        actions: [
-          async.maybeWhen(
-            data: (d) {
-              final isAberto = d.status.toUpperCase() == 'ABERTO';
-              final isCriador = session != null && session.email == d.usuarioCriacaoEmail;
-              final podeEditar = session != null && isAberto && (isCriador || session.isAdmin);
-              if (!podeEditar) return const SizedBox.shrink();
-              return IconButton(
-                icon: const Icon(Icons.edit_outlined),
-                onPressed: () => context.push('/desvio/${d.id}/editar'),
-              );
-            },
-            orElse: () => const SizedBox.shrink(),
+      body: SafeArea(
+        child: async.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Center(
+            child: Text('Erro: $e', style: TextStyle(color: c.statusRedFg)),
           ),
-        ],
-      ),
-      body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Text('Erro: $e', style: TextStyle(color: c.statusRedFg)),
+          data: (d) {
+            final isAberto = d.status.toUpperCase() == 'ABERTO';
+            final isCriador = session != null && session.email == d.usuarioCriacaoEmail;
+            final podeEditar = session != null && isAberto && (isCriador || session.isAdmin);
+            return Column(
+              children: [
+                _DesvioHero(
+                  d: d,
+                  podeEditar: podeEditar,
+                  onEditar: () => context.push('/desvio/${d.id}/editar'),
+                ),
+                Expanded(child: _Body(d: d)),
+              ],
+            );
+          },
         ),
-        data: (d) => _Body(d: d),
+      ),
+    );
+  }
+}
+
+class _DesvioHero extends StatelessWidget {
+  final DesvioDetail d;
+  final bool podeEditar;
+  final VoidCallback onEditar;
+  const _DesvioHero({required this.d, required this.podeEditar, required this.onEditar});
+
+  void _showMenu(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: context.c.bgSurface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (podeEditar)
+              ListTile(
+                leading: Icon(Icons.edit_outlined, color: context.c.accent),
+                title: Text('Editar', style: TextStyle(color: context.c.fg0, fontWeight: FontWeight.w700)),
+                onTap: () {
+                  Navigator.pop(context);
+                  onEditar();
+                },
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Text('Nenhuma ação disponível', style: TextStyle(color: context.c.fg2, fontSize: 13)),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    return Hero(
+      tag: 'cover-${d.id}',
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 6, 20, 22),
+        decoration: BoxDecoration(
+          color: c.bgMuted,
+          border: Border(bottom: BorderSide(color: c.borderSoft)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_rounded),
+                  color: c.fg0,
+                  onPressed: () => context.go('/desvios'),
+                ),
+                const SizedBox(width: 8),
+                Expanded(child: DetailIdBadge(prefix: 'Desvio', id: d.id)),
+                IconButton(icon: const Icon(Icons.share_rounded), color: c.fg0, onPressed: () {}),
+                IconButton(icon: const Icon(Icons.more_vert_rounded), color: c.fg0, onPressed: () => _showMenu(context)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: [
+                ProtoPill(label: 'Desvio', bg: c.statusYellowBg, fg: c.statusYellowFg),
+                ProtoPill(label: statusLabel[d.status] ?? d.status, bg: c.bgElevated, fg: c.accent),
+                if (d.regraDeOuro) ProtoPill(label: 'Regra de Ouro', bg: c.statusRedBg, fg: c.statusRedFg),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              d.titulo,
+              style: SafeCoreType.headline.copyWith(color: c.fg0, height: 1.08),
+              // ignore: deprecated_member_use
+              textScaler: TextScaler.noScaling,
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 12,
+              runSpacing: 6,
+              children: [
+                if (d.localizacaoNome != null)
+                  Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(Icons.place_outlined, size: 13, color: c.fg2),
+                    const SizedBox(width: 4),
+                    Text(d.localizacaoNome!, style: SafeCoreType.body.copyWith(color: c.fg2)),
+                  ]),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(Icons.calendar_today_outlined, size: 13, color: c.fg2),
+                  const SizedBox(width: 4),
+                  Text(d.dataRegistro.isNotEmpty ? _formatDate(d.dataRegistro) : '—', style: SafeCoreType.body.copyWith(color: c.fg2)),
+                ]),
+              ],
+            ),
+            const SizedBox(height: 14),
+            DetailProgressRail(stage: stageIndexForStatus(d.status)),
+          ],
+        ),
       ),
     );
   }
@@ -264,59 +363,6 @@ class _BodyState extends ConsumerState<_Body> {
     return ListView(
       padding: EdgeInsets.zero,
       children: [
-        // ── Cabeçalho ──────────────────────────────────────────────
-        Hero(
-          tag: 'cover-${d.id}',
-          child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-          decoration: BoxDecoration(
-            color: c.bgSurface,
-            border: Border(bottom: BorderSide(color: c.borderSoft)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(children: [
-                ProtoPill(
-                    label: 'Desvio',
-                    bg: c.statusYellowBg,
-                    fg: c.statusYellowFg),
-                const SizedBox(width: 8),
-                ProtoPill(
-                  label: statusLabel[d.status] ?? d.status,
-                  bg: c.bgElevated,
-                  fg: c.accent,
-                ),
-              ]),
-              const SizedBox(height: 10),
-              Text(d.titulo,
-                  style: SafeCoreType.title.copyWith(
-                      color: c.fg0,
-                      fontWeight: FontWeight.w900,
-                      height: 1.3)),
-              const SizedBox(height: 6),
-              Row(children: [
-                if (d.localizacaoNome != null) ...[
-                  Icon(Icons.place_outlined,
-                      size: 13, color: c.fg2),
-                  const SizedBox(width: 4),
-                  Text(d.localizacaoNome!,
-                      style: SafeCoreType.body.copyWith(color: c.fg2)),
-                  const SizedBox(width: 10),
-                ],
-                Icon(Icons.calendar_today_outlined,
-                    size: 13, color: c.fg2),
-                const SizedBox(width: 4),
-                Text(
-                  d.dataRegistro.isNotEmpty ? _formatDate(d.dataRegistro) : '—',
-                  style: SafeCoreType.body.copyWith(color: c.fg2),
-                ),
-              ]),
-            ],
-          ),
-          ),
-        ),
-
         // ── Fotos de ocorrência ────────────────────────────────────
         if (fotos.isNotEmpty) ...[
           const SizedBox(height: 12),
