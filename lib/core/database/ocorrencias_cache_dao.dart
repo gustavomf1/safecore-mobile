@@ -12,9 +12,23 @@ class OcorrenciasCacheDao extends DatabaseAccessor<AppDatabase>
   Future<void> salvar(OcorrenciasCacheCompanion companion) =>
       into(ocorrenciasCache).insertOnConflictUpdate(companion);
 
-  Future<List<OcorrenciasCacheData>> listarPorTipo(String tipo) =>
-      (select(ocorrenciasCache)..where((t) => t.tipo.equals(tipo))).get();
+  Future<OcorrenciasCacheData?> buscar(String id, String nivel) =>
+      (select(ocorrenciasCache)
+            ..where((t) => t.id.equals(id) & t.nivel.equals(nivel)))
+          .getSingleOrNull();
+
+  Future<List<OcorrenciasCacheData>> listarPorTipoENivel(
+    String tipo,
+    String nivel,
+    String usuarioId,
+  ) =>
+      (select(ocorrenciasCache)
+            ..where((t) =>
+                t.tipo.equals(tipo) & t.nivel.equals(nivel) & t.usuarioId.equals(usuarioId)))
+          .get();
 
   Future<void> limpar(String tipo) =>
       (delete(ocorrenciasCache)..where((t) => t.tipo.equals(tipo))).go();
+
+  Future<void> limparTudo() => delete(ocorrenciasCache).go();
 }
