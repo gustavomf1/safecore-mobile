@@ -37,9 +37,9 @@ class SafeCoreApp extends ConsumerWidget {
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         title: 'SafeCore',
-        theme: safeCoreThemeLight(),
+        theme: safeCoreThemeDark(),
         darkTheme: safeCoreThemeDark(),
-        themeMode: ThemeMode.system,
+        themeMode: ThemeMode.dark,
         routerConfig: router,
         scaffoldMessengerKey: scaffoldMessengerKey,
         builder: (context, child) => _MobileViewport(child: child ?? const SizedBox.shrink()),
