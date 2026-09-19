@@ -1493,6 +1493,17 @@ git commit -m "feat: guarda offline no wizard salva rascunho local (fluxo online
 
 ### Task 6: Motor de sincronização manual
 
+**Requisito herdado da revisão final da Spec 1 (backend):** `@Valid` em
+cascata em `SyncItemRequest` (já implementado no `safecore-api`) faz o
+`POST /sync/batch` retornar 400 se o item enviado for inválido —
+`safecore-mobile-backend` hoje não trata isso (`SyncForwardingService`
+sem `@ExceptionHandler`), então vira um 500 opaco sem corpo de erro.
+`sincronizarRascunho` (Step 2 abaixo) precisa tratar tanto um `DioException`
+com status 400/500 vindo do `/sync/batch` quanto um item `status: "ERRO"`
+dentro de uma resposta 200 — ambos os casos marcam só aquele rascunho como
+`erro` (já é uma chamada por item, então não trava os outros). Ver detalhe
+completo na spec, seção "Requisito herdado da revisão final da Spec 1".
+
 **Files:**
 - Modify: `lib/core/sync/sync_service.dart`
 - Create: `test/core/sync/sync_service_test.dart`

@@ -86,6 +86,45 @@ UI** — nada nela é exercitado hoje:
   sincroniza sozinho — só aparece um aviso; sincronizar é sempre uma ação
   manual do usuário.
 
+## Requisito herdado da revisão final da Spec 1 (backend)
+
+A implementação da Spec 1 (`safecore-api`, branch `feature/offline-mode`)
+adicionou `@Valid` em cascata em `SyncItemRequest.nc`/`.desvio`
+(corretamente — sem isso, um payload inválido virava `NullPointerException`
+cru). Efeito colateral encontrado na revisão final: **`@Valid` em cascata
+faz o Spring rejeitar o `POST /api/sync/ocorrencias` inteiro com 400 se
+QUALQUER item do batch for inválido — o batch inteiro falha, nenhum item é
+processado**, mesmo os válidos. Isso reverte o isolamento por item que a
+Spec 1 corrigiu no nível de exceção de negócio (um item com erro não deveria
+derrubar os outros).
+
+Agravante: `safecore-mobile-backend` (o BFF que repassa a chamada) não tem
+nenhum `@ControllerAdvice`/`@ExceptionHandler` — um 400 do `safecore-api`
+vira uma `HttpClientErrorException` não tratada em
+`SyncForwardingService.encaminhar`, que o Spring converte num 500 opaco
+pro mobile, com o corpo de erro descartado. O app não teria como saber
+qual rascunho está corrompido nem por quê.
+
+**Isso não bloqueia a Spec 1** (nada em produção grava rascunho ainda), mas
+é um requisito real pra Spec 2, porque é exatamente aqui que a fila de sync
+manual (seção "Motor de sincronização manual") vai bater nisso: um
+rascunho com dado corrompido travaria a sincronização de TODOS os outros
+rascunhos pendentes pra sempre, sem explicação clara na tela de
+Sincronização. Decisão a tomar na implementação da Task 6
+(`SyncService.sincronizarRascunho`): como cada chamada de `/sync/batch`
+hoje já é feita **um item por vez** (não em lote de verdade — ver seção
+"Motor de sincronização manual"), o `@Valid` em cascata rejeitando só
+aquele POST já isola o item automaticamente na prática (o rascunho ao lado
+não é afetado, porque cada um é uma chamada HTTP separada). O que falta é
+só: (1) `safecore-mobile-backend` propagar o corpo/status do erro do
+`safecore-api` em vez de deixar virar 500 opaco (adicionar
+`@ExceptionHandler` em `SyncBatchController` ou tratar
+`HttpClientErrorException` em `SyncForwardingService`), e (2) o
+`SyncService.sincronizarRascunho` do mobile tratar um 400 aqui do mesmo
+jeito que trata um item `status: "ERRO"` do corpo (mensagem visível na
+tela de Sincronização, sem travar os outros rascunhos — que já não trava,
+dado que a chamada é por item).
+
 ## Mudanças
 
 ### 1. Schema Drift — `schemaVersion` 1 → 2, com migration real
