@@ -119,6 +119,28 @@ contrato esperado é UUID. Gerar isso é responsabilidade da Spec 2
 (dependência `uuid` no `pubspec.yaml`), citado aqui só para deixar o
 contrato explícito entre as duas specs.
 
+### 4. `@Valid` faltando na cascata de `SyncItemRequest`
+
+Achado ao planejar a Spec 2: `SyncItemRequest.nc`/`.desvio` não têm `@Valid`,
+então os `@NotNull` de `NaoConformidadeRequest`/`DesvioRequest`
+(`localizacaoId`, `empresaContratadaId` etc.) não são validados quando o
+payload chega via `/sync/batch` — só são validados no
+`POST /api/nao-conformidades` direto. Hoje isso é inofensivo (nada grava
+rascunho). Com a Spec 2, o sync vira o caminho primário de criação offline,
+e um payload nulo nesse ponto não cai mais num 400 limpo — cai dentro de
+`NaoConformidadeService.create()` (ex: `empresaRepository.findById(null)`),
+e a exceção crua vira `SyncItemResult.erro`, exibida na tela do usuário.
+
+```java
+// SyncItemRequest.java
+public record SyncItemRequest(
+        String localId,
+        String tipo,
+        @Valid NaoConformidadeRequest nc,
+        @Valid DesvioRequest desvio
+) {}
+```
+
 ## Fora do escopo
 
 - Nenhuma mudança nos DTOs de criação de NC/Desvio (`NaoConformidadeRequest`,

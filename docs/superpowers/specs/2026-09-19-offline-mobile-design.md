@@ -22,7 +22,22 @@ UI** — nada nela é exercitado hoje:
   chamado (só have um listener morto em `main.dart:63-72`) e só cobre a
   criação — não vincula normas nem sobe fotos depois.
 - `DraftsPage` (tela em Perfil, hoje "Rascunhos") é protótipo visual: botão
-  "Forçar" sem `onTap`, `syncStatusProvider` nunca atualizado.
+  "Forçar" sem `onTap`, `syncStatusProvider` nunca atualizado. Rota `/drafts`
+  (`app_router.dart:111`), entrada em `profile_page.dart:111`
+  (`_ProfileRow(..., label: 'Rascunhos locais', onTap: () => context.go('/drafts'))`).
+- **`main.dart:57-80` (`_AppConnectivityListener`) já chama
+  `syncServiceProvider.syncPendentes()` automaticamente sempre que
+  `connectivityProvider` emite `true`.** Contradiz a decisão de sync 100%
+  manual (seção "Decisões" abaixo) — esse listener precisa ser removido (ou
+  reduzido a só recalcular a contagem para o banner da seção 8), não é
+  código morto como o resto.
+- `connectivityProvider` (`connectivity_provider.dart`) só ouve
+  `Connectivity().onConnectivityChanged` — não emite nenhum valor inicial.
+  `ref.read(connectivityProvider).value` fica `null` até o primeiro evento
+  de mudança depois que o listener é criado, o que pode nunca acontecer numa
+  sessão que começa e permanece online. Qualquer decisão "online agora?"
+  (guarda do wizard, banner) baseada nesse provider sem corrigir isso lê
+  `null` como se fosse offline.
 - O wizard (`wizard_page.dart`, 2847 linhas) não referencia nada disso.
   `_submit()` chama `ncRepositoryProvider.criar()`/`desvioRepositoryProvider.criar()`
   direto via Dio (`dioProvider`, aponta pro `safecore-api`), sem fallback.
@@ -52,6 +67,16 @@ UI** — nada nela é exercitado hoje:
   contrário do que o DTO sugere (campo nullable), `NaoConformidadeService.create()`
   chama `empresaRepository.findById(request.empresaContratadaId())` sem
   checar null primeiro; é obrigatório de fato.
+- **Validação de `localizacaoId`/`empresaContratadaId` no caminho de sync
+  fica no backend, não duplicada aqui.** `SyncItemRequest.nc`/`.desvio` hoje
+  não tem `@Valid`, então os `@NotNull` de `NaoConformidadeRequest`/
+  `DesvioRequest` não são checados quando o payload chega via `/sync/batch`
+  — um rascunho mal formado cairia direto num `NullPointerException`/erro
+  cru vindo do `findById(null)`. Resolvido na Spec 1 (adicionar `@Valid`
+  nos dois campos de `SyncItemRequest`), não é responsabilidade do mobile
+  gerar payload sempre válido por conta própria — mas a UI do wizard já
+  exige esses campos antes de habilitar o botão de publicar/salvar, então
+  na prática nunca deveria mandar nulo mesmo sem essa rede de segurança.
 - **O caminho de criação online não é alterado em nenhuma linha.** A única
   adição é uma checagem de conectividade no início de `_submit()`; se
   online, o código existente roda exatamente como hoje (mesmo em caso de
@@ -108,13 +133,17 @@ que tenha, por acidente, gravado algo ali; se não, dropar sem medo).
 
 Tabelas novas:
 
+`Rascunhos.fotoPath` (singular) fica redundante assim que `RascunhoFotos`
+existe — é removida na mesma migration (nada lê `fotoPath` hoje fora do
+próprio mapeamento morto em `DraftRepositoryImpl`/`RascunhoLocal`).
+
 ```dart
 class RascunhoNormas extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get rascunhoId => text().references(Rascunhos, #id)();
   TextColumn get normaId => text()();
   TextColumn get clausulaReferencia => text().nullable()();
-  TextColumn get textoEditado => text().nullable()();
+  TextColumn get textoEditado => text()(); // NcTrechoNormaRepositoryImpl.vincular() exige textoEditado (não-nulo)
   TextColumn get status => text().withDefault(const Constant('pendente'))(); // pendente|vinculado|erro
 }
 
