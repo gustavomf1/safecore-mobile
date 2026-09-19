@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../shared/theme/tokens.dart';
 import '../../../shared/widgets/prototype_ui.dart';
 import '../model/desvio_action_requests.dart';
 import '../model/desvio_detail.dart';
@@ -62,25 +63,26 @@ class _RevisarTratativasSectionState
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     final marcadas = _decisao.values.where((v) => v == true).length;
     return ProtoCard(
-      border: Border.all(color: ProtoColors.blue, width: 2),
+      border: Border.all(color: c.accent, width: 2),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const ProtoSectionTitle('Revisar Tratativas'),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Aprove ou reprove cada item. Reprovações exigem motivo.',
-            style: TextStyle(color: ProtoColors.muted, fontSize: 12),
+            style: TextStyle(color: c.fg2, fontSize: 12),
           ),
           const SizedBox(height: 14),
           ..._pendentes.map(_itemCard),
           if (!_algumaMarcada) ...[
-            const Text(
+            Text(
               'COMENTÁRIO (OPCIONAL)',
               style: TextStyle(
-                color: Color(0xFFD7E8FF),
+                color: c.fg2,
                 fontSize: 11,
                 fontWeight: FontWeight.w900,
                 letterSpacing: .4,
@@ -89,26 +91,26 @@ class _RevisarTratativasSectionState
             const SizedBox(height: 6),
             TextField(
               controller: _comentarioController,
-              style: const TextStyle(color: ProtoColors.text, fontSize: 13),
+              style: TextStyle(color: c.fg0, fontSize: 13),
               decoration: InputDecoration(
                 hintText: 'Observações sobre a aprovação...',
                 hintStyle:
-                    const TextStyle(color: ProtoColors.muted, fontSize: 12),
+                    TextStyle(color: c.fg2, fontSize: 12),
                 filled: true,
-                fillColor: ProtoColors.surface2,
+                fillColor: c.bgElevated,
                 contentPadding: const EdgeInsets.all(12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: ProtoColors.border),
+                  borderSide: BorderSide(color: c.borderSoft),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: ProtoColors.border),
+                  borderSide: BorderSide(color: c.borderSoft),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide:
-                      const BorderSide(color: ProtoColors.blue, width: 1.5),
+                      BorderSide(color: c.accent, width: 1.5),
                 ),
               ),
             ),
@@ -120,7 +122,7 @@ class _RevisarTratativasSectionState
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor:
-                    _algumaMarcada ? ProtoColors.red : ProtoColors.green,
+                    _algumaMarcada ? c.statusRedFg : c.statusGreenFg,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -144,11 +146,12 @@ class _RevisarTratativasSectionState
   }
 
   Widget _itemCard(TrativaDesvio t) {
+    final c = context.c;
     final decisao = _decisao[t.id];
     final borderColor = switch (decisao) {
-      true => ProtoColors.red,
-      false => ProtoColors.green,
-      null => ProtoColors.border,
+      true => c.statusRedFg,
+      false => c.statusGreenFg,
+      null => c.borderSoft,
     };
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -166,8 +169,8 @@ class _RevisarTratativasSectionState
                     children: [
                       Text(
                         t.titulo,
-                        style: const TextStyle(
-                          color: ProtoColors.text,
+                        style: TextStyle(
+                          color: c.fg0,
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
                         ),
@@ -175,8 +178,8 @@ class _RevisarTratativasSectionState
                       const SizedBox(height: 4),
                       Text(
                         t.descricao,
-                        style: const TextStyle(
-                          color: ProtoColors.muted,
+                        style: TextStyle(
+                          color: c.fg2,
                           fontSize: 13,
                         ),
                       ),
@@ -225,8 +228,10 @@ class _RevisarTratativasSectionState
                   children: [
                     _decisaoPill(
                       label: 'Aprovar',
-                      color: ProtoColors.green,
-                      selectedFg: ProtoColors.bg,
+                      color: c.statusGreenFg,
+                      // Fixed near-black: dark text reads better than white
+                      // against this saturated green fill in both themes.
+                      selectedFg: const Color(0xFF0B1118),
                       selecionado: decisao == false,
                       onTap: () => setState(
                           () => _decisao[t.id] = decisao == false ? null : false),
@@ -234,7 +239,7 @@ class _RevisarTratativasSectionState
                     const SizedBox(width: 6),
                     _decisaoPill(
                       label: 'Reprovar',
-                      color: ProtoColors.red,
+                      color: c.statusRedFg,
                       selectedFg: Colors.white,
                       selecionado: decisao == true,
                       onTap: () => setState(
@@ -249,26 +254,26 @@ class _RevisarTratativasSectionState
               TextField(
                 controller: _motivoControllers[t.id],
                 maxLines: 2,
-                style: const TextStyle(color: ProtoColors.text, fontSize: 13),
+                style: TextStyle(color: c.fg0, fontSize: 13),
                 decoration: InputDecoration(
                   hintText: 'Motivo da reprovação (obrigatório)',
-                  hintStyle: const TextStyle(
-                      color: ProtoColors.muted, fontSize: 12),
+                  hintStyle: TextStyle(
+                      color: c.fg2, fontSize: 12),
                   filled: true,
-                  fillColor: ProtoColors.surface2,
+                  fillColor: c.bgElevated,
                   contentPadding: const EdgeInsets.all(10),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: ProtoColors.red),
+                    borderSide: BorderSide(color: c.statusRedFg),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: ProtoColors.red),
+                    borderSide: BorderSide(color: c.statusRedFg),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(
-                        color: ProtoColors.red, width: 1.5),
+                    borderSide: BorderSide(
+                        color: c.statusRedFg, width: 1.5),
                   ),
                 ),
               ),
@@ -307,12 +312,15 @@ class _RevisarTratativasSectionState
     );
   }
 
-  Widget _thumbFallback() => Container(
-        width: 56,
-        height: 56,
-        color: ProtoColors.surface2,
-        child: const Icon(Icons.image_outlined, color: ProtoColors.muted),
-      );
+  Widget _thumbFallback() {
+    final c = context.c;
+    return Container(
+      width: 56,
+      height: 56,
+      color: c.bgElevated,
+      child: Icon(Icons.image_outlined, color: c.fg2),
+    );
+  }
 
   Future<void> _confirmar() async {
     if (_algumaMarcada) {
@@ -321,10 +329,10 @@ class _RevisarTratativasSectionState
         if (_decisao[t.id] != true) continue;
         final motivo = _motivoControllers[t.id]!.text.trim();
         if (motivo.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: const Text(
                 'Preencha o motivo de todas as tratativas marcadas para reprovação.'),
-            backgroundColor: ProtoColors.red,
+            backgroundColor: context.c.statusRedFg,
           ));
           return;
         }

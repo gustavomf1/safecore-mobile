@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../shared/theme/tokens.dart';
 import '../../../shared/widgets/prototype_ui.dart';
 
 /// Dois seletores segmentados (severidade 1-5, probabilidade 1-4) com label
@@ -20,8 +21,9 @@ class RiskPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     final score = severidade * probabilidade;
-    final (label, color) = _nivel(score);
+    final (label, color) = _nivel(score, c);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -35,10 +37,10 @@ class RiskPicker extends StatelessWidget {
         const SizedBox(height: 12),
         Row(
           children: [
-            const Text(
+            Text(
               'Nivel de risco',
               style: TextStyle(
-                  color: ProtoColors.muted,
+                  color: c.fg2,
                   fontSize: 12,
                   fontWeight: FontWeight.w700),
             ),
@@ -54,11 +56,11 @@ class RiskPicker extends StatelessWidget {
     );
   }
 
-  (String, Color) _nivel(int score) {
-    if (score >= 15) return ('CRITICO', ProtoColors.red);
-    if (score >= 9) return ('ALTO', ProtoColors.orange);
-    if (score >= 4) return ('MEDIO', ProtoColors.yellow);
-    return ('BAIXO', ProtoColors.green);
+  (String, Color) _nivel(int score, SafeCoreColors c) {
+    if (score >= 15) return ('CRITICO', c.statusRedFg);
+    if (score >= 9) return ('ALTO', c.statusOrangeFg);
+    if (score >= 4) return ('MEDIO', c.statusYellowFg);
+    return ('BAIXO', c.statusGreenFg);
   }
 }
 
@@ -70,6 +72,7 @@ class _Ramp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Row(
       children: List.generate(count, (i) {
         final n = i + 1;
@@ -84,14 +87,14 @@ class _Ramp extends StatelessWidget {
                 height: 40,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: active ? ProtoColors.blue : ProtoColors.surface2,
+                  color: active ? c.accent : c.bgElevated,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: ProtoColors.border),
+                  border: Border.all(color: c.borderSoft),
                 ),
                 child: Text(
                   '$n',
                   style: TextStyle(
-                    color: active ? Colors.white : ProtoColors.muted,
+                    color: active ? Colors.white : c.fg2,
                     fontWeight: FontWeight.w900,
                   ),
                 ),

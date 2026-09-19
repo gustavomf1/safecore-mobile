@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../shared/widgets/prototype_ui.dart';
+import '../../shared/theme/tokens.dart';
 import 'provider/auth_provider.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -65,8 +65,9 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Scaffold(
-      backgroundColor: ProtoColors.bg,
+      backgroundColor: c.bgBase,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -79,18 +80,18 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
           ),
           // Fades the photo into the flat background color so the form panel
           // below has no visible seam.
-          const Positioned.fill(
+          Positioned.fill(
             child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: [0, 0.5, 0.78, 1],
+                  stops: const [0, 0.5, 0.78, 1],
                   colors: [
                     Colors.transparent,
                     Colors.transparent,
-                    Color(0xB30B1118),
-                    ProtoColors.bg,
+                    c.bgBase.withValues(alpha: .7),
+                    c.bgBase,
                   ],
                 ),
               ),
@@ -122,20 +123,21 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Text('Bem-vindo de volta', style: TextStyle(color: ProtoColors.text, fontSize: 22, fontWeight: FontWeight.w900)),
-                                  const SizedBox(height: 6),
-                                  const Text(
-                                    'Entre para registrar ocorrencias e acompanhar tratativas em campo.',
+                                  Text('Bem-vindo de volta', style: SafeCoreType.headline.copyWith(color: c.fg0)),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Entre para registrar ocorrências e acompanhar tratativas em campo.',
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(color: ProtoColors.muted, fontSize: 12, height: 1.45),
+                                    style: SafeCoreType.bodyRegular.copyWith(color: c.fg2, fontSize: 13, height: 1.5),
                                   ),
-                                  const SizedBox(height: 20),
+                                  const SizedBox(height: 22),
                                   Container(
-                                    padding: const EdgeInsets.all(14),
+                                    padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
-                                      color: ProtoColors.surface,
-                                      borderRadius: BorderRadius.circular(14),
-                                      border: Border.all(color: ProtoColors.border),
+                                      color: c.bgSurface,
+                                      borderRadius: BorderRadius.circular(SafeCoreRadius.lg),
+                                      border: Border.all(color: c.borderSoft),
+                                      boxShadow: SafeCoreShadows.md,
                                     ),
                                     child: Column(
                                       children: [
@@ -150,16 +152,16 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
                                           onTrailingTap: () => setState(() => showPassword = !showPassword),
                                         ),
                                         if (_errorMsg != null) ...[
-                                          const SizedBox(height: 8),
+                                          const SizedBox(height: 10),
                                           Row(
                                             children: [
-                                              const Icon(Icons.error_outline_rounded, color: ProtoColors.red, size: 14),
+                                              Icon(Icons.error_outline_rounded, color: c.statusRedFg, size: 14),
                                               const SizedBox(width: 6),
-                                              Expanded(child: Text(_errorMsg!, style: const TextStyle(color: ProtoColors.red, fontSize: 12, fontWeight: FontWeight.w700))),
+                                              Expanded(child: Text(_errorMsg!, style: SafeCoreType.body.copyWith(color: c.statusRedFg))),
                                             ],
                                           ),
                                         ],
-                                        const SizedBox(height: 14),
+                                        const SizedBox(height: 16),
                                         Row(
                                           children: [
                                             Expanded(
@@ -169,23 +171,23 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
                                                 child: Row(
                                                   children: [
                                                     AnimatedContainer(
-                                                      duration: const Duration(milliseconds: 160),
+                                                      duration: SafeCoreMotion.fast,
                                                       width: 18,
                                                       height: 18,
                                                       decoration: BoxDecoration(
-                                                        color: remember ? ProtoColors.blue : Colors.transparent,
+                                                        color: remember ? c.accent : Colors.transparent,
                                                         borderRadius: BorderRadius.circular(5),
-                                                        border: Border.all(color: remember ? ProtoColors.blue : ProtoColors.borderStrong),
+                                                        border: Border.all(color: remember ? c.accent : c.borderMain),
                                                       ),
                                                       child: remember ? const Icon(Icons.check_rounded, color: Colors.white, size: 13) : null,
                                                     ),
                                                     const SizedBox(width: 8),
-                                                    const Flexible(
+                                                    Flexible(
                                                       child: Text(
                                                         'Manter conectado',
                                                         maxLines: 1,
                                                         overflow: TextOverflow.ellipsis,
-                                                        style: TextStyle(color: ProtoColors.muted, fontSize: 11, fontWeight: FontWeight.w800),
+                                                        style: SafeCoreType.label.copyWith(color: c.fg2),
                                                       ),
                                                     ),
                                                   ],
@@ -196,19 +198,19 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
                                             TextButton(
                                               onPressed: () => context.push('/esqueci-senha'),
                                               style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 32), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                                              child: const Text('Esqueci a senha', style: TextStyle(color: ProtoColors.blue, fontSize: 11, fontWeight: FontWeight.w800)),
+                                              child: Text('Esqueci a senha', style: SafeCoreType.label.copyWith(color: c.accent)),
                                             ),
                                           ],
                                         ),
-                                        const SizedBox(height: 16),
+                                        const SizedBox(height: 18),
                                         SizedBox(
                                           width: double.infinity,
                                           height: 52,
                                           child: FilledButton.icon(
                                             style: FilledButton.styleFrom(
-                                              backgroundColor: ProtoColors.blue,
+                                              backgroundColor: c.accent,
                                               foregroundColor: Colors.white,
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SafeCoreRadius.md)),
                                             ),
                                             onPressed: loading ? null : _submit,
                                             icon: loading
@@ -217,16 +219,16 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
                                                     child: const Icon(Icons.sync_rounded, size: 18),
                                                   )
                                                 : const Icon(Icons.arrow_forward_rounded, size: 18),
-                                            label: Text(loading ? 'Entrando...' : 'Entrar', style: const TextStyle(fontWeight: FontWeight.w800)),
+                                            label: Text(loading ? 'Entrando...' : 'Entrar', style: SafeCoreType.subtitle.copyWith(color: Colors.white)),
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
                                   const SizedBox(height: 20),
-                                  const Text('v1.0.0 · build 2026.05.06', style: TextStyle(color: ProtoColors.muted2, fontSize: 10, fontWeight: FontWeight.w700)),
+                                  Text('v1.0.0 · build 2026.05.06', style: SafeCoreType.micro.copyWith(color: c.fg3)),
                                   const SizedBox(height: 4),
-                                  const Text('SafeCore / SGS · ERS Engenharia', style: TextStyle(color: ProtoColors.muted2, fontSize: 10, fontWeight: FontWeight.w700)),
+                                  Text('SafeCore / SGS · ERS Engenharia', style: SafeCoreType.micro.copyWith(color: c.fg3)),
                                 ],
                               ),
                             ),
@@ -266,30 +268,31 @@ class _LoginInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Container(
-      height: 50,
+      height: 52,
       decoration: BoxDecoration(
-        color: ProtoColors.surface2,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: ProtoColors.border),
+        color: c.bgElevated,
+        borderRadius: BorderRadius.circular(SafeCoreRadius.md),
+        border: Border.all(color: c.borderSoft),
       ),
       child: TextField(
         controller: controller,
         obscureText: obscure,
         keyboardType: keyboardType,
-        style: const TextStyle(color: ProtoColors.text, fontSize: 12, fontWeight: FontWeight.w700),
+        style: SafeCoreType.bodyMedium.copyWith(color: c.fg0),
         decoration: InputDecoration(
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
           filled: false,
           hintText: hint,
-          hintStyle: const TextStyle(color: ProtoColors.muted, fontSize: 12, fontWeight: FontWeight.w700),
-          prefixIcon: Icon(icon, size: 16, color: ProtoColors.muted),
+          hintStyle: SafeCoreType.bodyMedium.copyWith(color: c.fg2),
+          prefixIcon: Icon(icon, size: 17, color: c.fg2),
           suffixIcon: trailing == null
               ? null
               : IconButton(
-                  icon: Icon(trailing, size: 16, color: ProtoColors.muted),
+                  icon: Icon(trailing, size: 17, color: c.fg2),
                   onPressed: onTrailingTap,
                 ),
           contentPadding: const EdgeInsets.symmetric(vertical: 15),

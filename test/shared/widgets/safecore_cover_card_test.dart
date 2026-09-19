@@ -6,6 +6,7 @@ import 'package:safecore_mobile/features/auth/model/login_response.dart';
 import 'package:safecore_mobile/features/auth/provider/auth_provider.dart';
 import 'package:safecore_mobile/shared/widgets/safecore_auth_image.dart';
 import 'package:safecore_mobile/shared/widgets/safecore_cover_card.dart';
+import 'package:safecore_mobile/shared/theme/tokens.dart';
 
 class MockAuthNotifier extends AsyncNotifier<LoginResponse?>
     with Mock
@@ -19,7 +20,7 @@ class MockAuthNotifier extends AsyncNotifier<LoginResponse?>
 
 Widget _wrap(Widget child) => ProviderScope(
       overrides: [authProvider.overrideWith(MockAuthNotifier.new)],
-      child: MaterialApp(home: Scaffold(body: child)),
+      child: MaterialApp(theme: safeCoreThemeDark(), home: Scaffold(body: child)),
     );
 
 void main() {

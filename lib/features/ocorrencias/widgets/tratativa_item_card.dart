@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../shared/theme/tokens.dart';
 import '../../../shared/widgets/prototype_ui.dart';
 import '../model/trativa_desvio.dart';
 
@@ -14,11 +15,12 @@ class TratativaItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     final t = tratativa;
     final (cardBg, cardBorder, pillFg, label) = switch (t.status) {
-      'APROVADO' => (const Color(0xFF0B3A1C), ProtoColors.green, ProtoColors.green, 'Aprovada'),
-      'REPROVADO' => (const Color(0xFF4A1017), ProtoColors.red, ProtoColors.red, 'Reprovada'),
-      _ => (ProtoColors.surface2, ProtoColors.border, ProtoColors.blue, 'Pendente'),
+      'APROVADO' => (c.statusGreenBg, c.statusGreenFg, c.statusGreenFg, 'Aprovada'),
+      'REPROVADO' => (c.statusRedBg, c.statusRedFg, c.statusRedFg, 'Reprovada'),
+      _ => (c.bgElevated, c.borderSoft, c.accent, 'Pendente'),
     };
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -31,8 +33,8 @@ class TratativaItemCard extends StatelessWidget {
             Row(children: [
               Expanded(
                 child: Text(t.titulo,
-                    style: const TextStyle(
-                        color: ProtoColors.text,
+                    style: TextStyle(
+                        color: c.fg0,
                         fontSize: 14,
                         fontWeight: FontWeight.w800)),
               ),
@@ -40,19 +42,19 @@ class TratativaItemCard extends StatelessWidget {
             ]),
             const SizedBox(height: 6),
             Text(t.descricao,
-                style: const TextStyle(color: ProtoColors.muted, fontSize: 13)),
+                style: TextStyle(color: c.fg2, fontSize: 13)),
             if (t.motivoReprovacao != null && t.motivoReprovacao!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: ProtoColors.red.withValues(alpha: .12),
+                  color: c.statusRedFg.withValues(alpha: .12),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text('Motivo: ${t.motivoReprovacao}',
-                    style: const TextStyle(
-                        color: ProtoColors.red,
+                    style: TextStyle(
+                        color: c.statusRedFg,
                         fontSize: 12,
                         fontWeight: FontWeight.w700)),
               ),
@@ -78,9 +80,9 @@ class TratativaItemCard extends StatelessWidget {
                               width: 64,
                               height: 64,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => _thumbFallback(),
+                              errorBuilder: (_, __, ___) => _thumbFallback(c),
                             )
-                          : _thumbFallback(),
+                          : _thumbFallback(c),
                     );
                   },
                 ),
@@ -92,10 +94,10 @@ class TratativaItemCard extends StatelessWidget {
     );
   }
 
-  Widget _thumbFallback() => Container(
+  Widget _thumbFallback(SafeCoreColors c) => Container(
         width: 64,
         height: 64,
-        color: ProtoColors.surface2,
-        child: const Icon(Icons.image_outlined, color: ProtoColors.muted),
+        color: c.bgElevated,
+        child: Icon(Icons.image_outlined, color: c.fg2),
       );
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../shared/theme/tokens.dart';
 import '../../../shared/widgets/prototype_ui.dart';
 import '../model/desvio_detail.dart';
 import '../model/plano_tratativa.dart';
@@ -32,27 +33,24 @@ class _PlanosTratativaSectionState extends State<PlanosTratativaSection> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     final planos = buildPlanos(widget.d.tratativas, widget.d.historico);
     if (planos.isEmpty) {
-      return const ProtoCard(
+      return ProtoCard(
         child: Row(children: [
-          Icon(Icons.inbox_outlined, color: ProtoColors.muted, size: 18),
-          SizedBox(width: 10),
+          Icon(Icons.inbox_outlined, color: c.fg2, size: 18),
+          const SizedBox(width: 10),
           Text('Nenhuma tratativa ainda',
-              style: TextStyle(color: ProtoColors.muted, fontSize: 13)),
+              style: TextStyle(color: c.fg2, fontSize: 13)),
         ]),
       );
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'PLANOS DE TRATATIVA',
-          style: TextStyle(
-              color: ProtoColors.muted,
-              fontSize: 11,
-              fontWeight: FontWeight.w900,
-              letterSpacing: .5),
+          style: SafeCoreType.label.copyWith(color: c.fg2, letterSpacing: .5),
         ),
         const SizedBox(height: 8),
         for (final plano in planos) ...[
@@ -64,21 +62,26 @@ class _PlanosTratativaSectionState extends State<PlanosTratativaSection> {
   }
 
   Widget _planoCard(Plano plano) {
+    final c = context.c;
     final (accent, label) = switch (plano.resultado) {
-      ResultadoPlano.reprovado => (ProtoColors.red, 'Reprovado'),
-      ResultadoPlano.aprovado => (ProtoColors.green, 'Aprovado'),
-      ResultadoPlano.emAnalise => (ProtoColors.blue, 'Em análise'),
+      ResultadoPlano.reprovado => (c.statusRedFg, 'Reprovado'),
+      ResultadoPlano.aprovado => (c.statusGreenFg, 'Aprovado'),
+      ResultadoPlano.emAnalise => (c.accent, 'Em análise'),
     };
+    // Fixed near-black, not theme-reactive: both light/dark accent are bright
+    // enough that a dark label reads far better on the "Em análise" chip than
+    // white would (the reprovado/aprovado chips use saturated colors that
+    // already contrast well with white).
     final pillFg =
-        plano.resultado == ResultadoPlano.emAnalise ? ProtoColors.bg : Colors.white;
+        plano.resultado == ResultadoPlano.emAnalise ? const Color(0xFF0B1118) : Colors.white;
     final expandido = _expandidos.contains(plano.rodada);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: Container(
         decoration: BoxDecoration(
-          color: ProtoColors.surface,
-          border: Border.all(color: ProtoColors.border),
+          color: c.bgSurface,
+          border: Border.all(color: c.borderSoft),
         ),
         child: IntrinsicHeight(
           child: Row(
@@ -111,14 +114,14 @@ class _PlanosTratativaSectionState extends State<PlanosTratativaSection> {
                                     runSpacing: 4,
                                     children: [
                                       Text('Plano ${plano.rodada}',
-                                          style: const TextStyle(
-                                              color: ProtoColors.text,
+                                          style: TextStyle(
+                                              color: c.fg0,
                                               fontSize: 13,
                                               fontWeight: FontWeight.w900)),
                                       if (plano.dataSubmissao != null)
                                         Text(_fmtDateTime(plano.dataSubmissao),
-                                            style: const TextStyle(
-                                                color: ProtoColors.muted,
+                                            style: TextStyle(
+                                                color: c.fg2,
                                                 fontSize: 11)),
                                       ProtoPill(label: label, bg: accent, fg: pillFg),
                                     ],
@@ -127,7 +130,7 @@ class _PlanosTratativaSectionState extends State<PlanosTratativaSection> {
                                 const SizedBox(width: 8),
                                 Icon(
                                   expandido ? Icons.expand_less : Icons.expand_more,
-                                  color: ProtoColors.muted,
+                                  color: c.fg2,
                                   size: 20,
                                 ),
                               ],
@@ -138,8 +141,8 @@ class _PlanosTratativaSectionState extends State<PlanosTratativaSection> {
                               const SizedBox(height: 6),
                               Text(
                                 'Reprovado por ${plano.revisorNome} • ${_fmtDateTime(plano.dataResultado)}',
-                                style: const TextStyle(
-                                    color: ProtoColors.red,
+                                style: TextStyle(
+                                    color: c.statusRedFg,
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700),
                               ),
@@ -161,12 +164,12 @@ class _PlanosTratativaSectionState extends State<PlanosTratativaSection> {
                                 padding: const EdgeInsets.all(10),
                                 margin: const EdgeInsets.only(bottom: 8),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF0B3A1C),
+                                  color: c.statusGreenBg,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Text('Comentário: ${plano.comentario}',
-                                    style: const TextStyle(
-                                        color: ProtoColors.green, fontSize: 12)),
+                                    style: TextStyle(
+                                        color: c.statusGreenFg, fontSize: 12)),
                               ),
                             for (final t in plano.tratativas)
                               TratativaItemCard(tratativa: t, token: widget.token),
@@ -175,8 +178,8 @@ class _PlanosTratativaSectionState extends State<PlanosTratativaSection> {
                                 '${plano.resultado == ResultadoPlano.reprovado ? 'Reprovado' : 'Aprovado'} por ${plano.revisorNome} • ${_fmtDateTime(plano.dataResultado)}',
                                 style: TextStyle(
                                     color: plano.resultado == ResultadoPlano.reprovado
-                                        ? ProtoColors.red
-                                        : ProtoColors.muted,
+                                        ? c.statusRedFg
+                                        : c.fg2,
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700),
                               ),

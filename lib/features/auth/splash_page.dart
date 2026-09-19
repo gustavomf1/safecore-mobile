@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../shared/widgets/prototype_ui.dart';
+import '../../shared/theme/tokens.dart';
 import 'provider/auth_provider.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
@@ -39,8 +39,9 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Scaffold(
-      backgroundColor: ProtoColors.bg,
+      backgroundColor: c.bgBase,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -56,31 +57,60 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        width: 90,
-                        height: 90,
-                        padding: const EdgeInsets.all(12),
+                        width: 96,
+                        height: 96,
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: ProtoColors.blue.withValues(alpha: .12),
-                          borderRadius: BorderRadius.circular(28),
-                          border: Border.all(color: ProtoColors.blue.withValues(alpha: .35), width: 2),
+                          color: c.accent.withValues(alpha: .12),
+                          borderRadius: BorderRadius.circular(SafeCoreRadius.xl + 4),
+                          border: Border.all(color: c.accent.withValues(alpha: .3), width: 1.5),
+                          boxShadow: [
+                            BoxShadow(color: c.accent.withValues(alpha: .18), blurRadius: 32, spreadRadius: 2),
+                          ],
                         ),
-                        child: Container(
-                          decoration: BoxDecoration(gradient: const LinearGradient(colors: [ProtoColors.blue, ProtoColors.purple]), borderRadius: BorderRadius.circular(18)),
-                          child: const Icon(Icons.shield_outlined, color: Colors.white, size: 42),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(SafeCoreRadius.lg),
+                          child: Image.asset(
+                            'assets/icon/icon.png',
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 14),
-                      const Text('SafeCore', style: TextStyle(color: ProtoColors.text, fontSize: 22, fontWeight: FontWeight.w900)),
+                      const SizedBox(height: 18),
+                      Text('SafeCore', style: SafeCoreType.display.copyWith(color: c.fg0)),
                       const SizedBox(height: 8),
-                      const Text('SISTEMA DE GESTAO DE SEGURANCA', style: TextStyle(color: ProtoColors.muted, fontSize: 10, letterSpacing: .8, fontWeight: FontWeight.w800)),
-                      const SizedBox(height: 28),
-                      Container(width: 58, height: 2, decoration: const BoxDecoration(gradient: LinearGradient(colors: [ProtoColors.muted2, ProtoColors.blue, ProtoColors.muted2]))),
+                      Text(
+                        'SISTEMA DE GESTÃO DE SEGURANÇA',
+                        style: SafeCoreType.micro.copyWith(color: c.fg2, letterSpacing: 1.4),
+                      ),
+                      const SizedBox(height: 32),
+                      Container(
+                        width: 64,
+                        height: 3,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(SafeCoreRadius.pill),
+                          gradient: LinearGradient(colors: [c.bgMuted, c.accent, c.bgMuted]),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
-            Container(width: 100, height: 4, margin: const EdgeInsets.only(bottom: 10), decoration: BoxDecoration(color: Colors.white70, borderRadius: BorderRadius.circular(99))),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: SizedBox(
+                width: 120,
+                height: 4,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(SafeCoreRadius.pill),
+                  child: LinearProgressIndicator(
+                    backgroundColor: c.bgMuted,
+                    valueColor: AlwaysStoppedAnimation(c.accent),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

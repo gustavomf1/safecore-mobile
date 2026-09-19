@@ -7,7 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../shared/providers/capture_provider.dart';
-import '../../shared/widgets/prototype_ui.dart';
+import '../../shared/theme/tokens.dart';
 
 class CameraPage extends ConsumerStatefulWidget {
   final String tipo;
@@ -81,20 +81,21 @@ class _CameraPageState extends ConsumerState<CameraPage> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     final photos = ref.watch(captureProvider);
     final notifier = ref.read(captureProvider.notifier);
     final tipo = widget.tipo.toUpperCase();
 
     return Scaffold(
-      backgroundColor: ProtoColors.bg,
+      backgroundColor: c.bgBase,
       appBar: AppBar(
-        backgroundColor: ProtoColors.bg,
-        foregroundColor: ProtoColors.text,
+        backgroundColor: c.bgBase,
+        foregroundColor: c.fg0,
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),
           onPressed: _close,
         ),
-        title: Text('Registrar $tipo'),
+        title: Text('Registrar $tipo', style: SafeCoreType.subtitle.copyWith(color: c.fg0)),
       ),
       body: SafeArea(
         bottom: false,
@@ -113,6 +114,7 @@ class _CameraPageState extends ConsumerState<CameraPage> {
   }
 
   Widget _emptyState() {
+    final c = context.c;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -121,22 +123,16 @@ class _CameraPageState extends ConsumerState<CameraPage> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: ProtoColors.surface2,
+              color: c.bgElevated,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: ProtoColors.border),
+              border: Border.all(color: c.borderSoft),
             ),
-            child: const Icon(Icons.add_photo_alternate_outlined,
-                size: 36, color: ProtoColors.muted),
+            child: Icon(Icons.add_photo_alternate_outlined, size: 36, color: c.fg2),
           ),
           const SizedBox(height: 16),
-          const Text('Nenhuma foto anexada',
-              style: TextStyle(
-                  color: ProtoColors.text,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700)),
+          Text('Nenhuma foto anexada', style: SafeCoreType.subtitle.copyWith(color: c.fg0, fontWeight: FontWeight.w700)),
           const SizedBox(height: 6),
-          const Text('Opcional — você pode continuar sem fotos',
-              style: TextStyle(color: ProtoColors.muted, fontSize: 13)),
+          Text('Opcional — você pode continuar sem fotos', style: SafeCoreType.bodyRegular.copyWith(color: c.fg2, fontSize: 13)),
         ],
       ),
     );
@@ -186,12 +182,13 @@ class _CameraPageState extends ConsumerState<CameraPage> {
   }
 
   Widget _bottomBar(CaptureNotifier notifier, int count) {
+    final c = context.c;
     final canAdd = count < 10;
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-      decoration: const BoxDecoration(
-        color: ProtoColors.surface,
-        border: Border(top: BorderSide(color: ProtoColors.border)),
+      decoration: BoxDecoration(
+        color: c.bgSurface,
+        border: Border(top: BorderSide(color: c.borderSoft)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -201,32 +198,28 @@ class _CameraPageState extends ConsumerState<CameraPage> {
               Expanded(
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: ProtoColors.border),
+                    side: BorderSide(color: c.borderSoft),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(SafeCoreRadius.md)),
                   ),
                   onPressed: canAdd ? notifier.takePhoto : null,
-                  icon: const Icon(Icons.camera_alt_outlined,
-                      color: ProtoColors.text, size: 18),
-                  label: const Text('Câmera',
-                      style: TextStyle(color: ProtoColors.text)),
+                  icon: Icon(Icons.camera_alt_outlined, color: c.fg0, size: 18),
+                  label: Text('Câmera', style: SafeCoreType.bodyMedium.copyWith(color: c.fg0)),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: ProtoColors.border),
+                    side: BorderSide(color: c.borderSoft),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(SafeCoreRadius.md)),
                   ),
                   onPressed: canAdd ? notifier.pickFromGallery : null,
-                  icon: const Icon(Icons.photo_library_outlined,
-                      color: ProtoColors.text, size: 18),
-                  label: const Text('Galeria',
-                      style: TextStyle(color: ProtoColors.text)),
+                  icon: Icon(Icons.photo_library_outlined, color: c.fg0, size: 18),
+                  label: Text('Galeria', style: SafeCoreType.bodyMedium.copyWith(color: c.fg0)),
                 ),
               ),
             ],
@@ -237,9 +230,9 @@ class _CameraPageState extends ConsumerState<CameraPage> {
             height: 50,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: ProtoColors.blue,
+                backgroundColor: c.accent,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(SafeCoreRadius.md)),
               ),
               onPressed: _proceeding ? null : _proceed,
               child: _proceeding
@@ -250,16 +243,14 @@ class _CameraPageState extends ConsumerState<CameraPage> {
                           strokeWidth: 2, color: Colors.white))
                   : Text(
                       count > 0 ? 'Continuar com $count foto(s)' : 'Continuar sem foto',
-                      style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.w900),
+                      style: SafeCoreType.subtitle.copyWith(color: Colors.white),
                     ),
             ),
           ),
           if (count == 10)
-            const Padding(
-              padding: EdgeInsets.only(top: 6),
-              child: Text('Limite de 10 fotos atingido',
-                  style: TextStyle(color: ProtoColors.muted, fontSize: 11)),
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text('Limite de 10 fotos atingido', style: SafeCoreType.micro.copyWith(color: c.fg2)),
             ),
         ],
       ),

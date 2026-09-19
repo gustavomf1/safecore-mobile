@@ -4,44 +4,26 @@ import '../theme/tokens.dart';
 typedef StatusColors = ({Color bg, Color fg});
 
 class StatusColorHelper {
-  static StatusColors ncColors(String status, {bool vencida = false}) {
+  // Was hard-coded to SafeCoreColors.dark, so status pills never adapted to
+  // light mode. Both methods now take the active theme's colors explicitly
+  // — call as StatusColorHelper.ncColors(context.c, status).
+  static StatusColors ncColors(SafeCoreColors c, String status, {bool vencida = false}) {
     if (vencida) {
-      return (bg: const Color(0xFF4A1017), fg: SafeCoreColors.dark.statusRedFg);
+      return (bg: c.statusRedBg, fg: c.statusRedFg);
     }
     return switch (status) {
-      'CONCLUIDA' || 'FECHADA' || 'APROVADA' => (
-          bg: SafeCoreColors.dark.statusGreenBg,
-          fg: SafeCoreColors.dark.statusGreenFg,
-        ),
-      'EM_EXECUCAO' => (
-          bg: SafeCoreColors.dark.statusIndigoBg,
-          fg: SafeCoreColors.dark.statusIndigoFg,
-        ),
-      'AGUARDANDO_TRATATIVA' => (
-          bg: SafeCoreColors.dark.statusBlueBg,
-          fg: SafeCoreColors.dark.statusBlueFg,
-        ),
-      _ => (
-          bg: SafeCoreColors.dark.statusYellowBg,
-          fg: SafeCoreColors.dark.statusYellowFg,
-        ),
+      'CONCLUIDA' || 'FECHADA' || 'APROVADA' => (bg: c.statusGreenBg, fg: c.statusGreenFg),
+      'EM_EXECUCAO' => (bg: c.statusIndigoBg, fg: c.statusIndigoFg),
+      'AGUARDANDO_TRATATIVA' => (bg: c.statusBlueBg, fg: c.statusBlueFg),
+      _ => (bg: c.statusYellowBg, fg: c.statusYellowFg),
     };
   }
 
-  static StatusColors desvioColors(String status) {
+  static StatusColors desvioColors(SafeCoreColors c, String status) {
     return switch (status) {
-      'CONCLUIDO' || 'FECHADO' || 'APROVADO' => (
-          bg: SafeCoreColors.dark.statusGreenBg,
-          fg: SafeCoreColors.dark.statusGreenFg,
-        ),
-      'EM_ANALISE' => (
-          bg: SafeCoreColors.dark.statusYellowBg,
-          fg: SafeCoreColors.dark.statusYellowFg,
-        ),
-      _ => (
-          bg: SafeCoreColors.dark.bgMuted,
-          fg: SafeCoreColors.dark.fg2,
-        ),
+      'CONCLUIDO' || 'FECHADO' || 'APROVADO' => (bg: c.statusGreenBg, fg: c.statusGreenFg),
+      'EM_ANALISE' => (bg: c.statusYellowBg, fg: c.statusYellowFg),
+      _ => (bg: c.bgMuted, fg: c.fg2),
     };
   }
 

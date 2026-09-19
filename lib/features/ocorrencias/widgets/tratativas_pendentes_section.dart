@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../shared/widgets/prototype_ui.dart';
+import '../../../shared/theme/tokens.dart';
 import '../model/desvio_detail.dart';
 import 'tratativa_item_card.dart';
 
@@ -23,11 +23,7 @@ class TratativasPendentesSection extends StatelessWidget {
       children: [
         Text(
           'TRATATIVAS DO PLANO ATUAL (${pendentes.length})',
-          style: const TextStyle(
-              color: ProtoColors.muted,
-              fontSize: 11,
-              fontWeight: FontWeight.w900,
-              letterSpacing: .5),
+          style: SafeCoreType.label.copyWith(color: context.c.fg2, letterSpacing: .5),
         ),
         const SizedBox(height: 8),
         for (final t in pendentes) TratativaItemCard(tratativa: t, token: token),

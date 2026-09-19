@@ -12,10 +12,12 @@ import '../../core/config/app_config.dart';
 import '../../core/network/dio_client.dart';
 import '../../features/auth/model/login_response.dart';
 import '../../features/auth/provider/auth_provider.dart';
+import '../../shared/theme/tokens.dart';
 import '../../shared/widgets/status_widgets.dart';
 import 'campos_obrigatorios.dart';
 import 'model/nc_detail.dart';
 import 'repository/nc_repository_impl.dart';
+import 'widgets/detail_shared.dart';
 
 // ── Date helpers ────────────────────────────────────────────────────────────
 String _fmtDate(String? iso) {
@@ -44,22 +46,6 @@ final _jwtTokenProvider = FutureProvider<String?>((ref) async {
   return storage.read(key: 'jwt_token');
 });
 
-class _NcDetailColors {
-  static const bg = Color(0xFF0B1118);
-  static const hero = Color(0xFF1A2534);
-  static const surface = Color(0xFF151A21);
-  static const surface2 = Color(0xFF1A2028);
-  static const border = Color(0xFF26303B);
-  static const borderStrong = Color(0xFF748195);
-  static const text = Color(0xFFF8FBFF);
-  static const muted = Color(0xFF566170);
-  static const muted2 = Color(0xFF3F4A57);
-  static const blue = Color(0xFF58A6FF);
-  static const red = Color(0xFFFF4D4D);
-  static const green = Color(0xFF3FB950);
-  static const yellow = Color(0xFFD4A017);
-}
-
 final ncDetailProvider = FutureProvider.family<NcDetail, String>((ref, id) {
   return ref.read(ncRepositoryProvider).buscarPorId(id);
 });
@@ -74,12 +60,12 @@ class DetailPage extends ConsumerWidget {
     final ncAsync = ref.watch(ncDetailProvider(id));
 
     return ncAsync.when(
-      loading: () => const Scaffold(
-        backgroundColor: _NcDetailColors.bg,
-        body: Center(child: CircularProgressIndicator()),
+      loading: () => Scaffold(
+        backgroundColor: context.c.bgBase,
+        body: const Center(child: CircularProgressIndicator()),
       ),
       error: (err, _) => Scaffold(
-        backgroundColor: _NcDetailColors.bg,
+        backgroundColor: context.c.bgBase,
         body: SafeArea(
           child: Column(
             children: [
@@ -92,11 +78,11 @@ class DetailPage extends ConsumerWidget {
                 ),
               ),
               const Spacer(),
-              const Icon(Icons.error_outline_rounded, color: _NcDetailColors.red, size: 48),
+              Icon(Icons.error_outline_rounded, color: context.c.statusRedFg, size: 48),
               const SizedBox(height: 12),
-              const Text('Erro ao carregar NC', style: TextStyle(color: _NcDetailColors.text, fontSize: 16, fontWeight: FontWeight.w700)),
+              Text('Erro ao carregar NC', style: TextStyle(color: context.c.fg0, fontSize: 16, fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
-              Text('$err', style: const TextStyle(color: _NcDetailColors.muted, fontSize: 12), textAlign: TextAlign.center),
+              Text('$err', style: TextStyle(color: context.c.fg2, fontSize: 12), textAlign: TextAlign.center),
               const Spacer(),
             ],
           ),
@@ -121,7 +107,7 @@ class DetailPage extends ConsumerWidget {
         return DefaultTabController(
           length: 5,
           child: Scaffold(
-            backgroundColor: _NcDetailColors.bg,
+            backgroundColor: context.c.bgBase,
             body: SafeArea(
               top: true,
               bottom: false,
@@ -175,7 +161,7 @@ class _DetailHero extends StatelessWidget {
   void _showMenu(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: _NcDetailColors.surface,
+      backgroundColor: context.c.bgSurface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (_) => SafeArea(
         child: Column(
@@ -183,17 +169,17 @@ class _DetailHero extends StatelessWidget {
           children: [
             if (podeEditar)
               ListTile(
-                leading: const Icon(Icons.edit_outlined, color: _NcDetailColors.blue),
-                title: const Text('Editar', style: TextStyle(color: _NcDetailColors.text, fontWeight: FontWeight.w700)),
+                leading: Icon(Icons.edit_outlined, color: context.c.accent),
+                title: Text('Editar', style: TextStyle(color: context.c.fg0, fontWeight: FontWeight.w700)),
                 onTap: () {
                   Navigator.pop(context);
                   onEditar();
                 },
               )
             else
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
-                child: Text('Nenhuma ação disponível', style: TextStyle(color: _NcDetailColors.muted, fontSize: 13)),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Text('Nenhuma ação disponível', style: TextStyle(color: context.c.fg2, fontSize: 13)),
               ),
           ],
         ),
@@ -205,9 +191,9 @@ class _DetailHero extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 6, 20, 22),
-      decoration: const BoxDecoration(
-        color: _NcDetailColors.hero,
-        border: Border(bottom: BorderSide(color: _NcDetailColors.border)),
+      decoration: BoxDecoration(
+        color: context.c.bgMuted,
+        border: Border(bottom: BorderSide(color: context.c.borderSoft)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,7 +201,8 @@ class _DetailHero extends StatelessWidget {
           Row(
             children: [
               _HeroIconButton(icon: Icons.chevron_left_rounded, onTap: () => context.pop()),
-              const Spacer(),
+              const SizedBox(width: 8),
+              Expanded(child: DetailIdBadge(prefix: 'NC', id: nc.id)),
               _HeroIconButton(icon: Icons.share_rounded, onTap: () {}),
               const SizedBox(width: 8),
               _HeroIconButton(icon: Icons.more_vert_rounded, onTap: () => _showMenu(context)),
@@ -235,7 +222,7 @@ class _DetailHero extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             nc.titulo,
-            style: const TextStyle(color: _NcDetailColors.text, fontSize: 22, fontWeight: FontWeight.w900, height: 1.08),
+            style: TextStyle(color: context.c.fg0, fontSize: 22, fontWeight: FontWeight.w900, height: 1.08),
             // ignore: deprecated_member_use
             textScaler: TextScaler.noScaling,
           ),
@@ -250,6 +237,8 @@ class _DetailHero extends StatelessWidget {
                 _HeroMeta(icon: Icons.map_outlined, label: nc.localizacaoNome!),
             ],
           ),
+          const SizedBox(height: 14),
+          DetailProgressRail(stage: stageIndexForStatus(nc.status)),
         ],
       ),
     );
@@ -263,21 +252,21 @@ class _DetailTabs extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 74,
-      decoration: const BoxDecoration(
-        color: _NcDetailColors.surface,
-        border: Border(bottom: BorderSide(color: _NcDetailColors.border)),
+      decoration: BoxDecoration(
+        color: context.c.bgSurface,
+        border: Border(bottom: BorderSide(color: context.c.borderSoft)),
       ),
-      child: const TabBar(
+      child: TabBar(
         isScrollable: true,
         tabAlignment: TabAlignment.start,
-        labelColor: _NcDetailColors.text,
-        unselectedLabelColor: _NcDetailColors.muted,
-        indicatorColor: _NcDetailColors.blue,
+        labelColor: context.c.fg0,
+        unselectedLabelColor: context.c.fg2,
+        indicatorColor: context.c.accent,
         indicatorWeight: 2,
-        indicatorPadding: EdgeInsets.symmetric(horizontal: 14),
-        labelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
-        unselectedLabelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-        tabs: [
+        indicatorPadding: const EdgeInsets.symmetric(horizontal: 14),
+        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+        unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+        tabs: const [
           Tab(text: 'Geral'),
           Tab(child: Text('Evidências', textAlign: TextAlign.center)),
           Tab(child: Text('Plano de\nAção', textAlign: TextAlign.center)),
@@ -293,11 +282,11 @@ class _GeralTab extends StatelessWidget {
   final NcDetail nc;
   const _GeralTab({required this.nc});
 
-  static Color _riscoColor(String nivel) => switch (nivel.toUpperCase()) {
-    'CRITICO' => _NcDetailColors.red,
+  static Color _riscoColor(String nivel, SafeCoreColors c) => switch (nivel.toUpperCase()) {
+    'CRITICO' => c.statusRedFg,
     'ALTO'    => const Color(0xFFFF8C42),
     'MEDIO'   => const Color(0xFFFFBB33),
-    _         => _NcDetailColors.green,
+    _         => c.statusGreenFg,
   };
 
   static String _riscoLabel(String nivel) => switch (nivel.toUpperCase()) {
@@ -317,7 +306,7 @@ class _GeralTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final riscoColor = _riscoColor(nc.nivelRisco);
+    final riscoColor = _riscoColor(nc.nivelRisco, context.c);
     final hasRisco = nc.severidade != null && nc.probabilidade != null;
     final score = hasRisco ? nc.severidade! * nc.probabilidade! : 0;
 
@@ -354,15 +343,15 @@ class _GeralTab extends StatelessWidget {
                 _KvRow(
                   label: 'Data Limite',
                   value: _fmtDate(nc.dataLimiteResolucao),
-                  valueColor: nc.vencida ? _NcDetailColors.red : null,
+                  valueColor: nc.vencida ? context.c.statusRedFg : null,
                 ),
               _KvRow(label: 'Registrado por', value: nc.usuarioCriacaoNome),
               if (nc.usuarioCriacaoEmail != null)
-                _KvRow(label: '', value: nc.usuarioCriacaoEmail!, valueColor: _NcDetailColors.muted),
+                _KvRow(label: '', value: nc.usuarioCriacaoEmail!, valueColor: context.c.fg2),
               if (nc.regraDeOuro)
-                const _KvRow(label: 'Regra de Ouro', value: 'Sim', valueColor: _NcDetailColors.red),
+                _KvRow(label: 'Regra de Ouro', value: 'Sim', valueColor: context.c.statusRedFg),
               if (nc.reincidencia) ...[
-                const _KvRow(label: 'Reincidência', value: 'Sim', valueColor: _NcDetailColors.red),
+                _KvRow(label: 'Reincidência', value: 'Sim', valueColor: context.c.statusRedFg),
                 if (nc.ncAnteriorId != null && nc.ncAnteriorTitulo != null)
                   GestureDetector(
                     onTap: () => context.push('/oc/${nc.ncAnteriorId}'),
@@ -371,16 +360,16 @@ class _GeralTab extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(
+                          SizedBox(
                             width: 110,
-                            child: Text('NC de Origem', style: TextStyle(color: _NcDetailColors.muted, fontSize: 12, fontWeight: FontWeight.w600)),
+                            child: Text('NC de Origem', style: TextStyle(color: context.c.fg2, fontSize: 12, fontWeight: FontWeight.w600)),
                           ),
                           Expanded(
                             child: Row(
                               children: [
-                                Expanded(child: Text(nc.ncAnteriorTitulo!, style: const TextStyle(color: _NcDetailColors.blue, fontSize: 12, fontWeight: FontWeight.w700))),
+                                Expanded(child: Text(nc.ncAnteriorTitulo!, style: TextStyle(color: context.c.accent, fontSize: 12, fontWeight: FontWeight.w700))),
                                 const SizedBox(width: 4),
-                                const Icon(Icons.open_in_new_rounded, size: 13, color: _NcDetailColors.blue),
+                                Icon(Icons.open_in_new_rounded, size: 13, color: context.c.accent),
                               ],
                             ),
                           ),
@@ -389,14 +378,35 @@ class _GeralTab extends StatelessWidget {
                     ),
                   ),
               ],
-              if (nc.descricao != null && nc.descricao!.isNotEmpty) ...[
-                const SizedBox(height: 10),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // ── Descrição ─────────────────────────────────────────────────────
+        if (nc.descricao != null && nc.descricao!.isNotEmpty) ...[
+          _DarkCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 const _SectionTitle('Descrição'),
-                const SizedBox(height: 6),
-                Text(nc.descricao!, style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, height: 1.55)),
+                const SizedBox(height: 8),
+                ExpandableText(
+                  text: nc.descricao!,
+                  style: TextStyle(color: context.c.fg0, fontSize: 13, height: 1.55),
+                ),
               ],
-              if (nc.normas.isNotEmpty) ...[
-                const SizedBox(height: 12),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+
+        // ── Normas Vinculadas ────────────────────────────────────────────
+        if (nc.normas.isNotEmpty) ...[
+          _DarkCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 const _SectionTitle('Normas Vinculadas'),
                 const SizedBox(height: 8),
                 Wrap(
@@ -405,10 +415,10 @@ class _GeralTab extends StatelessWidget {
                   children: nc.normas.map((n) => _NormaBadge(norma: n)).toList(),
                 ),
               ],
-            ],
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
+          const SizedBox(height: 12),
+        ],
 
         // ── Responsáveis ──────────────────────────────────────────────────
         if (nc.responsavelTrativaNome != null || nc.responsavelNcNome != null)
@@ -448,14 +458,14 @@ class _GeralTab extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.schedule_rounded, size: 14, color: nc.vencida ? _NcDetailColors.red : _NcDetailColors.muted),
+                    Icon(Icons.schedule_rounded, size: 14, color: nc.vencida ? context.c.statusRedFg : context.c.fg2),
                     const SizedBox(width: 6),
                     const _SectionTitle('Prazo'),
                     const Spacer(),
                     if (diasVencidos != null)
-                      Text('${diasVencidos}d vencido', style: const TextStyle(color: _NcDetailColors.red, fontSize: 12, fontWeight: FontWeight.w900))
+                      Text('${diasVencidos}d vencido', style: TextStyle(color: context.c.statusRedFg, fontSize: 12, fontWeight: FontWeight.w900))
                     else if (diasRestantes != null)
-                      Text('${diasRestantes}d restantes', style: const TextStyle(color: _NcDetailColors.green, fontSize: 12, fontWeight: FontWeight.w900)),
+                      Text('${diasRestantes}d restantes', style: TextStyle(color: context.c.statusGreenFg, fontSize: 12, fontWeight: FontWeight.w900)),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -464,12 +474,12 @@ class _GeralTab extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: diasVencidos != null ? 1.0 : (diasRestantes != null ? (1 - diasRestantes / 30).clamp(0.0, 1.0) : 0.5),
                     minHeight: 6,
-                    color: nc.vencida ? _NcDetailColors.red : _NcDetailColors.blue,
-                    backgroundColor: _NcDetailColors.surface2,
+                    color: nc.vencida ? context.c.statusRedFg : context.c.accent,
+                    backgroundColor: context.c.bgElevated,
                   ),
                 ),
                 const SizedBox(height: 6),
-                Text('Vence em ${_fmtDate(nc.dataLimiteResolucao)}', style: const TextStyle(color: _NcDetailColors.muted, fontSize: 11)),
+                Text('Vence em ${_fmtDate(nc.dataLimiteResolucao)}', style: TextStyle(color: context.c.fg2, fontSize: 11)),
               ],
             ),
           ),
@@ -493,7 +503,7 @@ class _GeralTab extends StatelessWidget {
                           padding: const EdgeInsets.only(bottom: 4),
                           child: Row(children: [
                             const SizedBox(width: 18),
-                            ...List.generate(5, (s) => Expanded(child: Center(child: Text('${s+1}', style: const TextStyle(color: _NcDetailColors.muted2, fontSize: 9, fontWeight: FontWeight.w900))))),
+                            ...List.generate(5, (s) => Expanded(child: Center(child: Text('${s+1}', style: TextStyle(color: context.c.fg3, fontSize: 9, fontWeight: FontWeight.w900))))),
                           ]),
                         ),
                         ...List.generate(4, (pi) {
@@ -501,7 +511,7 @@ class _GeralTab extends StatelessWidget {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 2),
                             child: Row(children: [
-                              SizedBox(width: 18, child: Center(child: Text('$p', style: const TextStyle(color: _NcDetailColors.muted2, fontSize: 9, fontWeight: FontWeight.w900)))),
+                              SizedBox(width: 18, child: Center(child: Text('$p', style: TextStyle(color: context.c.fg3, fontSize: 9, fontWeight: FontWeight.w900)))),
                               ...List.generate(5, (si) {
                                 final s = si + 1;
                                 final isSelected = s == nc.severidade && p == nc.probabilidade;
@@ -606,12 +616,12 @@ class _NormaBadge extends StatelessWidget {
                   ),
                   if (descricao != null && descricao.isNotEmpty) ...[
                     const SizedBox(height: 14),
-                    const Text('Descrição', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+                    Text('Descrição', style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
                     const SizedBox(height: 6),
                     Text(descricao, style: const TextStyle(color: Color(0xFFF8FBFF), fontSize: 13, height: 1.55)),
                   ],
                   const SizedBox(height: 14),
-                  const Text('Trecho vinculado', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+                  Text('Trecho vinculado', style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
                   const SizedBox(height: 6),
                   conteudo != null && conteudo.isNotEmpty
                       ? Container(
@@ -678,33 +688,33 @@ class _ResponsavelRow extends StatelessWidget {
           width: 36, height: 36,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: _NcDetailColors.surface2,
+            color: context.c.bgElevated,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: _NcDetailColors.border),
+            border: Border.all(color: context.c.borderSoft),
           ),
           child: Text(nome.isNotEmpty ? nome[0].toUpperCase() : '?',
-              style: const TextStyle(color: _NcDetailColors.text, fontSize: 14, fontWeight: FontWeight.w900)),
+              style: TextStyle(color: context.c.fg0, fontSize: 14, fontWeight: FontWeight.w900)),
         ),
         const SizedBox(width: 10),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(papel, style: const TextStyle(color: _NcDetailColors.blue, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .3)),
+              Text(papel, style: TextStyle(color: context.c.accent, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .3)),
               const SizedBox(height: 3),
-              Text(nome, style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, fontWeight: FontWeight.w800)),
+              Text(nome, style: TextStyle(color: context.c.fg0, fontSize: 13, fontWeight: FontWeight.w800)),
               const SizedBox(height: 3),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: _NcDetailColors.surface2,
+                  color: context.c.bgElevated,
                   borderRadius: BorderRadius.circular(5),
                 ),
-                child: Text(perfil, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: .3)),
+                child: Text(perfil, style: TextStyle(color: context.c.fg2, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: .3)),
               ),
               if (email != null) ...[
                 const SizedBox(height: 3),
-                Text(email!, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 11)),
+                Text(email!, style: TextStyle(color: context.c.fg2, fontSize: 11)),
               ],
             ],
           ),
@@ -727,8 +737,8 @@ class _ConfirmRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 90, child: Text(label, style: const TextStyle(color: _NcDetailColors.muted2, fontSize: 11, fontWeight: FontWeight.w700))),
-          Expanded(child: Text(value, style: TextStyle(color: valueColor ?? _NcDetailColors.text, fontSize: 12, fontWeight: FontWeight.w800), maxLines: 2, overflow: TextOverflow.ellipsis)),
+          SizedBox(width: 90, child: Text(label, style: TextStyle(color: context.c.fg3, fontSize: 11, fontWeight: FontWeight.w700))),
+          Expanded(child: Text(value, style: TextStyle(color: valueColor ?? context.c.fg0, fontSize: 12, fontWeight: FontWeight.w800), maxLines: 2, overflow: TextOverflow.ellipsis)),
         ],
       ),
     );
@@ -747,9 +757,9 @@ class _RiscoMeta extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: _NcDetailColors.muted2, fontSize: 10, fontWeight: FontWeight.w900)),
-        Text(value, style: TextStyle(color: color ?? _NcDetailColors.text, fontSize: 18, fontWeight: FontWeight.w900, height: 1.1)),
-        Text(sub, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 10)),
+        Text(label, style: TextStyle(color: context.c.fg3, fontSize: 10, fontWeight: FontWeight.w900)),
+        Text(value, style: TextStyle(color: color ?? context.c.fg0, fontSize: 18, fontWeight: FontWeight.w900, height: 1.1)),
+        Text(sub, style: TextStyle(color: context.c.fg2, fontSize: 10)),
       ],
     );
   }
@@ -775,12 +785,12 @@ class _EvidenciasTab extends ConsumerWidget {
               const SizedBox(height: 12),
               evidAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, _) => Text('Erro ao carregar: $e', style: const TextStyle(color: _NcDetailColors.red, fontSize: 12)),
+                error: (e, _) => Text('Erro ao carregar: $e', style: TextStyle(color: context.c.statusRedFg, fontSize: 12)),
                 data: (evidencias) {
                   if (evidencias.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 24),
-                      child: Center(child: Text('Nenhuma evidência', style: TextStyle(color: _NcDetailColors.muted, fontSize: 13))),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Center(child: Text('Nenhuma evidência', style: TextStyle(color: context.c.fg2, fontSize: 13))),
                     );
                   }
                   final token = tokenAsync.valueOrNull;
@@ -817,14 +827,14 @@ class _PlanoTab extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 32),
       children: [
         if (semPlano)
-          const _DarkCard(
+          _DarkCard(
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 20),
+              padding: const EdgeInsets.symmetric(vertical: 20),
               child: Column(
                 children: [
-                  Icon(Icons.assignment_late_outlined, color: _NcDetailColors.muted, size: 32),
-                  SizedBox(height: 8),
-                  Text('Nenhum plano de ação submetido ainda.', style: TextStyle(color: _NcDetailColors.muted, fontSize: 13)),
+                  Icon(Icons.assignment_late_outlined, color: context.c.fg2, size: 32),
+                  const SizedBox(height: 8),
+                  Text('Nenhum plano de ação submetido ainda.', style: TextStyle(color: context.c.fg2, fontSize: 13)),
                 ],
               ),
             ),
@@ -847,8 +857,8 @@ class _PlanoTab extends StatelessWidget {
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(color: _NcDetailColors.yellow.withValues(alpha: .15), borderRadius: BorderRadius.circular(99), border: Border.all(color: _NcDetailColors.yellow.withValues(alpha: .4))),
-                        child: const Text('EM ANÁLISE', style: TextStyle(color: _NcDetailColors.yellow, fontSize: 10, fontWeight: FontWeight.w900)),
+                        decoration: BoxDecoration(color: context.c.statusYellowFg.withValues(alpha: .15), borderRadius: BorderRadius.circular(99), border: Border.all(color: context.c.statusYellowFg.withValues(alpha: .4))),
+                        child: Text('EM ANÁLISE', style: TextStyle(color: context.c.statusYellowFg, fontSize: 10, fontWeight: FontWeight.w900)),
                       ),
                     ]),
                     const SizedBox(height: 14),
@@ -900,7 +910,7 @@ class _SnapshotCardState extends State<_SnapshotCard> {
     final isReprovado = status == 'REPROVADO';
     final comentario = s['comentarioRevisao'] as String?;
     final dataSubmissao = _fmtDateTime(s['dataSubmissao'] as String?);
-    final statusColor = isAprovado ? _NcDetailColors.green : isReprovado ? _NcDetailColors.red : _NcDetailColors.yellow;
+    final statusColor = isAprovado ? context.c.statusGreenFg : isReprovado ? context.c.statusRedFg : context.c.statusYellowFg;
     final statusLabel = isAprovado ? 'Aprovado' : isReprovado ? 'Reprovado' : 'Pendente';
 
     final isPendente = !isAprovado && !isReprovado;
@@ -919,7 +929,7 @@ class _SnapshotCardState extends State<_SnapshotCard> {
               children: [
                 Text(
                   'Submissão ${widget.index + 1}',
-                  style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, fontWeight: FontWeight.w900),
+                  style: TextStyle(color: context.c.fg0, fontSize: 13, fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(width: 8),
                 Container(
@@ -932,9 +942,9 @@ class _SnapshotCardState extends State<_SnapshotCard> {
                   child: Text(statusLabel, style: TextStyle(color: statusColor, fontSize: 9, fontWeight: FontWeight.w900)),
                 ),
                 const Spacer(),
-                Text(dataSubmissao, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 11)),
+                Text(dataSubmissao, style: TextStyle(color: context.c.fg2, fontSize: 11)),
                 const SizedBox(width: 6),
-                Icon(_expanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded, color: _NcDetailColors.muted, size: 18),
+                Icon(_expanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded, color: context.c.fg2, size: 18),
               ],
             ),
           ),
@@ -944,22 +954,22 @@ class _SnapshotCardState extends State<_SnapshotCard> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: _NcDetailColors.red.withValues(alpha: .08),
+                color: context.c.statusRedFg.withValues(alpha: .08),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: _NcDetailColors.red.withValues(alpha: .35)),
+                border: Border.all(color: context.c.statusRedFg.withValues(alpha: .35)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.cancel_outlined, size: 14, color: _NcDetailColors.red),
+                  Icon(Icons.cancel_outlined, size: 14, color: context.c.statusRedFg),
                   const SizedBox(width: 7),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Motivo da reprovação', style: TextStyle(color: _NcDetailColors.red, fontSize: 10, fontWeight: FontWeight.w900)),
+                        Text('Motivo da reprovação', style: TextStyle(color: context.c.statusRedFg, fontSize: 10, fontWeight: FontWeight.w900)),
                         const SizedBox(height: 3),
-                        Text(comentario, style: const TextStyle(color: _NcDetailColors.text, fontSize: 12, height: 1.45)),
+                        Text(comentario, style: TextStyle(color: context.c.fg0, fontSize: 12, height: 1.45)),
                       ],
                     ),
                   ),
@@ -970,7 +980,7 @@ class _SnapshotCardState extends State<_SnapshotCard> {
           // Conteúdo expansível
           if (_expanded) ...[
             const SizedBox(height: 14),
-            const Divider(color: _NcDetailColors.border, height: 1),
+            Divider(color: context.c.borderSoft, height: 1),
             const SizedBox(height: 14),
             if (porques.isNotEmpty) _PorquesSection(porques: porques),
             if (causaRaiz != null && causaRaiz.isNotEmpty) ...[
@@ -979,7 +989,7 @@ class _SnapshotCardState extends State<_SnapshotCard> {
             ],
             if ((isPendente && widget.ncAtividades.isNotEmpty) || (!isPendente && snapshotAtividades.isNotEmpty)) ...[
               const SizedBox(height: 14),
-              const Text('PLANO DE ATIVIDADES', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+              Text('PLANO DE ATIVIDADES', style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
               const SizedBox(height: 8),
               if (isPendente)
                 for (var i = 0; i < widget.ncAtividades.length; i++) ...[
@@ -1035,7 +1045,7 @@ class _PorquesSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('5 PORQUÊS', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+        Text('5 PORQUÊS', style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
         const SizedBox(height: 10),
         for (var i = 0; i < porques.length; i++)
           Padding(
@@ -1048,17 +1058,17 @@ class _PorquesSection extends StatelessWidget {
                     Container(
                       width: 20, height: 20,
                       alignment: Alignment.center,
-                      decoration: BoxDecoration(color: _NcDetailColors.blue.withValues(alpha: .2), borderRadius: BorderRadius.circular(6)),
-                      child: Text('${i+1}', style: const TextStyle(color: _NcDetailColors.blue, fontSize: 10, fontWeight: FontWeight.w900)),
+                      decoration: BoxDecoration(color: context.c.accent.withValues(alpha: .2), borderRadius: BorderRadius.circular(6)),
+                      child: Text('${i+1}', style: TextStyle(color: context.c.accent, fontSize: 10, fontWeight: FontWeight.w900)),
                     ),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(porques[i]['pergunta'] as String? ?? '', style: const TextStyle(color: _NcDetailColors.muted, fontSize: 12, fontWeight: FontWeight.w700))),
+                    Expanded(child: Text(porques[i]['pergunta'] as String? ?? '', style: TextStyle(color: context.c.fg2, fontSize: 12, fontWeight: FontWeight.w700))),
                   ],
                 ),
                 const SizedBox(height: 3),
                 Padding(
                   padding: const EdgeInsets.only(left: 28),
-                  child: Text(porques[i]['resposta'] as String? ?? '—', style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, height: 1.4)),
+                  child: Text(porques[i]['resposta'] as String? ?? '—', style: TextStyle(color: context.c.fg0, fontSize: 13, height: 1.4)),
                 ),
               ],
             ),
@@ -1077,9 +1087,9 @@ class _CausaRaizSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('CAUSA RAIZ', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+        Text('CAUSA RAIZ', style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
         const SizedBox(height: 8),
-        Text(causaRaiz, style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, height: 1.5)),
+        Text(causaRaiz, style: TextStyle(color: context.c.fg0, fontSize: 13, height: 1.5)),
       ],
     );
   }
@@ -1106,8 +1116,8 @@ class _AtividadeSnapshotCard extends StatelessWidget {
     final titulo = dashIdx >= 0 ? content.substring(0, dashIdx) : content;
     final descricao = dashIdx >= 0 ? content.substring(dashIdx + 3) : null;
 
-    final color = isRejeitada ? _NcDetailColors.red : isAprovada ? _NcDetailColors.green : _NcDetailColors.yellow;
-    final bgColor = isRejeitada ? const Color(0xFF2A1A1A) : isAprovada ? const Color(0xFF0D2318) : _NcDetailColors.surface2;
+    final color = isRejeitada ? context.c.statusRedFg : isAprovada ? context.c.statusGreenFg : context.c.statusYellowFg;
+    final bgColor = isRejeitada ? const Color(0xFF2A1A1A) : isAprovada ? const Color(0xFF0D2318) : context.c.bgElevated;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
@@ -1134,9 +1144,9 @@ class _AtividadeSnapshotCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(titulo, style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, fontWeight: FontWeight.w700, height: 1.3)),
+                    Text(titulo, style: TextStyle(color: context.c.fg0, fontSize: 13, fontWeight: FontWeight.w700, height: 1.3)),
                     if (descricao != null && descricao.isNotEmpty)
-                      Text(descricao, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 11, height: 1.35)),
+                      Text(descricao, style: TextStyle(color: context.c.fg2, fontSize: 11, height: 1.35)),
                   ],
                 ),
               ),
@@ -1164,16 +1174,16 @@ class _AtividadeSnapshotCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.fromLTRB(10, 7, 10, 7),
               decoration: BoxDecoration(
-                color: _NcDetailColors.red.withValues(alpha: .08),
+                color: context.c.statusRedFg.withValues(alpha: .08),
                 borderRadius: BorderRadius.circular(7),
-                border: Border.all(color: _NcDetailColors.red.withValues(alpha: .25)),
+                border: Border.all(color: context.c.statusRedFg.withValues(alpha: .25)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.error_outline_rounded, size: 12, color: _NcDetailColors.red),
+                  Icon(Icons.error_outline_rounded, size: 12, color: context.c.statusRedFg),
                   const SizedBox(width: 6),
-                  Expanded(child: Text(motivo, style: const TextStyle(color: _NcDetailColors.red, fontSize: 11, height: 1.4))),
+                  Expanded(child: Text(motivo, style: TextStyle(color: context.c.statusRedFg, fontSize: 11, height: 1.4))),
                 ],
               ),
             ),
@@ -1216,7 +1226,7 @@ class _ExecucaoAtividadeCard extends StatelessWidget {
     final titulo = dashIdx >= 0 ? content.substring(0, dashIdx) : content;
     final descricao = dashIdx >= 0 ? content.substring(dashIdx + 3) : null;
 
-    final color = isRejeitada ? _NcDetailColors.red : isAprovada ? _NcDetailColors.green : const Color(0xFF7C3AED);
+    final color = isRejeitada ? context.c.statusRedFg : isAprovada ? context.c.statusGreenFg : const Color(0xFF7C3AED);
     final bgColor = isRejeitada ? const Color(0xFF2A1A1A) : isAprovada ? const Color(0xFF0D2318) : const Color(0xFF1E1535);
 
     return AnimatedContainer(
@@ -1244,11 +1254,11 @@ class _ExecucaoAtividadeCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(titulo, style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, fontWeight: FontWeight.w700, height: 1.3)),
+                    Text(titulo, style: TextStyle(color: context.c.fg0, fontSize: 13, fontWeight: FontWeight.w700, height: 1.3)),
                     if (descricao != null && descricao.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: 3),
-                        child: Text(descricao, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 11, height: 1.35)),
+                        child: Text(descricao, style: TextStyle(color: context.c.fg2, fontSize: 11, height: 1.35)),
                       ),
                   ],
                 ),
@@ -1277,16 +1287,16 @@ class _ExecucaoAtividadeCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.fromLTRB(10, 7, 10, 7),
               decoration: BoxDecoration(
-                color: _NcDetailColors.red.withValues(alpha: .08),
+                color: context.c.statusRedFg.withValues(alpha: .08),
                 borderRadius: BorderRadius.circular(7),
-                border: Border.all(color: _NcDetailColors.red.withValues(alpha: .25)),
+                border: Border.all(color: context.c.statusRedFg.withValues(alpha: .25)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.error_outline_rounded, size: 12, color: _NcDetailColors.red),
+                  Icon(Icons.error_outline_rounded, size: 12, color: context.c.statusRedFg),
                   const SizedBox(width: 6),
-                  Expanded(child: Text(motivo, style: const TextStyle(color: _NcDetailColors.red, fontSize: 11, height: 1.4))),
+                  Expanded(child: Text(motivo, style: TextStyle(color: context.c.statusRedFg, fontSize: 11, height: 1.4))),
                 ],
               ),
             ),
@@ -1309,9 +1319,9 @@ class _ExecucaoAtividadeCard extends StatelessWidget {
                           ? Image(
                               image: NetworkImage(url, headers: {'Authorization': 'Bearer $token'}),
                               width: 72, height: 72, fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Container(width: 72, height: 72, color: _NcDetailColors.surface2, child: const Icon(Icons.broken_image_rounded, color: _NcDetailColors.muted, size: 16)),
+                              errorBuilder: (_, __, ___) => Container(width: 72, height: 72, color: context.c.bgElevated, child: Icon(Icons.broken_image_rounded, color: context.c.fg2, size: 16)),
                             )
-                          : Container(width: 72, height: 72, color: _NcDetailColors.surface2, child: const Center(child: CircularProgressIndicator(strokeWidth: 1.5))),
+                          : Container(width: 72, height: 72, color: context.c.bgElevated, child: const Center(child: CircularProgressIndicator(strokeWidth: 1.5))),
                     ),
                   );
                 },
@@ -1341,7 +1351,7 @@ class _AtividadesSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('ATIVIDADES', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+        Text('ATIVIDADES', style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
         const SizedBox(height: 10),
         for (var i = 0; i < atividades.length; i++)
           _AtividadeCard(index: i, atividade: atividades[i]),
@@ -1366,9 +1376,9 @@ class _AtividadeCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: concluida ? const Color(0xFF15281F) : _NcDetailColors.surface2,
+          color: concluida ? const Color(0xFF15281F) : context.c.bgElevated,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: _NcDetailColors.border),
+          border: Border.all(color: context.c.borderSoft),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1377,22 +1387,22 @@ class _AtividadeCard extends StatelessWidget {
               width: 22, height: 22,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: concluida ? _NcDetailColors.green : _NcDetailColors.surface2,
+                color: concluida ? context.c.statusGreenFg : context.c.bgElevated,
                 borderRadius: BorderRadius.circular(7),
-                border: Border.all(color: concluida ? _NcDetailColors.green : _NcDetailColors.borderStrong),
+                border: Border.all(color: concluida ? context.c.statusGreenFg : context.c.borderMain),
               ),
               child: concluida
                   ? const Icon(Icons.check_rounded, color: Colors.white, size: 13)
-                  : Text('${index + 1}', style: const TextStyle(color: _NcDetailColors.text, fontSize: 11, fontWeight: FontWeight.w900)),
+                  : Text('${index + 1}', style: TextStyle(color: context.c.fg0, fontSize: 11, fontWeight: FontWeight.w900)),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(titulo, style: TextStyle(color: _NcDetailColors.text, fontSize: 13, fontWeight: FontWeight.w800, height: 1.35, decoration: concluida ? TextDecoration.lineThrough : null)),
+                  Text(titulo, style: TextStyle(color: context.c.fg0, fontSize: 13, fontWeight: FontWeight.w800, height: 1.35, decoration: concluida ? TextDecoration.lineThrough : null)),
                   const SizedBox(height: 4),
-                  Text('$responsavel · até $prazo', style: const TextStyle(color: _NcDetailColors.muted, fontSize: 11, fontWeight: FontWeight.w700)),
+                  Text('$responsavel · até $prazo', style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w700)),
                 ],
               ),
             ),
@@ -1415,15 +1425,15 @@ class _ExecucaoTab extends ConsumerWidget {
     if (snapshots.isEmpty) {
       return ListView(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 32),
-        children: const [
+        children: [
           _DarkCard(
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
+              padding: const EdgeInsets.symmetric(vertical: 24),
               child: Column(
                 children: [
-                  Icon(Icons.engineering_outlined, color: _NcDetailColors.muted, size: 32),
-                  SizedBox(height: 8),
-                  Text('Nenhuma execução submetida ainda.', style: TextStyle(color: _NcDetailColors.muted, fontSize: 13)),
+                  Icon(Icons.engineering_outlined, color: context.c.fg2, size: 32),
+                  const SizedBox(height: 8),
+                  Text('Nenhuma execução submetida ainda.', style: TextStyle(color: context.c.fg2, fontSize: 13)),
                 ],
               ),
             ),
@@ -1476,7 +1486,7 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
     final atividades = (s['atividades'] as List<dynamic>? ?? []).cast<String>();
     final evidencias = (s['evidencias'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
 
-    final statusColor = isAprovado ? _NcDetailColors.green : isReprovado ? _NcDetailColors.red : const Color(0xFF7C3AED);
+    final statusColor = isAprovado ? context.c.statusGreenFg : isReprovado ? context.c.statusRedFg : const Color(0xFF7C3AED);
     final statusLabel = isAprovado ? 'APROVADO' : isReprovado ? 'REPROVADO' : 'PENDENTE';
 
     return _DarkCard(
@@ -1487,7 +1497,7 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
             onTap: () => setState(() => _expanded = !_expanded),
             child: Row(
               children: [
-                Text('Execução ${widget.index + 1}', style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, fontWeight: FontWeight.w900)),
+                Text('Execução ${widget.index + 1}', style: TextStyle(color: context.c.fg0, fontSize: 13, fontWeight: FontWeight.w900)),
                 const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
@@ -1495,9 +1505,9 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
                   child: Text(statusLabel, style: TextStyle(color: statusColor, fontSize: 9, fontWeight: FontWeight.w900)),
                 ),
                 const Spacer(),
-                Text(dataSubmissao, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 11)),
+                Text(dataSubmissao, style: TextStyle(color: context.c.fg2, fontSize: 11)),
                 const SizedBox(width: 6),
-                Icon(_expanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded, color: _NcDetailColors.muted, size: 18),
+                Icon(_expanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded, color: context.c.fg2, size: 18),
               ],
             ),
           ),
@@ -1507,22 +1517,22 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: (isReprovado ? _NcDetailColors.red : _NcDetailColors.green).withValues(alpha: .08),
+                color: (isReprovado ? context.c.statusRedFg : context.c.statusGreenFg).withValues(alpha: .08),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: (isReprovado ? _NcDetailColors.red : _NcDetailColors.green).withValues(alpha: .35)),
+                border: Border.all(color: (isReprovado ? context.c.statusRedFg : context.c.statusGreenFg).withValues(alpha: .35)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(isReprovado ? Icons.cancel_outlined : Icons.check_circle_outline_rounded, size: 14, color: isReprovado ? _NcDetailColors.red : _NcDetailColors.green),
+                  Icon(isReprovado ? Icons.cancel_outlined : Icons.check_circle_outline_rounded, size: 14, color: isReprovado ? context.c.statusRedFg : context.c.statusGreenFg),
                   const SizedBox(width: 7),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(isReprovado ? 'Motivo da reprovação' : 'Comentário de aprovação', style: TextStyle(color: isReprovado ? _NcDetailColors.red : _NcDetailColors.green, fontSize: 10, fontWeight: FontWeight.w900)),
+                        Text(isReprovado ? 'Motivo da reprovação' : 'Comentário de aprovação', style: TextStyle(color: isReprovado ? context.c.statusRedFg : context.c.statusGreenFg, fontSize: 10, fontWeight: FontWeight.w900)),
                         const SizedBox(height: 3),
-                        Text(comentario, style: const TextStyle(color: _NcDetailColors.text, fontSize: 12, height: 1.45)),
+                        Text(comentario, style: TextStyle(color: context.c.fg0, fontSize: 12, height: 1.45)),
                       ],
                     ),
                   ),
@@ -1532,7 +1542,7 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
           ],
           if (_expanded) ...[
             const SizedBox(height: 14),
-            const Divider(color: _NcDetailColors.border, height: 1),
+            Divider(color: context.c.borderSoft, height: 1),
             const SizedBox(height: 14),
 
             // ── Para PENDENTE: mescla atividades já aprovadas + submetidas ──
@@ -1541,7 +1551,7 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
             ] else ...[
               // ── APROVADO/REPROVADO: cards com status por atividade ──
               if (atividades.isNotEmpty) ...[
-                const Text('ATIVIDADES', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+                Text('ATIVIDADES', style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
                 const SizedBox(height: 8),
                 for (var i = 0; i < atividades.length; i++) ...[
                   _ExecucaoAtividadeCard(index: i, raw: atividades[i], token: widget.token),
@@ -1553,9 +1563,9 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
 
             // Descrição geral
             if (descricao != null && descricao.isNotEmpty) ...[
-              const Text('DESCRIÇÃO DA EXECUÇÃO', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+              Text('DESCRIÇÃO DA EXECUÇÃO', style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
               const SizedBox(height: 6),
-              Text(descricao, style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, height: 1.5)),
+              Text(descricao, style: TextStyle(color: context.c.fg0, fontSize: 13, height: 1.5)),
               const SizedBox(height: 12),
             ],
           ],
@@ -1591,17 +1601,17 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
 
     // Seção: já aprovadas
     if (prevAprovadas.isNotEmpty) {
-      widgets.add(const Text('JÁ APROVADAS EM ROUND ANTERIOR', style: TextStyle(color: _NcDetailColors.green, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .4)));
+      widgets.add(Text('JÁ APROVADAS EM ROUND ANTERIOR', style: TextStyle(color: context.c.statusGreenFg, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .4)));
       widgets.add(const SizedBox(height: 6));
       for (var i = 0; i < prevAprovadas.length; i++) {
         final a = prevAprovadas[i];
         widgets.add(Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(color: const Color(0xFF0D2318), borderRadius: BorderRadius.circular(10), border: Border.all(color: _NcDetailColors.green.withValues(alpha: .35))),
+          decoration: BoxDecoration(color: const Color(0xFF0D2318), borderRadius: BorderRadius.circular(10), border: Border.all(color: context.c.statusGreenFg.withValues(alpha: .35))),
           child: Row(children: [
-            const Icon(Icons.check_circle_outline_rounded, size: 14, color: _NcDetailColors.green),
+            Icon(Icons.check_circle_outline_rounded, size: 14, color: context.c.statusGreenFg),
             const SizedBox(width: 8),
-            Expanded(child: Text(a['titulo'] as String? ?? '', style: const TextStyle(color: _NcDetailColors.green, fontSize: 12, fontWeight: FontWeight.w700))),
+            Expanded(child: Text(a['titulo'] as String? ?? '', style: TextStyle(color: context.c.statusGreenFg, fontSize: 12, fontWeight: FontWeight.w700))),
           ]),
         ));
         if (i < prevAprovadas.length - 1) widgets.add(const SizedBox(height: 6));
@@ -1611,7 +1621,7 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
 
     // Seção: submetidas neste round (pendentes de revisão)
     if (snapshotAtivs.isNotEmpty) {
-      widgets.add(const Text('SUBMETIDAS PARA REVISÃO', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .4)));
+      widgets.add(Text('SUBMETIDAS PARA REVISÃO', style: TextStyle(color: context.c.fg2, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .4)));
       widgets.add(const SizedBox(height: 6));
       for (var i = 0; i < snapshotAtivs.length; i++) {
         final raw = snapshotAtivs[i];
@@ -1631,7 +1641,7 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
             Row(children: [
               Container(width: 20, height: 20, alignment: Alignment.center, decoration: BoxDecoration(color: const Color(0xFF7C3AED).withValues(alpha: .2), borderRadius: BorderRadius.circular(6)), child: Text('${i + 1}', style: const TextStyle(color: Color(0xFF7C3AED), fontSize: 10, fontWeight: FontWeight.w900))),
               const SizedBox(width: 8),
-              Expanded(child: Text(titulo, style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, fontWeight: FontWeight.w700, height: 1.3))),
+              Expanded(child: Text(titulo, style: TextStyle(color: context.c.fg0, fontSize: 13, fontWeight: FontWeight.w700, height: 1.3))),
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
@@ -1643,8 +1653,8 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
               const SizedBox(height: 6),
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: _NcDetailColors.surface, borderRadius: BorderRadius.circular(8), border: Border.all(color: _NcDetailColors.border)),
-                child: Text(descricaoExec, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 11, height: 1.4)),
+                decoration: BoxDecoration(color: context.c.bgSurface, borderRadius: BorderRadius.circular(8), border: Border.all(color: context.c.borderSoft)),
+                child: Text(descricaoExec, style: TextStyle(color: context.c.fg2, fontSize: 11, height: 1.4)),
               ),
             ],
             if (atividadeEvs.isNotEmpty) ...[
@@ -1662,8 +1672,8 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: widget.token != null
-                            ? Image(image: NetworkImage(url, headers: {'Authorization': 'Bearer ${widget.token}'}), width: 72, height: 72, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(width: 72, height: 72, color: _NcDetailColors.surface, child: const Icon(Icons.broken_image_rounded, color: _NcDetailColors.muted, size: 16)))
-                            : Container(width: 72, height: 72, color: _NcDetailColors.surface),
+                            ? Image(image: NetworkImage(url, headers: {'Authorization': 'Bearer ${widget.token}'}), width: 72, height: 72, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(width: 72, height: 72, color: context.c.bgSurface, child: Icon(Icons.broken_image_rounded, color: context.c.fg2, size: 16)))
+                            : Container(width: 72, height: 72, color: context.c.bgSurface),
                       ),
                     );
                   },
@@ -1685,7 +1695,7 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
       }
       final extraEvs = evidencias.where((ev) => !snapshotEvIds.contains(ev['id'] as String? ?? '')).toList();
       if (extraEvs.isNotEmpty) {
-        widgets.add(const Text('OUTRAS FOTOS', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .4)));
+        widgets.add(Text('OUTRAS FOTOS', style: TextStyle(color: context.c.fg2, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .4)));
         widgets.add(const SizedBox(height: 6));
         widgets.add(SizedBox(
           height: 90,
@@ -1700,8 +1710,8 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: widget.token != null
-                      ? Image(image: NetworkImage(url, headers: {'Authorization': 'Bearer ${widget.token}'}), width: 90, height: 90, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(width: 90, height: 90, color: _NcDetailColors.surface2, child: const Icon(Icons.broken_image_rounded, color: _NcDetailColors.muted)))
-                      : Container(width: 90, height: 90, color: _NcDetailColors.surface2),
+                      ? Image(image: NetworkImage(url, headers: {'Authorization': 'Bearer ${widget.token}'}), width: 90, height: 90, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(width: 90, height: 90, color: context.c.bgElevated, child: Icon(Icons.broken_image_rounded, color: context.c.fg2)))
+                      : Container(width: 90, height: 90, color: context.c.bgElevated),
                 ),
               );
             },
@@ -1709,7 +1719,7 @@ class _ExecucaoSnapshotCardState extends State<_ExecucaoSnapshotCard> {
         ));
       }
     } else {
-      widgets.add(const Row(children: [Icon(Icons.photo_library_outlined, size: 14, color: _NcDetailColors.muted2), SizedBox(width: 6), Text('Nenhuma foto anexada.', style: TextStyle(color: _NcDetailColors.muted2, fontSize: 12))]));
+      widgets.add(Row(children: [Icon(Icons.photo_library_outlined, size: 14, color: context.c.fg3), const SizedBox(width: 6), Text('Nenhuma foto anexada.', style: TextStyle(color: context.c.fg3, fontSize: 12))]));
     }
 
     return widgets;
@@ -1728,24 +1738,36 @@ class _HistoricoTab extends StatelessWidget {
   final NcDetail nc;
   const _HistoricoTab({required this.nc});
 
+  // Valores espelham TipoAcaoHistorico.java (safecore-api) — manter em sincronia.
   static String _acaoLabel(String? acao) => switch (acao?.toUpperCase()) {
-    'CRIACAO'          => 'NC registrada',
-    'ENVIO_PLANO'      => 'Plano de ação enviado',
-    'APROVACAO'        => 'NC aprovada',
-    'REJEICAO'         => 'NC rejeitada',
-    'CONCLUSAO'        => 'NC concluída',
-    'COMENTARIO'       => 'Comentário adicionado',
-    'EDICAO'           => 'NC editada',
-    _                  => acao ?? 'Ação',
+    'CRIACAO'                => 'NC registrada',
+    'SUBMISSAO_INVESTIGACAO' => 'Investigação enviada',
+    'APROVACAO_PLANO'        => 'Plano de ação aprovado',
+    'REJEICAO_PLANO'         => 'Plano de ação reprovado',
+    'SUBMISSAO_EVIDENCIAS'   => 'Evidências enviadas',
+    'APROVACAO_EVIDENCIAS'   => 'Evidências aprovadas',
+    'REJEICAO_EVIDENCIAS'    => 'Evidências reprovadas',
+    _                        => _humanize(acao),
   };
 
-  static Color _acaoColor(String? acao) => switch (acao?.toUpperCase()) {
-    'CRIACAO'     => _NcDetailColors.blue,
-    'APROVACAO'   => _NcDetailColors.green,
-    'CONCLUSAO'   => _NcDetailColors.green,
-    'REJEICAO'    => _NcDetailColors.red,
-    _             => _NcDetailColors.muted,
+  static Color _acaoColor(String? acao, SafeCoreColors c) => switch (acao?.toUpperCase()) {
+    'CRIACAO'              => c.accent,
+    'APROVACAO_PLANO'      => c.statusGreenFg,
+    'APROVACAO_EVIDENCIAS' => c.statusGreenFg,
+    'REJEICAO_PLANO'       => c.statusRedFg,
+    'REJEICAO_EVIDENCIAS'  => c.statusRedFg,
+    _                      => c.fg2,
   };
+
+  /// Fallback para qualquer valor de ação ainda não mapeado: em vez de
+  /// mostrar o enum cru (ex.: "ALGO_NOVO"), formata como "Algo novo".
+  static String _humanize(String? raw) {
+    if (raw == null || raw.isEmpty) return 'Ação';
+    final words = raw.split('_').where((w) => w.isNotEmpty);
+    return words
+        .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
+        .join(' ');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1760,9 +1782,9 @@ class _HistoricoTab extends StatelessWidget {
               const _SectionTitle('Linha do Tempo'),
               const SizedBox(height: 12),
               if (items.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Center(child: Text('Sem histórico disponível.', style: TextStyle(color: _NcDetailColors.muted, fontSize: 13))),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Center(child: Text('Sem histórico disponível.', style: TextStyle(color: context.c.fg2, fontSize: 13))),
                 )
               else
                 for (var i = 0; i < items.length; i++)
@@ -1775,10 +1797,10 @@ class _HistoricoTab extends StatelessWidget {
                           children: [
                             Container(
                               width: 10, height: 10,
-                              decoration: BoxDecoration(color: _acaoColor(items[i]['acao'] as String?), shape: BoxShape.circle),
+                              decoration: BoxDecoration(color: _acaoColor(items[i]['acao'] as String?, context.c), shape: BoxShape.circle),
                             ),
                             if (i < items.length - 1)
-                              Container(width: 1, height: 40, color: _NcDetailColors.border),
+                              Container(width: 1, height: 40, color: context.c.borderSoft),
                           ],
                         ),
                         const SizedBox(width: 10),
@@ -1788,18 +1810,18 @@ class _HistoricoTab extends StatelessWidget {
                             children: [
                               Text(
                                 items[i]['usuarioNome'] as String? ?? '—',
-                                style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, fontWeight: FontWeight.w900),
+                                style: TextStyle(color: context.c.fg0, fontSize: 13, fontWeight: FontWeight.w900),
                               ),
                               Text(
                                 _acaoLabel(items[i]['acao'] as String?),
-                                style: const TextStyle(color: _NcDetailColors.muted, fontSize: 12, height: 1.35),
+                                style: TextStyle(color: context.c.fg2, fontSize: 12, height: 1.35),
                               ),
                               if (items[i]['comentario'] != null)
                                 Text('"${items[i]['comentario']}"',
-                                    style: const TextStyle(color: _NcDetailColors.muted, fontSize: 11, fontStyle: FontStyle.italic)),
+                                    style: TextStyle(color: context.c.fg2, fontSize: 11, fontStyle: FontStyle.italic)),
                               Text(
                                 _fmtDateTime(items[i]['dataAcao'] as String?),
-                                style: const TextStyle(color: _NcDetailColors.muted2, fontSize: 11, fontWeight: FontWeight.w700),
+                                style: TextStyle(color: context.c.fg3, fontSize: 11, fontWeight: FontWeight.w700),
                               ),
                             ],
                           ),
@@ -1845,7 +1867,7 @@ class _DetailActions extends ConsumerWidget {
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-      decoration: const BoxDecoration(color: _NcDetailColors.surface, border: Border(top: BorderSide(color: _NcDetailColors.border))),
+      decoration: BoxDecoration(color: context.c.bgSurface, border: Border(top: BorderSide(color: context.c.borderSoft))),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -1854,7 +1876,7 @@ class _DetailActions extends ConsumerWidget {
             _ActionBtn(
               label: 'Preencher Plano de Ação',
               icon: Icons.assignment_outlined,
-              color: _NcDetailColors.blue,
+              color: context.c.accent,
               onTap: () => _showInvestigacao(context, ref),
             ),
             const SizedBox(height: 8),
@@ -1868,12 +1890,12 @@ class _DetailActions extends ConsumerWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.hourglass_top_rounded, size: 18, color: _NcDetailColors.yellow),
+                  Icon(Icons.hourglass_top_rounded, size: 18, color: context.c.statusYellowFg),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'Aguardando ${nc.responsavelTrativaNome ?? 'o responsável'} preencher o plano de ação.',
-                      style: const TextStyle(color: _NcDetailColors.muted, fontSize: 13, height: 1.4),
+                      style: TextStyle(color: context.c.fg2, fontSize: 13, height: 1.4),
                     ),
                   ),
                 ],
@@ -1886,7 +1908,7 @@ class _DetailActions extends ConsumerWidget {
             _ActionBtn(
               label: 'Enviar para Plano de Ação',
               icon: Icons.send_rounded,
-              color: _NcDetailColors.blue,
+              color: context.c.accent,
               onTap: () => _onEnviarPlano(context, ref),
             ),
           if (isAjuste && !canPreencherPlano) ...[
@@ -1895,16 +1917,16 @@ class _DetailActions extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFF2A1A1A),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: _NcDetailColors.red.withValues(alpha: .4)),
+                border: Border.all(color: context.c.statusRedFg.withValues(alpha: .4)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.pending_actions_rounded, size: 18, color: _NcDetailColors.red),
-                  SizedBox(width: 10),
+                  Icon(Icons.pending_actions_rounded, size: 18, color: context.c.statusRedFg),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'Aguardando ajuste do responsável pela tratativa.',
-                      style: TextStyle(color: _NcDetailColors.muted, fontSize: 13, height: 1.4),
+                      style: TextStyle(color: context.c.fg2, fontSize: 13, height: 1.4),
                     ),
                   ),
                 ],
@@ -1916,7 +1938,7 @@ class _DetailActions extends ConsumerWidget {
             _ActionBtn(
               label: 'Revisar Atividades',
               icon: Icons.fact_check_outlined,
-              color: _NcDetailColors.blue,
+              color: context.c.accent,
               onTap: () => _showRevisarAtividades(context, ref),
             ),
           ],
@@ -1925,7 +1947,7 @@ class _DetailActions extends ConsumerWidget {
               _ActionBtn(
                 label: 'Submeter Execução',
                 icon: Icons.play_circle_outline_rounded,
-                color: _NcDetailColors.blue,
+                color: context.c.accent,
                 onTap: () => _showExecucao(context, ref),
               )
             else
@@ -1936,14 +1958,14 @@ class _DetailActions extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: const Color(0xFF2A3A55)),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.hourglass_top_rounded, size: 18, color: _NcDetailColors.yellow),
-                    SizedBox(width: 10),
+                    Icon(Icons.hourglass_top_rounded, size: 18, color: context.c.statusYellowFg),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         'Aguarde o responsável pela tratativa evidenciar a execução.',
-                        style: TextStyle(color: _NcDetailColors.muted, fontSize: 13, height: 1.4),
+                        style: TextStyle(color: context.c.fg2, fontSize: 13, height: 1.4),
                       ),
                     ),
                   ],
@@ -1954,7 +1976,7 @@ class _DetailActions extends ConsumerWidget {
             _ActionBtn(
               label: 'Revisar Execução',
               icon: Icons.verified_outlined,
-              color: _NcDetailColors.green,
+              color: context.c.statusGreenFg,
               onTap: () => _showRevisarExecucao(context, ref),
             ),
           ],
@@ -1972,10 +1994,10 @@ class _DetailActions extends ConsumerWidget {
         context: context,
         builder: (_) => AlertDialog(
           backgroundColor: const Color(0xFF151A21),
-          title: const Text('Sem permissão', style: TextStyle(color: _NcDetailColors.text)),
+          title: Text('Sem permissão', style: TextStyle(color: context.c.fg0)),
           content: Text(
             'Apenas quem registrou esta NC pode enviá-la para plano de ação.\n\nRegistrado por: ${nc.usuarioCriacaoNome}',
-            style: const TextStyle(color: _NcDetailColors.muted, fontSize: 13, height: 1.5),
+            style: TextStyle(color: context.c.fg2, fontSize: 13, height: 1.5),
           ),
           actions: [
             FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Entendido')),
@@ -1991,16 +2013,16 @@ class _DetailActions extends ConsumerWidget {
         context: context,
         builder: (dialogContext) => AlertDialog(
           backgroundColor: const Color(0xFF151A21),
-          title: const Text('Faltam campos obrigatórios', style: TextStyle(color: _NcDetailColors.text)),
+          title: Text('Faltam campos obrigatórios', style: TextStyle(color: context.c.fg0)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: faltantes
-                .map((codigo) => Text('• ${camposObrigatoriosLabels[codigo] ?? codigo}', style: const TextStyle(color: _NcDetailColors.muted, fontSize: 13, height: 1.5)))
+                .map((codigo) => Text('• ${camposObrigatoriosLabels[codigo] ?? codigo}', style: TextStyle(color: context.c.fg2, fontSize: 13, height: 1.5)))
                 .toList(),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Fechar', style: TextStyle(color: _NcDetailColors.muted))),
+            TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text('Fechar', style: TextStyle(color: context.c.fg2))),
             FilledButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
@@ -2019,23 +2041,23 @@ class _DetailActions extends ConsumerWidget {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFF151A21),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.send_rounded, color: _NcDetailColors.blue, size: 18),
-            SizedBox(width: 8),
-            Expanded(child: Text('Enviar para Plano de Ação', style: TextStyle(color: _NcDetailColors.text, fontSize: 16, fontWeight: FontWeight.w900))),
+            Icon(Icons.send_rounded, color: context.c.accent, size: 18),
+            const SizedBox(width: 8),
+            Expanded(child: Text('Enviar para Plano de Ação', style: TextStyle(color: context.c.fg0, fontSize: 16, fontWeight: FontWeight.w900))),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Confirme os dados antes de prosseguir:', style: TextStyle(color: _NcDetailColors.muted, fontSize: 12)),
+            Text('Confirme os dados antes de prosseguir:', style: TextStyle(color: context.c.fg2, fontSize: 12)),
             const SizedBox(height: 12),
             _ConfirmRow(label: 'NC', value: nc.titulo),
             _ConfirmRow(label: 'Estabelecimento', value: nc.estabelecimentoNome),
             if (nc.dataLimiteResolucao != null)
-              _ConfirmRow(label: 'Data Limite', value: _fmtDate(nc.dataLimiteResolucao), valueColor: nc.vencida ? _NcDetailColors.red : null),
+              _ConfirmRow(label: 'Data Limite', value: _fmtDate(nc.dataLimiteResolucao), valueColor: nc.vencida ? context.c.statusRedFg : null),
             if (nc.responsavelNcNome != null)
               _ConfirmRow(label: 'Resp. Tratativa', value: nc.responsavelNcNome!),
             if (nc.responsavelTrativaNome != null)
@@ -2049,9 +2071,9 @@ class _DetailActions extends ConsumerWidget {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar', style: TextStyle(color: _NcDetailColors.muted))),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancelar', style: TextStyle(color: context.c.fg2))),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: _NcDetailColors.blue),
+            style: FilledButton.styleFrom(backgroundColor: context.c.accent),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Confirmar e Preencher', style: TextStyle(fontWeight: FontWeight.w900)),
           ),
@@ -2322,48 +2344,48 @@ class _RevisarAtividadesSheetState extends State<_RevisarAtividadesSheet> {
       expand: false,
       builder: (_, scrollCtrl) => Column(
         children: [
-          Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 14), decoration: BoxDecoration(color: _NcDetailColors.muted2, borderRadius: BorderRadius.circular(99))),
+          Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 14), decoration: BoxDecoration(color: context.c.fg3, borderRadius: BorderRadius.circular(99))),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
             child: Row(
               children: [
-                Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: _NcDetailColors.blue.withValues(alpha: .15), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.fact_check_outlined, color: _NcDetailColors.blue, size: 18)),
+                Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: context.c.accent.withValues(alpha: .15), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.fact_check_outlined, color: context.c.accent, size: 18)),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Revisar Atividades', style: TextStyle(color: _NcDetailColors.text, fontSize: 17, fontWeight: FontWeight.w900)),
-                      Text('Aprove ou reprove cada atividade do plano', style: TextStyle(color: _NcDetailColors.muted, fontSize: 12, height: 1.3)),
+                      Text('Revisar Atividades', style: TextStyle(color: context.c.fg0, fontSize: 17, fontWeight: FontWeight.w900)),
+                      Text('Aprove ou reprove cada atividade do plano', style: TextStyle(color: context.c.fg2, fontSize: 12, height: 1.3)),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          const Divider(color: _NcDetailColors.border, height: 1),
+          Divider(color: context.c.borderSoft, height: 1),
           Expanded(
             child: ListView(
               controller: scrollCtrl,
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
               children: [
                 if (widget.porques.isNotEmpty) ...[
-                  const Text('5 PORQUÊS', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+                  Text('5 PORQUÊS', style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
                   const SizedBox(height: 8),
                   Container(
                     decoration: BoxDecoration(
                       color: _porqueDecisao == 'APROVADA'
                           ? const Color(0xFF16a34a).withValues(alpha: .08)
                           : _porqueDecisao == 'REJEITADA'
-                              ? _NcDetailColors.red.withValues(alpha: .08)
-                              : _NcDetailColors.surface2,
+                              ? context.c.statusRedFg.withValues(alpha: .08)
+                              : context.c.bgElevated,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: _porqueDecisao == 'APROVADA'
                             ? const Color(0xFF16a34a).withValues(alpha: .5)
                             : _porqueDecisao == 'REJEITADA'
-                                ? _NcDetailColors.red.withValues(alpha: .5)
-                                : _NcDetailColors.border,
+                                ? context.c.statusRedFg.withValues(alpha: .5)
+                                : context.c.borderSoft,
                       ),
                     ),
                     child: Column(
@@ -2373,13 +2395,13 @@ class _RevisarAtividadesSheetState extends State<_RevisarAtividadesSheet> {
                           padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
                           child: Row(
                             children: [
-                              Expanded(child: _ToggleBtn(label: 'Aprovar', icon: Icons.check_circle_outline_rounded, active: _porqueDecisao == 'APROVADA', color: _NcDetailColors.green, onTap: () => setState(() => _porqueDecisao = 'APROVADA'))),
+                              Expanded(child: _ToggleBtn(label: 'Aprovar', icon: Icons.check_circle_outline_rounded, active: _porqueDecisao == 'APROVADA', color: context.c.statusGreenFg, onTap: () => setState(() => _porqueDecisao = 'APROVADA'))),
                               const SizedBox(width: 8),
-                              Expanded(child: _ToggleBtn(label: 'Reprovar', icon: Icons.cancel_outlined, active: _porqueDecisao == 'REJEITADA', color: _NcDetailColors.red, onTap: () => setState(() => _porqueDecisao = 'REJEITADA'))),
+                              Expanded(child: _ToggleBtn(label: 'Reprovar', icon: Icons.cancel_outlined, active: _porqueDecisao == 'REJEITADA', color: context.c.statusRedFg, onTap: () => setState(() => _porqueDecisao = 'REJEITADA'))),
                             ],
                           ),
                         ),
-                        const Divider(color: _NcDetailColors.border, height: 1),
+                        Divider(color: context.c.borderSoft, height: 1),
                         Padding(
                           padding: const EdgeInsets.all(12),
                           child: Column(
@@ -2393,22 +2415,22 @@ class _RevisarAtividadesSheetState extends State<_RevisarAtividadesSheet> {
                                       width: 22, height: 22,
                                       decoration: BoxDecoration(color: const Color(0xFF1e40af).withValues(alpha: .2), shape: BoxShape.circle),
                                       alignment: Alignment.center,
-                                      child: Text('${i + 1}', style: const TextStyle(color: _NcDetailColors.blue, fontSize: 11, fontWeight: FontWeight.w900)),
+                                      child: Text('${i + 1}', style: TextStyle(color: context.c.accent, fontSize: 11, fontWeight: FontWeight.w900)),
                                     ),
                                     const SizedBox(width: 10),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(widget.porques[i]['pergunta'] as String? ?? '', style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, fontWeight: FontWeight.w600)),
+                                          Text(widget.porques[i]['pergunta'] as String? ?? '', style: TextStyle(color: context.c.fg0, fontSize: 13, fontWeight: FontWeight.w600)),
                                           if ((widget.porques[i]['resposta'] as String? ?? '').isNotEmpty)
                                             Padding(
                                               padding: const EdgeInsets.only(top: 2),
                                               child: Row(
                                                 children: [
-                                                  Container(width: 2, height: 30, decoration: BoxDecoration(color: _NcDetailColors.blue.withValues(alpha: .4), borderRadius: BorderRadius.circular(1))),
+                                                  Container(width: 2, height: 30, decoration: BoxDecoration(color: context.c.accent.withValues(alpha: .4), borderRadius: BorderRadius.circular(1))),
                                                   const SizedBox(width: 6),
-                                                  Expanded(child: Text(widget.porques[i]['resposta'] as String, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 12, height: 1.4))),
+                                                  Expanded(child: Text(widget.porques[i]['resposta'] as String, style: TextStyle(color: context.c.fg2, fontSize: 12, height: 1.4))),
                                                 ],
                                               ),
                                             ),
@@ -2421,11 +2443,11 @@ class _RevisarAtividadesSheetState extends State<_RevisarAtividadesSheet> {
                               ],
                               if (widget.causaRaiz != null && widget.causaRaiz!.isNotEmpty) ...[
                                 const SizedBox(height: 10),
-                                const Divider(color: _NcDetailColors.border, height: 1),
+                                Divider(color: context.c.borderSoft, height: 1),
                                 const SizedBox(height: 10),
-                                const Text('CAUSA RAIZ IDENTIFICADA', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .4)),
+                                Text('CAUSA RAIZ IDENTIFICADA', style: TextStyle(color: context.c.fg2, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .4)),
                                 const SizedBox(height: 4),
-                                Text(widget.causaRaiz!, style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, height: 1.4)),
+                                Text(widget.causaRaiz!, style: TextStyle(color: context.c.fg0, fontSize: 13, height: 1.4)),
                               ],
                             ],
                           ),
@@ -2434,13 +2456,13 @@ class _RevisarAtividadesSheetState extends State<_RevisarAtividadesSheet> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Divider(color: _NcDetailColors.border, height: 1),
+                  Divider(color: context.c.borderSoft, height: 1),
                   const SizedBox(height: 12),
                 ],
-                const Text('ATIVIDADES', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+                Text('ATIVIDADES', style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
                 const SizedBox(height: 8),
                 if (widget.atividades.isEmpty)
-                  const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 32), child: Text('Nenhuma atividade pendente.', style: TextStyle(color: _NcDetailColors.muted, fontSize: 13))))
+                  Center(child: Padding(padding: const EdgeInsets.symmetric(vertical: 32), child: Text('Nenhuma atividade pendente.', style: TextStyle(color: context.c.fg2, fontSize: 13))))
                 else
                   for (var i = 0; i < widget.atividades.length; i++) ...[
                     _AtividadeRevisaoCard(index: i, atividade: widget.atividades[i], decisao: _decisoes[i], motivoCtrl: _motivoCtrl[i], onDecisao: (d) => setState(() => _decisoes[i] = d)),
@@ -2454,7 +2476,7 @@ class _RevisarAtividadesSheetState extends State<_RevisarAtividadesSheet> {
                     children: [
                       Text(
                         temReprovacao ? 'MOTIVO GERAL DA REPROVAÇÃO *' : 'COMENTÁRIO GERAL (opcional)',
-                        style: TextStyle(color: temReprovacao ? _NcDetailColors.red : const Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4),
+                        style: TextStyle(color: temReprovacao ? context.c.statusRedFg : context.c.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4),
                       ),
                       const SizedBox(height: 8),
                       TextField(
@@ -2462,14 +2484,14 @@ class _RevisarAtividadesSheetState extends State<_RevisarAtividadesSheet> {
                         maxLines: 3,
                         minLines: 2,
                         onChanged: (_) => setState(() {}),
-                        style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, height: 1.55),
+                        style: TextStyle(color: context.c.fg0, fontSize: 13, height: 1.55),
                         decoration: InputDecoration(
                           hintText: temReprovacao ? 'Descreva o motivo da reprovação...' : 'Observações gerais sobre a revisão...',
-                          hintStyle: const TextStyle(color: _NcDetailColors.muted, fontSize: 12),
-                          filled: true, fillColor: _NcDetailColors.surface2, contentPadding: const EdgeInsets.all(14),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _NcDetailColors.border)),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: temReprovacao ? _NcDetailColors.red.withValues(alpha: .5) : _NcDetailColors.border)),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: temReprovacao ? _NcDetailColors.red : _NcDetailColors.blue, width: 1.5)),
+                          hintStyle: TextStyle(color: context.c.fg2, fontSize: 12),
+                          filled: true, fillColor: context.c.bgElevated, contentPadding: const EdgeInsets.all(14),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.c.borderSoft)),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: temReprovacao ? context.c.statusRedFg.withValues(alpha: .5) : context.c.borderSoft)),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: temReprovacao ? context.c.statusRedFg : context.c.accent, width: 1.5)),
                         ),
                       ),
                     ],
@@ -2477,7 +2499,7 @@ class _RevisarAtividadesSheetState extends State<_RevisarAtividadesSheet> {
                 }),
                 if (_error != null) ...[
                   const SizedBox(height: 8),
-                  Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: _NcDetailColors.red.withValues(alpha: .1), borderRadius: BorderRadius.circular(8), border: Border.all(color: _NcDetailColors.red.withValues(alpha: .4))), child: Text(_error!, style: const TextStyle(color: _NcDetailColors.red, fontSize: 12))),
+                  Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: context.c.statusRedFg.withValues(alpha: .1), borderRadius: BorderRadius.circular(8), border: Border.all(color: context.c.statusRedFg.withValues(alpha: .4))), child: Text(_error!, style: TextStyle(color: context.c.statusRedFg, fontSize: 12))),
                 ],
                 const SizedBox(height: 80),
               ],
@@ -2489,7 +2511,7 @@ class _RevisarAtividadesSheetState extends State<_RevisarAtividadesSheet> {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(foregroundColor: _NcDetailColors.muted, side: const BorderSide(color: _NcDetailColors.border), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), padding: const EdgeInsets.symmetric(vertical: 14)),
+                    style: OutlinedButton.styleFrom(foregroundColor: context.c.fg2, side: BorderSide(color: context.c.borderSoft), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), padding: const EdgeInsets.symmetric(vertical: 14)),
                     onPressed: _loading ? null : () => Navigator.pop(context),
                     child: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.w700)),
                   ),
@@ -2498,7 +2520,7 @@ class _RevisarAtividadesSheetState extends State<_RevisarAtividadesSheet> {
                 Expanded(
                   flex: 2,
                   child: FilledButton.icon(
-                    style: FilledButton.styleFrom(backgroundColor: _NcDetailColors.blue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), padding: const EdgeInsets.symmetric(vertical: 14)),
+                    style: FilledButton.styleFrom(backgroundColor: context.c.accent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), padding: const EdgeInsets.symmetric(vertical: 14)),
                     onPressed: (_loading || (widget.porques.isNotEmpty && _porqueDecisao == null) || ((_decisoes.any((d) => d == 'REJEITADA') || _porqueDecisao == 'REJEITADA') && _comentarioCtrl.text.trim().isEmpty)) ? null : _submit,
                     icon: _loading ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Icon(Icons.send_rounded, size: 16),
                     label: const Text('Enviar Revisão', style: TextStyle(fontWeight: FontWeight.w900)),
@@ -2531,9 +2553,9 @@ class _AtividadeRevisaoCard extends StatelessWidget {
       duration: const Duration(milliseconds: 180),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isRejeitada ? const Color(0xFF2A1A1A) : _NcDetailColors.surface2,
+        color: isRejeitada ? const Color(0xFF2A1A1A) : context.c.bgElevated,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isRejeitada ? _NcDetailColors.red.withValues(alpha: .5) : _NcDetailColors.border),
+        border: Border.all(color: isRejeitada ? context.c.statusRedFg.withValues(alpha: .5) : context.c.borderSoft),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2541,7 +2563,7 @@ class _AtividadeRevisaoCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(width: 22, height: 22, alignment: Alignment.center, decoration: BoxDecoration(color: _NcDetailColors.surface, borderRadius: BorderRadius.circular(7), border: Border.all(color: _NcDetailColors.borderStrong)), child: Text('${index + 1}', style: const TextStyle(color: _NcDetailColors.text, fontSize: 11, fontWeight: FontWeight.w900))),
+              Container(width: 22, height: 22, alignment: Alignment.center, decoration: BoxDecoration(color: context.c.bgSurface, borderRadius: BorderRadius.circular(7), border: Border.all(color: context.c.borderMain)), child: Text('${index + 1}', style: TextStyle(color: context.c.fg0, fontSize: 11, fontWeight: FontWeight.w900))),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -2549,16 +2571,16 @@ class _AtividadeRevisaoCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Expanded(child: Text(titulo, style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, fontWeight: FontWeight.w800, height: 1.35))),
+                        Expanded(child: Text(titulo, style: TextStyle(color: context.c.fg0, fontSize: 13, fontWeight: FontWeight.w800, height: 1.35))),
                         if (jaAprovada && !isRejeitada) ...[
                           const SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(color: _NcDetailColors.green.withValues(alpha: .15), borderRadius: BorderRadius.circular(99), border: Border.all(color: _NcDetailColors.green.withValues(alpha: .4))),
-                            child: const Row(mainAxisSize: MainAxisSize.min, children: [
-                              Icon(Icons.check_circle_outline_rounded, size: 9, color: _NcDetailColors.green),
-                              SizedBox(width: 3),
-                              Text('Já aprovada', style: TextStyle(color: _NcDetailColors.green, fontSize: 9, fontWeight: FontWeight.w700)),
+                            decoration: BoxDecoration(color: context.c.statusGreenFg.withValues(alpha: .15), borderRadius: BorderRadius.circular(99), border: Border.all(color: context.c.statusGreenFg.withValues(alpha: .4))),
+                            child: Row(mainAxisSize: MainAxisSize.min, children: [
+                              Icon(Icons.check_circle_outline_rounded, size: 9, color: context.c.statusGreenFg),
+                              const SizedBox(width: 3),
+                              Text('Já aprovada', style: TextStyle(color: context.c.statusGreenFg, fontSize: 9, fontWeight: FontWeight.w700)),
                             ]),
                           ),
                         ],
@@ -2566,7 +2588,7 @@ class _AtividadeRevisaoCard extends StatelessWidget {
                     ),
                     if (descricao != null && descricao.isNotEmpty) ...[
                       const SizedBox(height: 2),
-                      Text(descricao, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 11, height: 1.35)),
+                      Text(descricao, style: TextStyle(color: context.c.fg2, fontSize: 11, height: 1.35)),
                     ],
                   ],
                 ),
@@ -2576,9 +2598,9 @@ class _AtividadeRevisaoCard extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(child: _ToggleBtn(label: 'Aprovar', icon: Icons.check_circle_outline_rounded, active: !isRejeitada, color: _NcDetailColors.green, onTap: () => onDecisao('APROVADA'))),
+              Expanded(child: _ToggleBtn(label: 'Aprovar', icon: Icons.check_circle_outline_rounded, active: !isRejeitada, color: context.c.statusGreenFg, onTap: () => onDecisao('APROVADA'))),
               const SizedBox(width: 8),
-              Expanded(child: _ToggleBtn(label: 'Reprovar', icon: Icons.cancel_outlined, active: isRejeitada, color: _NcDetailColors.red, onTap: () => onDecisao('REJEITADA'))),
+              Expanded(child: _ToggleBtn(label: 'Reprovar', icon: Icons.cancel_outlined, active: isRejeitada, color: context.c.statusRedFg, onTap: () => onDecisao('REJEITADA'))),
             ],
           ),
           if (isRejeitada) ...[
@@ -2586,15 +2608,15 @@ class _AtividadeRevisaoCard extends StatelessWidget {
             TextField(
               controller: motivoCtrl,
               maxLines: 3, minLines: 2,
-              style: const TextStyle(color: _NcDetailColors.text, fontSize: 12, height: 1.5),
+              style: TextStyle(color: context.c.fg0, fontSize: 12, height: 1.5),
               decoration: InputDecoration(
                 hintText: 'Motivo da reprovação desta atividade...',
-                hintStyle: const TextStyle(color: _NcDetailColors.muted, fontSize: 12),
-                filled: true, fillColor: _NcDetailColors.surface,
+                hintStyle: TextStyle(color: context.c.fg2, fontSize: 12),
+                filled: true, fillColor: context.c.bgSurface,
                 contentPadding: const EdgeInsets.all(12),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: _NcDetailColors.red.withValues(alpha: .4))),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: _NcDetailColors.red.withValues(alpha: .4))),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: _NcDetailColors.red, width: 1.5)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.c.statusRedFg.withValues(alpha: .4))),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.c.statusRedFg.withValues(alpha: .4))),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.c.statusRedFg, width: 1.5)),
               ),
             ),
           ],
@@ -2679,38 +2701,38 @@ class _RevisarExecucaoSheetState extends State<_RevisarExecucaoSheet> {
       expand: false,
       builder: (_, scrollCtrl) => Column(
         children: [
-          Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 14), decoration: BoxDecoration(color: _NcDetailColors.muted2, borderRadius: BorderRadius.circular(99))),
+          Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 14), decoration: BoxDecoration(color: context.c.fg3, borderRadius: BorderRadius.circular(99))),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
             child: Row(
               children: [
                 Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFF7C3AED).withValues(alpha: .15), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.verified_outlined, color: Color(0xFF7C3AED), size: 18)),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Revisar Execução', style: TextStyle(color: _NcDetailColors.text, fontSize: 17, fontWeight: FontWeight.w900)),
-                      Text('Aprove ou reprove a execução de cada atividade', style: TextStyle(color: _NcDetailColors.muted, fontSize: 12, height: 1.3)),
+                      Text('Revisar Execução', style: TextStyle(color: context.c.fg0, fontSize: 17, fontWeight: FontWeight.w900)),
+                      Text('Aprove ou reprove a execução de cada atividade', style: TextStyle(color: context.c.fg2, fontSize: 12, height: 1.3)),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          const Divider(color: _NcDetailColors.border, height: 1),
+          Divider(color: context.c.borderSoft, height: 1),
           Expanded(
             child: ListView(
               controller: scrollCtrl,
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
               children: [
-                const Text('ATIVIDADES EXECUTADAS', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+                Text('ATIVIDADES EXECUTADAS', style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
                 const SizedBox(height: 8),
                 if (_todasAtividades.isEmpty)
-                  const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 32), child: Text('Nenhuma atividade para revisar.', style: TextStyle(color: _NcDetailColors.muted, fontSize: 13))))
+                  Center(child: Padding(padding: const EdgeInsets.symmetric(vertical: 32), child: Text('Nenhuma atividade para revisar.', style: TextStyle(color: context.c.fg2, fontSize: 13))))
                 else ...[
                   if (widget.atividadesJaAprovadas.isNotEmpty) ...[
-                    const Text('JÁ APROVADAS ANTERIORMENTE', style: TextStyle(color: _NcDetailColors.green, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .5)),
+                    Text('JÁ APROVADAS ANTERIORMENTE', style: TextStyle(color: context.c.statusGreenFg, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .5)),
                     const SizedBox(height: 6),
                     for (var i = 0; i < widget.atividadesJaAprovadas.length; i++) ...[
                       _ExecucaoRevisaoCard(index: i, atividade: _todasAtividades[i], decisao: _decisoes[i], motivoCtrl: _motivoCtrl[i], onDecisao: (d) => setState(() => _decisoes[i] = d), jaAprovada: true, token: widget.token),
@@ -2718,7 +2740,7 @@ class _RevisarExecucaoSheetState extends State<_RevisarExecucaoSheet> {
                     ],
                     if (widget.atividades.isNotEmpty) ...[
                       const SizedBox(height: 4),
-                      const Text('NOVAS ATIVIDADES', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .5)),
+                      Text('NOVAS ATIVIDADES', style: TextStyle(color: context.c.fg2, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .5)),
                       const SizedBox(height: 6),
                     ],
                   ],
@@ -2728,24 +2750,24 @@ class _RevisarExecucaoSheetState extends State<_RevisarExecucaoSheet> {
                   ],
                 ],
                 const SizedBox(height: 8),
-                const Text('COMENTÁRIO GERAL (opcional)', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+                Text('COMENTÁRIO GERAL (opcional)', style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _comentarioCtrl,
                   maxLines: 3, minLines: 2,
-                  style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, height: 1.55),
+                  style: TextStyle(color: context.c.fg0, fontSize: 13, height: 1.55),
                   decoration: InputDecoration(
                     hintText: 'Observações gerais sobre a revisão da execução...',
-                    hintStyle: const TextStyle(color: _NcDetailColors.muted, fontSize: 12),
-                    filled: true, fillColor: _NcDetailColors.surface2, contentPadding: const EdgeInsets.all(14),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _NcDetailColors.border)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _NcDetailColors.border)),
+                    hintStyle: TextStyle(color: context.c.fg2, fontSize: 12),
+                    filled: true, fillColor: context.c.bgElevated, contentPadding: const EdgeInsets.all(14),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.c.borderSoft)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.c.borderSoft)),
                     focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF7C3AED), width: 1.5)),
                   ),
                 ),
                 if (_error != null) ...[
                   const SizedBox(height: 8),
-                  Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: _NcDetailColors.red.withValues(alpha: .1), borderRadius: BorderRadius.circular(8), border: Border.all(color: _NcDetailColors.red.withValues(alpha: .4))), child: Text(_error!, style: const TextStyle(color: _NcDetailColors.red, fontSize: 12))),
+                  Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: context.c.statusRedFg.withValues(alpha: .1), borderRadius: BorderRadius.circular(8), border: Border.all(color: context.c.statusRedFg.withValues(alpha: .4))), child: Text(_error!, style: TextStyle(color: context.c.statusRedFg, fontSize: 12))),
                 ],
                 const SizedBox(height: 80),
               ],
@@ -2757,7 +2779,7 @@ class _RevisarExecucaoSheetState extends State<_RevisarExecucaoSheet> {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(foregroundColor: _NcDetailColors.muted, side: const BorderSide(color: _NcDetailColors.border), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), padding: const EdgeInsets.symmetric(vertical: 14)),
+                    style: OutlinedButton.styleFrom(foregroundColor: context.c.fg2, side: BorderSide(color: context.c.borderSoft), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), padding: const EdgeInsets.symmetric(vertical: 14)),
                     onPressed: _loading ? null : () => Navigator.pop(context),
                     child: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.w700)),
                   ),
@@ -2808,19 +2830,19 @@ class _ExecucaoRevisaoCard extends StatelessWidget {
       duration: const Duration(milliseconds: 180),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isRejeitada ? const Color(0xFF2A1A1A) : (jaAprovada ? const Color(0xFF0A1F12) : _NcDetailColors.surface2),
+        color: isRejeitada ? const Color(0xFF2A1A1A) : (jaAprovada ? const Color(0xFF0A1F12) : context.c.bgElevated),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isRejeitada ? _NcDetailColors.red.withValues(alpha: .5) : (jaAprovada ? _NcDetailColors.green.withValues(alpha: .35) : _NcDetailColors.border)),
+        border: Border.all(color: isRejeitada ? context.c.statusRedFg.withValues(alpha: .5) : (jaAprovada ? context.c.statusGreenFg.withValues(alpha: .35) : context.c.borderSoft)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (jaAprovada) ...[
-            const Row(
+            Row(
               children: [
-                Icon(Icons.check_circle_rounded, size: 12, color: _NcDetailColors.green),
-                SizedBox(width: 5),
-                Text('Já aprovada — pode reprovar se necessário', style: TextStyle(color: _NcDetailColors.green, fontSize: 10, fontWeight: FontWeight.w700)),
+                Icon(Icons.check_circle_rounded, size: 12, color: context.c.statusGreenFg),
+                const SizedBox(width: 5),
+                Text('Já aprovada — pode reprovar se necessário', style: TextStyle(color: context.c.statusGreenFg, fontSize: 10, fontWeight: FontWeight.w700)),
               ],
             ),
             const SizedBox(height: 8),
@@ -2828,19 +2850,19 @@ class _ExecucaoRevisaoCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(width: 22, height: 22, alignment: Alignment.center, decoration: BoxDecoration(color: _NcDetailColors.surface, borderRadius: BorderRadius.circular(7), border: Border.all(color: _NcDetailColors.borderStrong)), child: Text('${index + 1}', style: const TextStyle(color: _NcDetailColors.text, fontSize: 11, fontWeight: FontWeight.w900))),
+              Container(width: 22, height: 22, alignment: Alignment.center, decoration: BoxDecoration(color: context.c.bgSurface, borderRadius: BorderRadius.circular(7), border: Border.all(color: context.c.borderMain)), child: Text('${index + 1}', style: TextStyle(color: context.c.fg0, fontSize: 11, fontWeight: FontWeight.w900))),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(titulo, style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, fontWeight: FontWeight.w800, height: 1.35)),
+                    Text(titulo, style: TextStyle(color: context.c.fg0, fontSize: 13, fontWeight: FontWeight.w800, height: 1.35)),
                     if (descExecucao != null && descExecucao.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: _NcDetailColors.surface, borderRadius: BorderRadius.circular(8), border: Border.all(color: _NcDetailColors.border)),
-                        child: Text(descExecucao, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 11, height: 1.4)),
+                        decoration: BoxDecoration(color: context.c.bgSurface, borderRadius: BorderRadius.circular(8), border: Border.all(color: context.c.borderSoft)),
+                        child: Text(descExecucao, style: TextStyle(color: context.c.fg2, fontSize: 11, height: 1.4)),
                       ),
                     ],
                   ],
@@ -2866,8 +2888,8 @@ class _ExecucaoRevisaoCard extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: token != null
-                            ? Image(image: NetworkImage(url, headers: {'Authorization': 'Bearer $token'}), width: 72, height: 72, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(width: 72, height: 72, color: _NcDetailColors.surface, child: const Icon(Icons.broken_image_rounded, color: _NcDetailColors.muted, size: 16)))
-                            : Container(width: 72, height: 72, color: _NcDetailColors.surface),
+                            ? Image(image: NetworkImage(url, headers: {'Authorization': 'Bearer $token'}), width: 72, height: 72, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(width: 72, height: 72, color: context.c.bgSurface, child: Icon(Icons.broken_image_rounded, color: context.c.fg2, size: 16)))
+                            : Container(width: 72, height: 72, color: context.c.bgSurface),
                       ),
                     );
                   },
@@ -2878,9 +2900,9 @@ class _ExecucaoRevisaoCard extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(child: _ToggleBtn(label: 'Aprovar', icon: Icons.check_circle_outline_rounded, active: !isRejeitada, color: _NcDetailColors.green, onTap: () => onDecisao('APROVADA'))),
+              Expanded(child: _ToggleBtn(label: 'Aprovar', icon: Icons.check_circle_outline_rounded, active: !isRejeitada, color: context.c.statusGreenFg, onTap: () => onDecisao('APROVADA'))),
               const SizedBox(width: 8),
-              Expanded(child: _ToggleBtn(label: 'Reprovar', icon: Icons.cancel_outlined, active: isRejeitada, color: _NcDetailColors.red, onTap: () => onDecisao('REJEITADA'))),
+              Expanded(child: _ToggleBtn(label: 'Reprovar', icon: Icons.cancel_outlined, active: isRejeitada, color: context.c.statusRedFg, onTap: () => onDecisao('REJEITADA'))),
             ],
           ),
           if (isRejeitada) ...[
@@ -2888,15 +2910,15 @@ class _ExecucaoRevisaoCard extends StatelessWidget {
             TextField(
               controller: motivoCtrl,
               maxLines: 3, minLines: 2,
-              style: const TextStyle(color: _NcDetailColors.text, fontSize: 12, height: 1.5),
+              style: TextStyle(color: context.c.fg0, fontSize: 12, height: 1.5),
               decoration: InputDecoration(
                 hintText: 'Motivo da reprovação da execução...',
-                hintStyle: const TextStyle(color: _NcDetailColors.muted, fontSize: 12),
-                filled: true, fillColor: _NcDetailColors.surface,
+                hintStyle: TextStyle(color: context.c.fg2, fontSize: 12),
+                filled: true, fillColor: context.c.bgSurface,
                 contentPadding: const EdgeInsets.all(12),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: _NcDetailColors.red.withValues(alpha: .4))),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: _NcDetailColors.red.withValues(alpha: .4))),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: _NcDetailColors.red, width: 1.5)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.c.statusRedFg.withValues(alpha: .4))),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.c.statusRedFg.withValues(alpha: .4))),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.c.statusRedFg, width: 1.5)),
               ),
             ),
           ],
@@ -2922,16 +2944,16 @@ class _ToggleBtn extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: active ? color.withValues(alpha: .15) : _NcDetailColors.surface,
+          color: active ? color.withValues(alpha: .15) : context.c.bgSurface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: active ? color : _NcDetailColors.border, width: active ? 1.5 : 1),
+          border: Border.all(color: active ? color : context.c.borderSoft, width: active ? 1.5 : 1),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 15, color: active ? color : _NcDetailColors.muted),
+            Icon(icon, size: 15, color: active ? color : context.c.fg2),
             const SizedBox(width: 5),
-            Text(label, style: TextStyle(color: active ? color : _NcDetailColors.muted, fontSize: 12, fontWeight: FontWeight.w900)),
+            Text(label, style: TextStyle(color: active ? color : context.c.fg2, fontSize: 12, fontWeight: FontWeight.w900)),
           ],
         ),
       ),
@@ -3037,18 +3059,18 @@ class _InvestigacaoSheetState extends State<_InvestigacaoSheet> {
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
             children: [
               Center(child: Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 12), decoration: BoxDecoration(color: const Color(0xFF3F4A57), borderRadius: BorderRadius.circular(99)))),
-              Text(widget.isAjuste ? 'Ajustar Plano de Ação' : 'Submeter Investigação', style: const TextStyle(color: _NcDetailColors.text, fontSize: 18, fontWeight: FontWeight.w900)),
+              Text(widget.isAjuste ? 'Ajustar Plano de Ação' : 'Submeter Investigação', style: TextStyle(color: context.c.fg0, fontSize: 18, fontWeight: FontWeight.w900)),
               const SizedBox(height: 20),
               // Porquês
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('5 PORQUÊS', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+                  Text('5 PORQUÊS', style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
                   if (_porques.length < 5)
                     TextButton.icon(
                       onPressed: () => setState(() => _porques.add(_PorqueEntry())),
-                      icon: const Icon(Icons.add, size: 14, color: _NcDetailColors.blue),
-                      label: const Text('Adicionar', style: TextStyle(color: _NcDetailColors.blue, fontSize: 12)),
+                      icon: Icon(Icons.add, size: 14, color: context.c.accent),
+                      label: Text('Adicionar', style: TextStyle(color: context.c.accent, fontSize: 12)),
                     ),
                 ],
               ),
@@ -3058,21 +3080,21 @@ class _InvestigacaoSheetState extends State<_InvestigacaoSheet> {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: _NcDetailColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: _NcDetailColors.border)),
+                    decoration: BoxDecoration(color: context.c.bgElevated, borderRadius: BorderRadius.circular(10), border: Border.all(color: context.c.borderSoft)),
                     child: Column(
                       children: [
                         Row(
                           children: [
-                            Container(width: 20, height: 20, alignment: Alignment.center, decoration: BoxDecoration(color: _NcDetailColors.blue.withValues(alpha: .2), borderRadius: BorderRadius.circular(6)), child: Text('${i+1}', style: const TextStyle(color: _NcDetailColors.blue, fontSize: 10, fontWeight: FontWeight.w900))),
+                            Container(width: 20, height: 20, alignment: Alignment.center, decoration: BoxDecoration(color: context.c.accent.withValues(alpha: .2), borderRadius: BorderRadius.circular(6)), child: Text('${i+1}', style: TextStyle(color: context.c.accent, fontSize: 10, fontWeight: FontWeight.w900))),
                             const SizedBox(width: 8),
-                            const Expanded(child: Text('Pergunta', style: TextStyle(color: _NcDetailColors.muted, fontSize: 11))),
-                            if (_porques.length > 1) GestureDetector(onTap: () => setState(() => _porques.removeAt(i)), child: const Icon(Icons.close, size: 16, color: _NcDetailColors.muted)),
+                            Expanded(child: Text('Pergunta', style: TextStyle(color: context.c.fg2, fontSize: 11))),
+                            if (_porques.length > 1) GestureDetector(onTap: () => setState(() => _porques.removeAt(i)), child: Icon(Icons.close, size: 16, color: context.c.fg2)),
                           ],
                         ),
                         const SizedBox(height: 6),
                         _Field(ctrl: _porques[i].pergunta, hint: 'Por que ocorreu?', validator: (v) => (v?.isEmpty ?? true) ? 'Obrigatório' : null),
                         const SizedBox(height: 8),
-                        const Align(alignment: Alignment.centerLeft, child: Text('Resposta', style: TextStyle(color: _NcDetailColors.muted, fontSize: 11))),
+                        Align(alignment: Alignment.centerLeft, child: Text('Resposta', style: TextStyle(color: context.c.fg2, fontSize: 11))),
                         const SizedBox(height: 6),
                         _Field(ctrl: _porques[i].resposta, hint: 'Resposta...', validator: (v) => (v?.isEmpty ?? true) ? 'Obrigatório' : null),
                       ],
@@ -3080,18 +3102,18 @@ class _InvestigacaoSheetState extends State<_InvestigacaoSheet> {
                   ),
                 ),
               const SizedBox(height: 8),
-              const Text('CAUSA RAIZ', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+              Text('CAUSA RAIZ', style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
               const SizedBox(height: 8),
               _Field(ctrl: _causaRaizCtrl, hint: 'Descreva a causa raiz...', maxLines: 3, validator: (v) => (v?.isEmpty ?? true) ? 'Obrigatório' : null),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('ATIVIDADES', style: TextStyle(color: Color(0xFFD7E8FF), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+                  Text('ATIVIDADES', style: TextStyle(color: context.c.fg2, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
                   TextButton.icon(
                     onPressed: () => setState(() => _atividades.add(_AtividadeEntry())),
-                    icon: const Icon(Icons.add, size: 14, color: _NcDetailColors.blue),
-                    label: const Text('Adicionar', style: TextStyle(color: _NcDetailColors.blue, fontSize: 12)),
+                    icon: Icon(Icons.add, size: 14, color: context.c.accent),
+                    label: Text('Adicionar', style: TextStyle(color: context.c.accent, fontSize: 12)),
                   ),
                 ],
               ),
@@ -3101,14 +3123,14 @@ class _InvestigacaoSheetState extends State<_InvestigacaoSheet> {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: _NcDetailColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: _NcDetailColors.border)),
+                    decoration: BoxDecoration(color: context.c.bgElevated, borderRadius: BorderRadius.circular(10), border: Border.all(color: context.c.borderSoft)),
                     child: Column(
                       children: [
                         Row(
                           children: [
-                            Text('Atividade ${i+1}', style: const TextStyle(color: _NcDetailColors.muted, fontSize: 11)),
+                            Text('Atividade ${i+1}', style: TextStyle(color: context.c.fg2, fontSize: 11)),
                             const Spacer(),
-                            if (_atividades.length > 1) GestureDetector(onTap: () => setState(() => _atividades.removeAt(i)), child: const Icon(Icons.close, size: 16, color: _NcDetailColors.muted)),
+                            if (_atividades.length > 1) GestureDetector(onTap: () => setState(() => _atividades.removeAt(i)), child: Icon(Icons.close, size: 16, color: context.c.fg2)),
                           ],
                         ),
                         const SizedBox(height: 6),
@@ -3123,12 +3145,12 @@ class _InvestigacaoSheetState extends State<_InvestigacaoSheet> {
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                            decoration: BoxDecoration(color: _NcDetailColors.surface, borderRadius: BorderRadius.circular(8), border: Border.all(color: _NcDetailColors.border)),
+                            decoration: BoxDecoration(color: context.c.bgSurface, borderRadius: BorderRadius.circular(8), border: Border.all(color: context.c.borderSoft)),
                             child: Row(
                               children: [
-                                const Icon(Icons.calendar_today_rounded, size: 14, color: _NcDetailColors.muted),
+                                Icon(Icons.calendar_today_rounded, size: 14, color: context.c.fg2),
                                 const SizedBox(width: 8),
-                                Text(_atividades[i].prazo != null ? _fmtDate(_atividades[i].prazo) : 'Selecionar prazo', style: TextStyle(color: _atividades[i].prazo != null ? _NcDetailColors.text : _NcDetailColors.muted, fontSize: 13)),
+                                Text(_atividades[i].prazo != null ? _fmtDate(_atividades[i].prazo) : 'Selecionar prazo', style: TextStyle(color: _atividades[i].prazo != null ? context.c.fg0 : context.c.fg2, fontSize: 13)),
                               ],
                             ),
                           ),
@@ -3139,7 +3161,7 @@ class _InvestigacaoSheetState extends State<_InvestigacaoSheet> {
                 ),
               if (_aprovadas.isNotEmpty) ...[
                 const SizedBox(height: 16),
-                const Text('APROVADAS (não precisam de ajuste)', style: TextStyle(color: _NcDetailColors.green, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
+                Text('APROVADAS (não precisam de ajuste)', style: TextStyle(color: context.c.statusGreenFg, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .4)),
                 const SizedBox(height: 8),
                 for (var i = 0; i < _aprovadas.length; i++)
                   Padding(
@@ -3149,20 +3171,20 @@ class _InvestigacaoSheetState extends State<_InvestigacaoSheet> {
                       decoration: BoxDecoration(
                         color: const Color(0xFF0F2018),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: _NcDetailColors.green.withValues(alpha: .4)),
+                        border: Border.all(color: context.c.statusGreenFg.withValues(alpha: .4)),
                       ),
                       child: Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(color: _NcDetailColors.green.withValues(alpha: .15), borderRadius: BorderRadius.circular(6)),
-                            child: const Icon(Icons.check_circle_rounded, size: 14, color: _NcDetailColors.green),
+                            decoration: BoxDecoration(color: context.c.statusGreenFg.withValues(alpha: .15), borderRadius: BorderRadius.circular(6)),
+                            child: Icon(Icons.check_circle_rounded, size: 14, color: context.c.statusGreenFg),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               _aprovadas[i]['titulo'] as String? ?? 'Atividade',
-                              style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, fontWeight: FontWeight.w700),
+                              style: TextStyle(color: context.c.fg0, fontSize: 13, fontWeight: FontWeight.w700),
                             ),
                           ),
                           TextButton(
@@ -3177,7 +3199,7 @@ class _InvestigacaoSheetState extends State<_InvestigacaoSheet> {
                                 _atividades.add(entry);
                               });
                             },
-                            child: const Text('Editar', style: TextStyle(color: _NcDetailColors.blue, fontSize: 12, fontWeight: FontWeight.w700)),
+                            child: Text('Editar', style: TextStyle(color: context.c.accent, fontSize: 12, fontWeight: FontWeight.w700)),
                           ),
                         ],
                       ),
@@ -3188,7 +3210,7 @@ class _InvestigacaoSheetState extends State<_InvestigacaoSheet> {
               SizedBox(
                 height: 50,
                 child: FilledButton(
-                  style: FilledButton.styleFrom(backgroundColor: _NcDetailColors.blue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                  style: FilledButton.styleFrom(backgroundColor: context.c.accent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                   onPressed: _loading ? null : _submit,
                   child: _loading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text(widget.isAjuste ? 'Reenviar Plano Ajustado' : 'Enviar Investigação', style: const TextStyle(fontWeight: FontWeight.w900)),
                 ),
@@ -3251,17 +3273,17 @@ class _ExecucaoSheetState extends State<_ExecucaoSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 12), decoration: BoxDecoration(color: _NcDetailColors.muted2, borderRadius: BorderRadius.circular(99))),
+            Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 12), decoration: BoxDecoration(color: context.c.fg3, borderRadius: BorderRadius.circular(99))),
             ListTile(
-              leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: _NcDetailColors.blue.withValues(alpha: .15), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.camera_alt_rounded, color: _NcDetailColors.blue, size: 20)),
-              title: const Text('Tirar foto', style: TextStyle(color: _NcDetailColors.text, fontWeight: FontWeight.w700)),
-              subtitle: const Text('Usar câmera', style: TextStyle(color: _NcDetailColors.muted, fontSize: 12)),
+              leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: context.c.accent.withValues(alpha: .15), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.camera_alt_rounded, color: context.c.accent, size: 20)),
+              title: Text('Tirar foto', style: TextStyle(color: context.c.fg0, fontWeight: FontWeight.w700)),
+              subtitle: Text('Usar câmera', style: TextStyle(color: context.c.fg2, fontSize: 12)),
               onTap: () => Navigator.pop(ctx, ImageSource.camera),
             ),
             ListTile(
-              leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: _NcDetailColors.blue.withValues(alpha: .15), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.photo_library_rounded, color: _NcDetailColors.blue, size: 20)),
-              title: const Text('Selecionar da galeria', style: TextStyle(color: _NcDetailColors.text, fontWeight: FontWeight.w700)),
-              subtitle: const Text('Múltiplas fotos', style: TextStyle(color: _NcDetailColors.muted, fontSize: 12)),
+              leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: context.c.accent.withValues(alpha: .15), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.photo_library_rounded, color: context.c.accent, size: 20)),
+              title: Text('Selecionar da galeria', style: TextStyle(color: context.c.fg0, fontWeight: FontWeight.w700)),
+              subtitle: Text('Múltiplas fotos', style: TextStyle(color: context.c.fg2, fontSize: 12)),
               onTap: () => Navigator.pop(ctx, ImageSource.gallery),
             ),
             const SizedBox(height: 12),
@@ -3300,16 +3322,16 @@ class _ExecucaoSheetState extends State<_ExecucaoSheet> {
     final isPrimeira = statusExec.isEmpty;
 
     final borderColor = isAprovada
-        ? _NcDetailColors.green.withValues(alpha: .5)
+        ? context.c.statusGreenFg.withValues(alpha: .5)
         : isRejeitada
-            ? _NcDetailColors.red.withValues(alpha: .5)
-            : _NcDetailColors.border;
+            ? context.c.statusRedFg.withValues(alpha: .5)
+            : context.c.borderSoft;
     final bgColor = isAprovada
         ? const Color(0xFF0D2318)
         : isRejeitada
             ? const Color(0xFF2A1A1A)
-            : _NcDetailColors.surface2;
-    final accentColor = isAprovada ? _NcDetailColors.green : isRejeitada ? _NcDetailColors.red : const Color(0xFF7C3AED);
+            : context.c.bgElevated;
+    final accentColor = isAprovada ? context.c.statusGreenFg : isRejeitada ? context.c.statusRedFg : const Color(0xFF7C3AED);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
@@ -3332,9 +3354,9 @@ class _ExecucaoSheetState extends State<_ExecucaoSheet> {
               Expanded(child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(titulo, style: const TextStyle(color: _NcDetailColors.text, fontSize: 13, fontWeight: FontWeight.w800, height: 1.3)),
+                  Text(titulo, style: TextStyle(color: context.c.fg0, fontSize: 13, fontWeight: FontWeight.w800, height: 1.3)),
                   if (descricaoPlan.isNotEmpty)
-                    Text(descricaoPlan, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 12, height: 1.4)),
+                    Text(descricaoPlan, style: TextStyle(color: context.c.fg2, fontSize: 12, height: 1.4)),
                 ],
               )),
               const SizedBox(width: 8),
@@ -3356,14 +3378,14 @@ class _ExecucaoSheetState extends State<_ExecucaoSheet> {
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-              decoration: BoxDecoration(color: _NcDetailColors.red.withValues(alpha: .08), borderRadius: BorderRadius.circular(8), border: Border.all(color: _NcDetailColors.red.withValues(alpha: .3))),
+              decoration: BoxDecoration(color: context.c.statusRedFg.withValues(alpha: .08), borderRadius: BorderRadius.circular(8), border: Border.all(color: context.c.statusRedFg.withValues(alpha: .3))),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Icon(Icons.error_outline_rounded, size: 13, color: _NcDetailColors.red),
+                Icon(Icons.error_outline_rounded, size: 13, color: context.c.statusRedFg),
                 const SizedBox(width: 6),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Text('Motivo da reprovação', style: TextStyle(color: _NcDetailColors.red, fontSize: 10, fontWeight: FontWeight.w900)),
+                  Text('Motivo da reprovação', style: TextStyle(color: context.c.statusRedFg, fontSize: 10, fontWeight: FontWeight.w900)),
                   const SizedBox(height: 2),
-                  Text(motivoExec, style: const TextStyle(color: _NcDetailColors.red, fontSize: 12, height: 1.4)),
+                  Text(motivoExec, style: TextStyle(color: context.c.statusRedFg, fontSize: 12, height: 1.4)),
                 ])),
               ]),
             ),
@@ -3372,19 +3394,19 @@ class _ExecucaoSheetState extends State<_ExecucaoSheet> {
           // Conteúdo read-only para aprovadas / editável para demais
           if (isAprovada) ...[
             const SizedBox(height: 10),
-            const Divider(color: _NcDetailColors.border, height: 1),
+            Divider(color: context.c.borderSoft, height: 1),
             const SizedBox(height: 10),
-            const Row(children: [
-              Icon(Icons.lock_outline_rounded, size: 13, color: _NcDetailColors.green),
-              SizedBox(width: 6),
-              Text('Execução aprovada — sem alterações necessárias', style: TextStyle(color: _NcDetailColors.green, fontSize: 11, fontWeight: FontWeight.w700)),
+            Row(children: [
+              Icon(Icons.lock_outline_rounded, size: 13, color: context.c.statusGreenFg),
+              const SizedBox(width: 6),
+              Text('Execução aprovada — sem alterações necessárias', style: TextStyle(color: context.c.statusGreenFg, fontSize: 11, fontWeight: FontWeight.w700)),
             ]),
             if ((a['descricaoExecucao'] as String? ?? '').isNotEmpty) ...[
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: _NcDetailColors.surface, borderRadius: BorderRadius.circular(8), border: Border.all(color: _NcDetailColors.border)),
-                child: Text(a['descricaoExecucao'] as String, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 12, height: 1.4)),
+                decoration: BoxDecoration(color: context.c.bgSurface, borderRadius: BorderRadius.circular(8), border: Border.all(color: context.c.borderSoft)),
+                child: Text(a['descricaoExecucao'] as String, style: TextStyle(color: context.c.fg2, fontSize: 12, height: 1.4)),
               ),
             ],
           ] else ...[
@@ -3398,12 +3420,12 @@ class _ExecucaoSheetState extends State<_ExecucaoSheet> {
             if (visibleEvs.isEmpty || isAprovada) return const SizedBox.shrink();
             return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const SizedBox(height: 12),
-              const Row(children: [
-                Icon(Icons.photo_library_outlined, size: 12, color: _NcDetailColors.muted),
-                SizedBox(width: 5),
-                Text('EVIDÊNCIAS ANTERIORES', style: TextStyle(color: _NcDetailColors.muted, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .4)),
-                SizedBox(width: 4),
-                Text('(toque no × para excluir)', style: TextStyle(color: _NcDetailColors.muted2, fontSize: 9)),
+              Row(children: [
+                Icon(Icons.photo_library_outlined, size: 12, color: context.c.fg2),
+                const SizedBox(width: 5),
+                Text('EVIDÊNCIAS ANTERIORES', style: TextStyle(color: context.c.fg2, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: .4)),
+                const SizedBox(width: 4),
+                Text('(toque no × para excluir)', style: TextStyle(color: context.c.fg3, fontSize: 9)),
               ]),
               const SizedBox(height: 6),
               SizedBox(
@@ -3421,8 +3443,8 @@ class _ExecucaoSheetState extends State<_ExecucaoSheet> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: widget.token != null
-                              ? Image(image: NetworkImage(url, headers: {'Authorization': 'Bearer ${widget.token}'}), width: 80, height: 80, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(width: 80, height: 80, color: _NcDetailColors.surface, child: const Icon(Icons.broken_image_rounded, color: _NcDetailColors.muted, size: 18)))
-                              : Container(width: 80, height: 80, color: _NcDetailColors.surface),
+                              ? Image(image: NetworkImage(url, headers: {'Authorization': 'Bearer ${widget.token}'}), width: 80, height: 80, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(width: 80, height: 80, color: context.c.bgSurface, child: Icon(Icons.broken_image_rounded, color: context.c.fg2, size: 18)))
+                              : Container(width: 80, height: 80, color: context.c.bgSurface),
                         ),
                       ),
                       Positioned(
@@ -3453,8 +3475,8 @@ class _ExecucaoSheetState extends State<_ExecucaoSheet> {
                     if (fi == _fotos[i].length) {
                       return GestureDetector(
                         onTap: () => _pickFotos(i),
-                        child: Container(width: 80, decoration: BoxDecoration(color: _NcDetailColors.surface, borderRadius: BorderRadius.circular(10), border: Border.all(color: _NcDetailColors.border)),
-                          child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.add_photo_alternate_rounded, color: _NcDetailColors.blue, size: 22), SizedBox(height: 4), Text('Adicionar', style: TextStyle(color: _NcDetailColors.blue, fontSize: 10, fontWeight: FontWeight.w700))])),
+                        child: Container(width: 80, decoration: BoxDecoration(color: context.c.bgSurface, borderRadius: BorderRadius.circular(10), border: Border.all(color: context.c.borderSoft)),
+                          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.add_photo_alternate_rounded, color: context.c.accent, size: 22), const SizedBox(height: 4), Text('Adicionar', style: TextStyle(color: context.c.accent, fontSize: 10, fontWeight: FontWeight.w700))])),
                       );
                     }
                     return Stack(children: [
@@ -3472,12 +3494,12 @@ class _ExecucaoSheetState extends State<_ExecucaoSheet> {
                 onTap: () => _pickFotos(i),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(color: _NcDetailColors.surface, borderRadius: BorderRadius.circular(10), border: Border.all(color: _NcDetailColors.border)),
+                  decoration: BoxDecoration(color: context.c.bgSurface, borderRadius: BorderRadius.circular(10), border: Border.all(color: context.c.borderSoft)),
                   child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Icon(Icons.add_photo_alternate_rounded, color: isRejeitada ? _NcDetailColors.red : _NcDetailColors.blue, size: 18),
+                    Icon(Icons.add_photo_alternate_rounded, color: isRejeitada ? context.c.statusRedFg : context.c.accent, size: 18),
                     const SizedBox(width: 8),
                     Text(isRejeitada ? 'Atualizar fotos de evidência' : 'Adicionar fotos de evidência',
-                        style: TextStyle(color: isRejeitada ? _NcDetailColors.red : _NcDetailColors.blue, fontSize: 13, fontWeight: FontWeight.w700)),
+                        style: TextStyle(color: isRejeitada ? context.c.statusRedFg : context.c.accent, fontSize: 13, fontWeight: FontWeight.w700)),
                   ]),
                 ),
               ),
@@ -3556,9 +3578,9 @@ class _ExecucaoSheetState extends State<_ExecucaoSheet> {
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
           children: [
             Center(child: Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 12), decoration: BoxDecoration(color: const Color(0xFF3F4A57), borderRadius: BorderRadius.circular(99)))),
-            const Text('Submeter Execução', style: TextStyle(color: _NcDetailColors.text, fontSize: 18, fontWeight: FontWeight.w900)),
+            Text('Submeter Execução', style: TextStyle(color: context.c.fg0, fontSize: 18, fontWeight: FontWeight.w900)),
             const SizedBox(height: 4),
-            const Text('Descreva como cada atividade foi executada e anexe fotos como evidência.', style: TextStyle(color: _NcDetailColors.muted, fontSize: 12, height: 1.4)),
+            Text('Descreva como cada atividade foi executada e anexe fotos como evidência.', style: TextStyle(color: context.c.fg2, fontSize: 12, height: 1.4)),
             const SizedBox(height: 20),
             for (var i = 0; i < widget.atividades.length; i++) ...[
               _buildAtividadeCard(i),
@@ -3568,7 +3590,7 @@ class _ExecucaoSheetState extends State<_ExecucaoSheet> {
             SizedBox(
               height: 50,
               child: FilledButton(
-                style: FilledButton.styleFrom(backgroundColor: _NcDetailColors.blue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                style: FilledButton.styleFrom(backgroundColor: context.c.accent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                 onPressed: _loading ? null : _submit,
                 child: _loading
                     ? Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -3598,17 +3620,17 @@ class _Field extends StatelessWidget {
     return TextFormField(
       controller: ctrl,
       maxLines: maxLines,
-      style: const TextStyle(color: _NcDetailColors.text, fontSize: 13),
+      style: TextStyle(color: context.c.fg0, fontSize: 13),
       validator: validator,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: _NcDetailColors.muted),
+        hintStyle: TextStyle(color: context.c.fg2),
         filled: true,
-        fillColor: _NcDetailColors.surface,
+        fillColor: context.c.bgSurface,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: _NcDetailColors.border)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: _NcDetailColors.border)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: _NcDetailColors.blue)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: context.c.borderSoft)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: context.c.borderSoft)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: context.c.accent)),
       ),
     );
   }
@@ -3638,9 +3660,9 @@ class _EvidenciaCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: _NcDetailColors.surface2,
+        color: context.c.bgElevated,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _NcDetailColors.border),
+        border: Border.all(color: context.c.borderSoft),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -3659,11 +3681,11 @@ class _EvidenciaCard extends StatelessWidget {
                               image: NetworkImage(url, headers: {'Authorization': 'Bearer $token'}),
                               fit: BoxFit.cover,
                               errorBuilder: (_, __, ___) => Container(
-                                color: _NcDetailColors.surface,
-                                child: const Center(child: Icon(Icons.broken_image_rounded, color: _NcDetailColors.muted, size: 32)),
+                                color: context.c.bgSurface,
+                                child: Center(child: Icon(Icons.broken_image_rounded, color: context.c.fg2, size: 32)),
                               ),
                             )
-                          : Container(color: _NcDetailColors.surface, child: const Center(child: CircularProgressIndicator())),
+                          : Container(color: context.c.bgSurface, child: const Center(child: CircularProgressIndicator())),
                     ),
                     Positioned(
                       right: 8, bottom: 8,
@@ -3686,14 +3708,14 @@ class _EvidenciaCard extends StatelessWidget {
                 if (hasGeo) ...[
                   Row(
                     children: [
-                      const Icon(Icons.location_on_rounded, size: 13, color: _NcDetailColors.blue),
+                      Icon(Icons.location_on_rounded, size: 13, color: context.c.accent),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           cidade != null && cidade.isNotEmpty
                               ? '$cidade · ${(lat as double).toStringAsFixed(4)}, ${(lon as double).toStringAsFixed(4)}'
                               : '${(lat as double).toStringAsFixed(5)}, ${(lon as double).toStringAsFixed(5)}',
-                          style: const TextStyle(color: _NcDetailColors.text, fontSize: 11, fontWeight: FontWeight.w700),
+                          style: TextStyle(color: context.c.fg0, fontSize: 11, fontWeight: FontWeight.w700),
                         ),
                       ),
                     ],
@@ -3701,14 +3723,14 @@ class _EvidenciaCard extends StatelessWidget {
                   if (capturedAt != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 3),
-                      child: Text(_fmtDateTime(capturedAt.toString()), style: const TextStyle(color: _NcDetailColors.muted, fontSize: 10)),
+                      child: Text(_fmtDateTime(capturedAt.toString()), style: TextStyle(color: context.c.fg2, fontSize: 10)),
                     ),
                 ] else
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.location_off_rounded, size: 13, color: _NcDetailColors.muted2),
-                      SizedBox(width: 4),
-                      Text('Sem geolocalização', style: TextStyle(color: _NcDetailColors.muted2, fontSize: 11)),
+                      Icon(Icons.location_off_rounded, size: 13, color: context.c.fg3),
+                      const SizedBox(width: 4),
+                      Text('Sem geolocalização', style: TextStyle(color: context.c.fg3, fontSize: 11)),
                     ],
                   ),
               ],
@@ -3826,10 +3848,10 @@ class _HeroIconButton extends StatelessWidget {
       child: IconButton(
         style: IconButton.styleFrom(
           backgroundColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: _NcDetailColors.borderStrong)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: context.c.borderMain)),
         ),
         onPressed: onTap,
-        icon: Icon(icon, size: 20, color: _NcDetailColors.text),
+        icon: Icon(icon, size: 20, color: context.c.fg0),
       ),
     );
   }
@@ -3846,9 +3868,9 @@ class _DarkCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: _NcDetailColors.surface,
+        color: context.c.bgSurface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _NcDetailColors.border),
+        border: Border.all(color: context.c.borderSoft),
       ),
       child: child,
     );
@@ -3866,11 +3888,11 @@ class _HeroMeta extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 12, color: _NcDetailColors.muted),
+        Icon(icon, size: 12, color: context.c.fg2),
         const SizedBox(width: 4),
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 220),
-          child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 12, fontWeight: FontWeight.w700)),
+          child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: context.c.fg2, fontSize: 12, fontWeight: FontWeight.w700)),
         ),
       ],
     );
@@ -3884,7 +3906,7 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(label.toUpperCase(), style: const TextStyle(color: Color(0xFFD7E8FF), fontSize: 13, letterSpacing: .45, fontWeight: FontWeight.w900));
+    return Text(label.toUpperCase(), style: TextStyle(color: context.c.fg2, fontSize: 13, letterSpacing: .45, fontWeight: FontWeight.w900));
   }
 }
 
@@ -3904,13 +3926,13 @@ class _KvRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(child: Text(label, style: const TextStyle(color: _NcDetailColors.muted, fontSize: 12, fontWeight: FontWeight.w700))),
+          Expanded(child: Text(label, style: TextStyle(color: context.c.fg2, fontSize: 12, fontWeight: FontWeight.w700))),
           const SizedBox(width: 12),
           Flexible(
             child: Text(
               value,
               textAlign: TextAlign.end,
-              style: TextStyle(color: valueColor ?? _NcDetailColors.text, fontSize: 12, fontWeight: FontWeight.w900, fontFamily: mono ? 'monospace' : null),
+              style: TextStyle(color: valueColor ?? context.c.fg0, fontSize: 12, fontWeight: FontWeight.w900, fontFamily: mono ? 'monospace' : null),
             ),
           ),
         ],

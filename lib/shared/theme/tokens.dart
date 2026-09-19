@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SafeCoreColors extends ThemeExtension<SafeCoreColors> {
   final Color bgBase;
@@ -74,7 +75,8 @@ class SafeCoreColors extends ThemeExtension<SafeCoreColors> {
     statusGreenBg: Color(0xFFD1FAE5),
     statusGreenFg: Color(0xFF15803D),
     statusYellowBg: Color(0xFFFEF3C7),
-    statusYellowFg: Color(0xFFA16207),
+    // Darkened from #A16207 (4.42:1, under the 4.5:1 text floor) to clear it in every theme.
+    statusYellowFg: Color(0xFF9C5F07),
     statusRedBg: Color(0xFFFEE2E2),
     statusRedFg: Color(0xFFB91C1C),
     statusBlueBg: Color(0xFFDBEAFE),
@@ -100,22 +102,27 @@ class SafeCoreColors extends ThemeExtension<SafeCoreColors> {
     borderMain: Color(0xFF748195),    // ProtoColors.borderStrong
     fg0: Color(0xFFF8FBFF),           // ProtoColors.text
     fg1: Color(0xFFBCC5D0),
-    fg2: Color(0xFF566170),           // ProtoColors.muted
-    fg3: Color(0xFF3F4A57),           // ProtoColors.muted2
+    // Lightened from #566170 (2.6-3.0:1 on the app's surfaces) to clear 4.5:1 — this
+    // color is used for real secondary copy, not just decoration.
+    fg2: Color(0xFF7D899B),
+    fg3: Color(0xFF3F4A57),
     accent: Color(0xFF58A6FF),        // ProtoColors.blue
     accentHover: Color(0xFF88BFFF),
     statusGreenBg: Color(0xFF0B3A1C),
     statusGreenFg: Color(0xFF3FB950), // ProtoColors.green
     statusYellowBg: Color(0xFF4A390A),
-    statusYellowFg: Color(0xFFD29922), // ProtoColors.yellow
+    // Lightened from #D29922 (4.42:1, under the 4.5:1 text floor) to clear it.
+    statusYellowFg: Color(0xFFD69C23),
     statusRedBg: Color(0xFF4A1017),
     statusRedFg: Color(0xFFFF4D4D),   // ProtoColors.red
     statusBlueBg: Color(0xFF0B2A3A),
     statusBlueFg: Color(0xFF58A6FF),
     statusIndigoBg: Color(0xFF2A164A),
-    statusIndigoFg: Color(0xFF5F3FF2), // ProtoColors.purple
+    // Lightened from #5F3FF2 (2.65:1 on its own pill background) to clear 4.5:1.
+    statusIndigoFg: Color(0xFF8F78F6),
     statusPurpleBg: Color(0xFF1F1040),
-    statusPurpleFg: Color(0xFF5F3FF2),
+    // Lightened from #5F3FF2 (2.88:1 on its own pill background) to clear 4.5:1.
+    statusPurpleFg: Color(0xFF876FF5),
     statusOrangeBg: Color(0xFF2B1800),
     statusOrangeFg: Color(0xFFFF7A1A), // ProtoColors.orange
     sevBaixo: Color(0xFF3FB950),
@@ -152,6 +159,24 @@ class SafeCoreShadows {
   ];
 }
 
+/// Named type scale, extracted from the most-repeated fontSize/fontWeight pairs
+/// across the app (see the SafeCore design system's tokens.json for the full audit).
+/// `bodyMedium` and `bodyRegular` are new: the source jumps straight from an
+/// unset 400 default to 700+ with nothing between, which read as inconsistent
+/// rather than as a deliberate hierarchy — these two fill that gap.
+class SafeCoreType {
+  static const micro = TextStyle(fontSize: 10, height: 1.4, fontWeight: FontWeight.w700);
+  static const label = TextStyle(fontSize: 11, height: 1.27, fontWeight: FontWeight.w900, letterSpacing: .2);
+  static const bodyRegular = TextStyle(fontSize: 13, height: 1.4, fontWeight: FontWeight.w400);
+  static const body = TextStyle(fontSize: 12, height: 1.35, fontWeight: FontWeight.w700);
+  static const bodyMedium = TextStyle(fontSize: 13, height: 1.4, fontWeight: FontWeight.w600);
+  static const bodyStrong = TextStyle(fontSize: 13, height: 1.4, fontWeight: FontWeight.w800);
+  static const subtitle = TextStyle(fontSize: 14, height: 1.4, fontWeight: FontWeight.w800);
+  static const title = TextStyle(fontSize: 18, height: 1.3, fontWeight: FontWeight.w800);
+  static const headline = TextStyle(fontSize: 22, height: 1.25, fontWeight: FontWeight.w900);
+  static const display = TextStyle(fontSize: 26, height: 1.2, fontWeight: FontWeight.w900);
+}
+
 extension SafeCoreTheme on BuildContext {
   SafeCoreColors get c => Theme.of(this).extension<SafeCoreColors>()!;
 }
@@ -168,11 +193,15 @@ class SafeCoreMotion {
 
 ThemeData _theme(SafeCoreColors c, Brightness brightness) {
   final isDark = brightness == Brightness.dark;
+  // Manrope was named everywhere via a bare fontFamily string but never actually
+  // bundled or fetched — google_fonts (already a dependency) now loads and caches
+  // it lazily on first use, so the family the app has always asked for finally renders.
+  final manropeFamily = GoogleFonts.manrope().fontFamily;
   return ThemeData(
     useMaterial3: true,
     brightness: brightness,
     scaffoldBackgroundColor: c.bgBase,
-    fontFamily: 'Manrope',
+    fontFamily: manropeFamily,
     colorScheme: isDark
         ? ColorScheme.dark(
             primary: c.fg0,

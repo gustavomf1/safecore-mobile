@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../shared/providers/capture_provider.dart';
+import '../../shared/theme/tokens.dart';
 import '../../shared/widgets/prototype_ui.dart';
 import '../auth/provider/auth_provider.dart';
 import '../ocorrencias/model/criar_desvio_request.dart';
@@ -95,7 +96,7 @@ class _WizardPageState extends ConsumerState<WizardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ProtoColors.bg,
+      backgroundColor: context.c.bgBase,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -414,9 +415,9 @@ class _WizardHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
-      decoration: const BoxDecoration(
-          color: ProtoColors.surface,
-          border: Border(bottom: BorderSide(color: ProtoColors.border))),
+      decoration: BoxDecoration(
+          color: context.c.bgSurface,
+          border: Border(bottom: BorderSide(color: context.c.borderSoft))),
       child: Column(
         children: [
           Row(
@@ -428,14 +429,14 @@ class _WizardHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(title,
-                        style: const TextStyle(
-                            color: ProtoColors.text,
+                        style: TextStyle(
+                            color: context.c.fg0,
                             fontSize: 14,
                             fontWeight: FontWeight.w900)),
                     const SizedBox(height: 4),
                     Text(subtitle,
-                        style: const TextStyle(
-                            color: ProtoColors.muted,
+                        style: TextStyle(
+                            color: context.c.fg2,
                             fontSize: 12,
                             fontWeight: FontWeight.w700)),
                   ],
@@ -454,8 +455,8 @@ class _WizardHeader extends StatelessWidget {
                   margin: const EdgeInsets.symmetric(horizontal: 3),
                   decoration: BoxDecoration(
                       color: i <= step
-                          ? ProtoColors.blue
-                          : ProtoColors.surface2,
+                          ? context.c.accent
+                          : context.c.bgElevated,
                       borderRadius: BorderRadius.circular(99)),
                 ),
               );
@@ -525,8 +526,8 @@ class _DescriptionStep extends ConsumerWidget {
           maxLines: 1,
         ),
         const SizedBox(height: 6),
-        const Text('Resumo curto que aparecerá nas listagens',
-            style: TextStyle(color: ProtoColors.muted2, fontSize: 11)),
+        Text('Resumo curto que aparecerá nas listagens',
+            style: TextStyle(color: context.c.fg3, fontSize: 11)),
         const SizedBox(height: 22),
         _Label(isNc ? 'Descrição Detalhada' : 'Descrição Curta'),
         _TextField(
@@ -539,8 +540,8 @@ class _DescriptionStep extends ConsumerWidget {
         ),
         if (isNc) ...[
           const SizedBox(height: 6),
-          const Text('Descreva fato, local e impacto — mínimo 20 caracteres.',
-              style: TextStyle(color: ProtoColors.muted2, fontSize: 11)),
+          Text('Descreva fato, local e impacto — mínimo 20 caracteres.',
+              style: TextStyle(color: context.c.fg3, fontSize: 11)),
         ],
         if (workspaceId != null) ...[
           const SizedBox(height: 18),
@@ -562,15 +563,15 @@ class _DescriptionStep extends ConsumerWidget {
         if (isNc) ...[
           const SizedBox(height: 22),
           const _Label('Responsáveis'),
-          const Text('Eng. Responsável pela Tratativa',
+          Text('Eng. Responsável pela Tratativa',
               style: TextStyle(
-                  color: ProtoColors.muted,
+                  color: context.c.fg2,
                   fontSize: 11,
                   fontWeight: FontWeight.w700)),
           const SizedBox(height: 2),
-          const Text(
+          Text(
               'Quem irá enviar o plano de ação (geralmente EXTERNO)',
-              style: TextStyle(color: ProtoColors.muted2, fontSize: 10)),
+              style: TextStyle(color: context.c.fg3, fontSize: 10)),
           const SizedBox(height: 7),
           if (workspaceId != null)
             _UserPickerRow(
@@ -587,14 +588,14 @@ class _DescriptionStep extends ConsumerWidget {
                 icon: Icons.manage_accounts_outlined,
                 text: 'Selecionar responsável'),
           const SizedBox(height: 14),
-          const Text('Eng. Responsável pela NC',
+          Text('Eng. Responsável pela NC',
               style: TextStyle(
-                  color: ProtoColors.muted,
+                  color: context.c.fg2,
                   fontSize: 11,
                   fontWeight: FontWeight.w700)),
           const SizedBox(height: 2),
-          const Text('Quem irá validar (aprovar/reprovar) a tratativa',
-              style: TextStyle(color: ProtoColors.muted2, fontSize: 10)),
+          Text('Quem irá validar (aprovar/reprovar) a tratativa',
+              style: TextStyle(color: context.c.fg3, fontSize: 10)),
           const SizedBox(height: 7),
           if (workspaceId != null)
             _UserPickerRow(
@@ -616,27 +617,27 @@ class _DescriptionStep extends ConsumerWidget {
             title: 'Reincidência',
             subtitle:
                 'Marque se esta NC é recorrência de uma ocorrência anterior',
-            color: ProtoColors.orange,
+            color: context.c.statusOrangeFg,
             onTap: () => onReincidencia(!reincidencia),
           ),
           if (reincidencia) ...[
             const SizedBox(height: 10),
-            const Text('NC Anterior',
+            Text('NC Anterior',
                 style: TextStyle(
-                    color: ProtoColors.muted,
+                    color: context.c.fg2,
                     fontSize: 11,
                     fontWeight: FontWeight.w700)),
             const SizedBox(height: 6),
             if (workspaceId != null)
               ref.watch(ncListProvider(workspaceId)).when(
-                    loading: () => const SizedBox(
+                    loading: () => SizedBox(
                         height: 18,
                         width: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: ProtoColors.orange)),
-                    error: (_, __) => const Text('Erro ao carregar NCs',
+                            strokeWidth: 2, color: context.c.statusOrangeFg)),
+                    error: (_, __) => Text('Erro ao carregar NCs',
                         style: TextStyle(
-                            color: ProtoColors.red, fontSize: 12)),
+                            color: context.c.statusRedFg, fontSize: 12)),
                     data: (ncs) {
                       final selecionada = ncAnterior;
                       final warning = selecionada == null
@@ -648,28 +649,28 @@ class _DescriptionStep extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             decoration: BoxDecoration(
-                                color: ProtoColors.surface2,
+                                color: context.c.bgElevated,
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
                                     color: warning != null
-                                        ? ProtoColors.orange
-                                        : ProtoColors.orange.withValues(alpha: .5))),
+                                        ? context.c.statusOrangeFg
+                                        : context.c.statusOrangeFg.withValues(alpha: .5))),
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton<NcSummary?>(
                                 isExpanded: true,
-                                dropdownColor: ProtoColors.surface,
+                                dropdownColor: context.c.bgSurface,
                                 value: ncAnterior,
-                                hint: const Text('Selecionar NC anterior',
+                                hint: Text('Selecionar NC anterior',
                                     style: TextStyle(
-                                        color: ProtoColors.muted, fontSize: 13)),
-                                style: const TextStyle(
-                                    color: ProtoColors.text, fontSize: 13),
+                                        color: context.c.fg2, fontSize: 13)),
+                                style: TextStyle(
+                                    color: context.c.fg0, fontSize: 13),
                                 items: [
-                                  const DropdownMenuItem(
+                                  DropdownMenuItem(
                                       value: null,
                                       child: Text('— Nenhuma',
                                           style: TextStyle(
-                                              color: ProtoColors.muted,
+                                              color: context.c.fg2,
                                               fontSize: 13))),
                                   ...ncs.map((nc) => DropdownMenuItem(
                                         value: nc,
@@ -701,27 +702,27 @@ class _DescriptionStep extends ConsumerWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                    color: ProtoColors.orange.withValues(alpha: .07),
+                    color: context.c.statusOrangeFg.withValues(alpha: .07),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                        color: ProtoColors.orange.withValues(alpha: .3))),
+                        color: context.c.statusOrangeFg.withValues(alpha: .3))),
                 child: Row(children: [
-                  const Icon(Icons.link_rounded,
-                      color: ProtoColors.orange, size: 13),
+                  Icon(Icons.link_rounded,
+                      color: context.c.statusOrangeFg, size: 13),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(ncAnterior!.titulo,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            color: ProtoColors.orange,
+                        style: TextStyle(
+                            color: context.c.statusOrangeFg,
                             fontSize: 12,
                             fontWeight: FontWeight.w700)),
                   ),
                   const SizedBox(width: 6),
                   Text(ncAnterior!.status,
-                      style: const TextStyle(
-                          color: ProtoColors.muted,
+                      style: TextStyle(
+                          color: context.c.fg2,
                           fontSize: 10,
                           fontWeight: FontWeight.w700)),
                 ]),
@@ -734,20 +735,20 @@ class _DescriptionStep extends ConsumerWidget {
             title: 'Regra de Ouro',
             subtitle:
                 'Marque se a ocorrência viola uma regra crítica de segurança',
-            color: ProtoColors.red,
+            color: context.c.statusRedFg,
             onTap: () => onRegraDeOuro(!regraDeOuro),
           ),
         ] else ...[
           const SizedBox(height: 22),
           const _Label('Responsáveis'),
-          const Text('Responsável pelo Desvio',
+          Text('Responsável pelo Desvio',
               style: TextStyle(
-                  color: ProtoColors.muted,
+                  color: context.c.fg2,
                   fontSize: 11,
                   fontWeight: FontWeight.w700)),
           const SizedBox(height: 2),
-          const Text('Quem irá validar a tratativa',
-              style: TextStyle(color: ProtoColors.muted2, fontSize: 10)),
+          Text('Quem irá validar a tratativa',
+              style: TextStyle(color: context.c.fg3, fontSize: 10)),
           const SizedBox(height: 7),
           if (workspaceId != null)
             _UserPickerRow(
@@ -763,14 +764,14 @@ class _DescriptionStep extends ConsumerWidget {
                 icon: Icons.person_outline_rounded,
                 text: 'Selecionar responsável'),
           const SizedBox(height: 14),
-          const Text('Responsável pela Tratativa',
+          Text('Responsável pela Tratativa',
               style: TextStyle(
-                  color: ProtoColors.muted,
+                  color: context.c.fg2,
                   fontSize: 11,
                   fontWeight: FontWeight.w700)),
           const SizedBox(height: 2),
-          const Text('Quem irá executar a tratativa',
-              style: TextStyle(color: ProtoColors.muted2, fontSize: 10)),
+          Text('Quem irá executar a tratativa',
+              style: TextStyle(color: context.c.fg3, fontSize: 10)),
           const SizedBox(height: 7),
           if (workspaceId != null)
             _UserPickerRow(
@@ -865,24 +866,24 @@ class _UserPickerRow extends ConsumerWidget {
           height: 46,
           padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
-              color: ProtoColors.surface2,
+              color: context.c.bgElevated,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: ProtoColors.border)),
+              border: Border.all(color: context.c.borderSoft)),
           child: Row(children: [
-            Icon(icon, color: ProtoColors.muted, size: 16),
+            Icon(icon, color: context.c.fg2, size: 16),
             const SizedBox(width: 10),
             Expanded(
                 child: Text(
               selected?.nome ?? hint,
               style: TextStyle(
                   color: selected != null
-                      ? ProtoColors.text
-                      : ProtoColors.muted,
+                      ? context.c.fg0
+                      : context.c.fg2,
                   fontSize: 14,
                   fontWeight: FontWeight.w800),
             )),
-            const Icon(Icons.keyboard_arrow_down_rounded,
-                color: ProtoColors.muted, size: 18),
+            Icon(Icons.keyboard_arrow_down_rounded,
+                color: context.c.fg2, size: 18),
           ]),
         ),
         );
@@ -936,46 +937,46 @@ class _UserPickerSheetState extends State<_UserPickerSheet> {
           right: 20,
           top: 8,
           bottom: MediaQuery.of(context).viewInsets.bottom + 24),
-      decoration: const BoxDecoration(
-          color: ProtoColors.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
+      decoration: BoxDecoration(
+          color: context.c.bgSurface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(22))),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Center(
             child: Container(
                 width: 38,
                 height: 4,
                 decoration: BoxDecoration(
-                    color: ProtoColors.muted,
+                    color: context.c.fg2,
                     borderRadius: BorderRadius.circular(99)))),
         const SizedBox(height: 16),
-        const Align(
+        Align(
             alignment: Alignment.centerLeft,
             child: Text('Selecionar usuário',
                 style: TextStyle(
-                    color: ProtoColors.text,
+                    color: context.c.fg0,
                     fontSize: 16,
                     fontWeight: FontWeight.w900))),
         const SizedBox(height: 12),
         Container(
           height: 40,
           decoration: BoxDecoration(
-              color: ProtoColors.surface2,
+              color: context.c.bgElevated,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: ProtoColors.border)),
+              border: Border.all(color: context.c.borderSoft)),
           child: Row(children: [
             const SizedBox(width: 12),
-            const Icon(Icons.search, color: ProtoColors.muted, size: 15),
+            Icon(Icons.search, color: context.c.fg2, size: 15),
             const SizedBox(width: 8),
             Expanded(
               child: TextField(
                 controller: _ctrl,
                 onChanged: (v) => setState(() => _search = v),
                 style:
-                    const TextStyle(color: ProtoColors.text, fontSize: 13),
-                decoration: const InputDecoration(
+                    TextStyle(color: context.c.fg0, fontSize: 13),
+                decoration: InputDecoration(
                     hintText: 'Buscar usuário…',
                     hintStyle:
-                        TextStyle(color: ProtoColors.muted, fontSize: 13),
+                        TextStyle(color: context.c.fg2, fontSize: 13),
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: EdgeInsets.zero),
@@ -1000,13 +1001,13 @@ class _UserPickerSheetState extends State<_UserPickerSheet> {
                   margin: const EdgeInsets.only(bottom: 6),
                   decoration: BoxDecoration(
                       color: sel
-                          ? ProtoColors.blue.withValues(alpha: .10)
-                          : ProtoColors.surface2,
+                          ? context.c.accent.withValues(alpha: .10)
+                          : context.c.bgElevated,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                           color: sel
-                              ? ProtoColors.blue
-                              : ProtoColors.border)),
+                              ? context.c.accent
+                              : context.c.borderSoft)),
                   child: Row(children: [
                     Expanded(
                         child: Column(
@@ -1015,17 +1016,17 @@ class _UserPickerSheetState extends State<_UserPickerSheet> {
                           Text(u.nome,
                               style: TextStyle(
                                   color: sel
-                                      ? ProtoColors.blue
-                                      : ProtoColors.text,
+                                      ? context.c.accent
+                                      : context.c.fg0,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w800)),
                           Text(u.perfil,
-                              style: const TextStyle(
-                                  color: ProtoColors.muted, fontSize: 11)),
+                              style: TextStyle(
+                                  color: context.c.fg2, fontSize: 11)),
                         ])),
                     if (sel)
-                      const Icon(Icons.check_circle,
-                          color: ProtoColors.blue, size: 18),
+                      Icon(Icons.check_circle,
+                          color: context.c.accent, size: 18),
                   ]),
                 ),
               );
@@ -1063,10 +1064,10 @@ class _SignalRow extends StatelessWidget {
           decoration: BoxDecoration(
             color: checked
                 ? color.withValues(alpha: .07)
-                : ProtoColors.surface,
+                : context.c.bgSurface,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-                color: checked ? color : ProtoColors.border),
+                color: checked ? color : context.c.borderSoft),
           ),
           child: Row(children: [
             AnimatedContainer(
@@ -1078,7 +1079,7 @@ class _SignalRow extends StatelessWidget {
                 borderRadius: BorderRadius.circular(5),
                 border: Border.all(
                     color:
-                        checked ? color : ProtoColors.borderStrong,
+                        checked ? color : context.c.borderMain,
                     width: 1.5),
               ),
               child: checked
@@ -1093,13 +1094,13 @@ class _SignalRow extends StatelessWidget {
                     children: [
                   Text(title,
                       style: TextStyle(
-                          color: checked ? color : ProtoColors.text,
+                          color: checked ? color : context.c.fg0,
                           fontSize: 13,
                           fontWeight: FontWeight.w800)),
                   const SizedBox(height: 2),
                   Text(subtitle,
-                      style: const TextStyle(
-                          color: ProtoColors.muted,
+                      style: TextStyle(
+                          color: context.c.fg2,
                           fontSize: 11,
                           height: 1.3)),
                 ])),
@@ -1121,35 +1122,35 @@ class _ReincidenciaWarning extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: ProtoColors.orange.withValues(alpha: .08),
+        color: context.c.statusOrangeFg.withValues(alpha: .08),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: ProtoColors.orange.withValues(alpha: .4)),
+        border: Border.all(color: context.c.statusOrangeFg.withValues(alpha: .4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('⚠ Esta NC já possui uma reincidência registrada',
-              style: TextStyle(color: ProtoColors.orange, fontSize: 12, fontWeight: FontWeight.w800)),
+          Text('⚠ Esta NC já possui uma reincidência registrada',
+              style: TextStyle(color: context.c.statusOrangeFg, fontSize: 12, fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
-          const Text('Para manter o rastro linear, selecione a última NC da cadeia:',
-              style: TextStyle(color: ProtoColors.muted, fontSize: 11)),
+          Text('Para manter o rastro linear, selecione a última NC da cadeia:',
+              style: TextStyle(color: context.c.fg2, fontSize: 11)),
           const SizedBox(height: 8),
           Text(ultimaNc.titulo,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: ProtoColors.text, fontSize: 12, fontWeight: FontWeight.w900)),
+              style: TextStyle(color: context.c.fg0, fontSize: 12, fontWeight: FontWeight.w900)),
           const SizedBox(height: 8),
           GestureDetector(
             onTap: onUsarEsta,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: ProtoColors.orange.withValues(alpha: .18),
+                color: context.c.statusOrangeFg.withValues(alpha: .18),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: ProtoColors.orange),
+                border: Border.all(color: context.c.statusOrangeFg),
               ),
-              child: const Text('Usar esta NC',
-                  style: TextStyle(color: ProtoColors.orange, fontSize: 12, fontWeight: FontWeight.w800)),
+              child: Text('Usar esta NC',
+                  style: TextStyle(color: context.c.statusOrangeFg, fontSize: 12, fontWeight: FontWeight.w800)),
             ),
           ),
         ],
@@ -1173,11 +1174,13 @@ const _probOpts = [
   (value: 4, label: 'Provável', color: Color(0xFFf97316)),
 ];
 
-Color _riskColor(int score) {
-  if (score <= 4) return ProtoColors.green;
-  if (score <= 9) return const Color(0xFFDCA31D);
-  if (score <= 15) return ProtoColors.orange;
-  return ProtoColors.red;
+// Usa os tokens de severidade do design system (sevBaixo..sevCritico),
+// deliberadamente quase invariantes entre temas.
+Color _riskColor(int score, SafeCoreColors c) {
+  if (score <= 4) return c.sevBaixo;
+  if (score <= 9) return c.sevMedio;
+  if (score <= 15) return c.sevAlto;
+  return c.sevCritico;
 }
 
 String _riskLabel(int score) {
@@ -1224,17 +1227,17 @@ class _RiskStep extends StatelessWidget {
                   options: _probOpts,
                   onPick: onProbability),
               const SizedBox(height: 20),
-              const Row(
+              Row(
                 children: [
                   Expanded(
                       child: Text('Matriz de Risco 5×4',
                           style: TextStyle(
-                              color: Color(0xFFD7E8FF),
+                              color: context.c.fg2,
                               fontSize: 13,
                               fontWeight: FontWeight.w900))),
                   Text('SEV × PROB',
                       style: TextStyle(
-                          color: ProtoColors.muted,
+                          color: context.c.fg2,
                           fontSize: 10,
                           fontWeight: FontWeight.w800)),
                 ],
@@ -1254,8 +1257,8 @@ class _RiskStep extends StatelessWidget {
                         width: 28,
                         child: Text('S$s',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                color: ProtoColors.muted,
+                            style: TextStyle(
+                                color: context.c.fg2,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w800))),
                     for (int p = 1; p <= 4; p++)
@@ -1266,7 +1269,7 @@ class _RiskStep extends StatelessWidget {
                           margin: const EdgeInsets.all(2.5),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: _riskColor(s * p),
+                            color: _riskColor(s * p, context.c),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: severity == s && probability == p
@@ -1298,24 +1301,24 @@ class _RiskStep extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                      color: ProtoColors.surface2,
+                      color: context.c.bgElevated,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: ProtoColors.border)),
+                      border: Border.all(color: context.c.borderSoft)),
                   child: Row(
                     children: [
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('PONTUAÇÃO',
+                            Text('PONTUAÇÃO',
                                 style: TextStyle(
-                                    color: ProtoColors.muted,
+                                    color: context.c.fg2,
                                     fontSize: 10,
                                     fontWeight: FontWeight.w900)),
                             const SizedBox(height: 4),
                             Text(_riskLabel(score),
                                 style: TextStyle(
-                                    color: _riskColor(score),
+                                    color: _riskColor(score, context.c),
                                     fontSize: 12,
                                     fontWeight: FontWeight.w900)),
                           ],
@@ -1326,7 +1329,7 @@ class _RiskStep extends StatelessWidget {
                         duration: const Duration(milliseconds: 350),
                         builder: (_, v, __) => Text('$v',
                             style: TextStyle(
-                                color: _riskColor(score),
+                                color: _riskColor(score, context.c),
                                 fontSize: 25,
                                 fontWeight: FontWeight.w900)),
                       ),
@@ -1340,22 +1343,22 @@ class _RiskStep extends StatelessWidget {
         const SizedBox(height: 14),
         ProtoCard(
           child: Row(children: [
-            const Icon(Icons.calendar_month_outlined,
-                color: ProtoColors.muted, size: 16),
+            Icon(Icons.calendar_month_outlined,
+                color: context.c.fg2, size: 16),
             const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Data Limite para Tratativa',
+                Text('Data Limite para Tratativa',
                     style: TextStyle(
-                        color: ProtoColors.muted,
+                        color: context.c.fg2,
                         fontSize: 11,
                         fontWeight: FontWeight.w700)),
                 const SizedBox(height: 2),
                 Text(
                   '30 dias a partir do registro (automatico)',
                   style: TextStyle(
-                      color: ProtoColors.text.withValues(alpha: .7),
+                      color: context.c.fg0.withValues(alpha: .7),
                       fontSize: 12),
                 ),
               ],
@@ -1390,10 +1393,10 @@ class _RampPicker extends StatelessWidget {
               decoration: BoxDecoration(
                 color: active
                     ? o.color.withValues(alpha: .18)
-                    : ProtoColors.surface2,
+                    : context.c.bgElevated,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                    color: active ? o.color : ProtoColors.border),
+                    color: active ? o.color : context.c.borderSoft),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -1401,7 +1404,7 @@ class _RampPicker extends StatelessWidget {
                   Text(
                     '${o.value}',
                     style: TextStyle(
-                        color: active ? o.color : ProtoColors.text,
+                        color: active ? o.color : context.c.fg0,
                         fontSize: 16,
                         fontWeight: FontWeight.w900),
                   ),
@@ -1412,7 +1415,7 @@ class _RampPicker extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                        color: active ? o.color : ProtoColors.muted,
+                        color: active ? o.color : context.c.fg2,
                         fontSize: 9,
                         fontWeight: FontWeight.w700),
                   ),
@@ -1487,8 +1490,8 @@ class _NormsStepState extends ConsumerState<_NormsStep> {
           child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 40),
               child: Text('Erro ao carregar normas: $e',
-                  style: const TextStyle(
-                      color: ProtoColors.muted, fontSize: 13),
+                  style: TextStyle(
+                      color: context.c.fg2, fontSize: 13),
                   textAlign: TextAlign.center))),
       data: (normas) {
         final q = _search.toLowerCase();
@@ -1514,15 +1517,15 @@ class _NormsStepState extends ConsumerState<_NormsStep> {
                 width: double.infinity,
                 padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
                 decoration: BoxDecoration(
-                    color: ProtoColors.surface2,
+                    color: context.c.bgElevated,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: ProtoColors.border)),
+                    border: Border.all(color: context.c.borderSoft)),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                  const Text('SELECIONADAS',
+                  Text('SELECIONADAS',
                       style: TextStyle(
-                          color: ProtoColors.muted,
+                          color: context.c.fg2,
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
                           letterSpacing: .6)),
@@ -1543,23 +1546,23 @@ class _NormsStepState extends ConsumerState<_NormsStep> {
             Container(
               height: 40,
               decoration: BoxDecoration(
-                  color: ProtoColors.surface2,
+                  color: context.c.bgElevated,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: ProtoColors.border)),
+                  border: Border.all(color: context.c.borderSoft)),
               child: Row(children: [
                 const SizedBox(width: 12),
-                const Icon(Icons.search, color: ProtoColors.muted, size: 15),
+                Icon(Icons.search, color: context.c.fg2, size: 15),
                 const SizedBox(width: 8),
                 Expanded(
                   child: TextField(
                     controller: _searchCtrl,
                     onChanged: (v) => setState(() => _search = v),
-                    style: const TextStyle(
-                        color: ProtoColors.text, fontSize: 13),
+                    style: TextStyle(
+                        color: context.c.fg0, fontSize: 13),
                     decoration: InputDecoration(
                       hintText: 'Buscar entre ${normas.length} normas…',
-                      hintStyle: const TextStyle(
-                          color: ProtoColors.muted, fontSize: 13),
+                      hintStyle: TextStyle(
+                          color: context.c.fg2, fontSize: 13),
                       border: InputBorder.none,
                       isDense: true,
                       contentPadding: EdgeInsets.zero,
@@ -1572,10 +1575,10 @@ class _NormsStepState extends ConsumerState<_NormsStep> {
                       _searchCtrl.clear();
                       setState(() => _search = '');
                     },
-                    child: const Padding(
-                        padding: EdgeInsets.only(right: 10),
+                    child: Padding(
+                        padding: const EdgeInsets.only(right: 10),
                         child: Icon(Icons.close,
-                            color: ProtoColors.muted, size: 16)),
+                            color: context.c.fg2, size: 16)),
                   ),
               ]),
             ),
@@ -1586,8 +1589,8 @@ class _NormsStepState extends ConsumerState<_NormsStep> {
                 child: Center(
                     child: Text(
                         'Nenhuma norma encontrada para "$_search"',
-                        style: const TextStyle(
-                            color: ProtoColors.muted, fontSize: 13),
+                        style: TextStyle(
+                            color: context.c.fg2, fontSize: 13),
                         textAlign: TextAlign.center)),
               )
             else
@@ -1600,13 +1603,13 @@ class _NormsStepState extends ConsumerState<_NormsStep> {
                     duration: const Duration(milliseconds: 180),
                     decoration: BoxDecoration(
                       color: checked
-                          ? ProtoColors.blue.withValues(alpha: .08)
-                          : ProtoColors.surface,
+                          ? context.c.accent.withValues(alpha: .08)
+                          : context.c.bgSurface,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                           color: checked
-                              ? ProtoColors.blue
-                              : ProtoColors.border),
+                              ? context.c.accent
+                              : context.c.borderSoft),
                     ),
                     child: Column(children: [
                       InkWell(
@@ -1625,13 +1628,13 @@ class _NormsStepState extends ConsumerState<_NormsStep> {
                               height: 20,
                               decoration: BoxDecoration(
                                 color: checked
-                                    ? ProtoColors.blue
+                                    ? context.c.accent
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(
                                     color: checked
-                                        ? ProtoColors.blue
-                                        : ProtoColors.borderStrong,
+                                        ? context.c.accent
+                                        : context.c.borderMain,
                                     width: 1.5),
                               ),
                               child: checked
@@ -1643,15 +1646,15 @@ class _NormsStepState extends ConsumerState<_NormsStep> {
                             Text(n.codigo,
                                 style: TextStyle(
                                     color: checked
-                                        ? ProtoColors.blue
-                                        : ProtoColors.text,
+                                        ? context.c.accent
+                                        : context.c.fg0,
                                     fontSize: 13,
                                     fontWeight: FontWeight.w900)),
                             const SizedBox(width: 8),
                             Expanded(
                                 child: Text(n.nome.toUpperCase(),
-                                    style: const TextStyle(
-                                        color: ProtoColors.muted,
+                                    style: TextStyle(
+                                        color: context.c.fg2,
                                         fontSize: 10,
                                         fontWeight: FontWeight.w700,
                                         letterSpacing: .3),
@@ -1660,7 +1663,7 @@ class _NormsStepState extends ConsumerState<_NormsStep> {
                         ),
                       ),
                       if (checked) ...[
-                        Container(height: 1, color: ProtoColors.border),
+                        Container(height: 1, color: context.c.borderSoft),
                         Padding(
                           padding:
                               const EdgeInsets.fromLTRB(12, 10, 12, 12),
@@ -1674,32 +1677,32 @@ class _NormsStepState extends ConsumerState<_NormsStep> {
                                 margin:
                                     const EdgeInsets.only(bottom: 10),
                                 decoration: BoxDecoration(
-                                    color: ProtoColors.surface2,
+                                    color: context.c.bgElevated,
                                     borderRadius:
                                         BorderRadius.circular(8),
                                     border: Border.all(
-                                        color: ProtoColors.borderStrong)),
+                                        color: context.c.borderMain)),
                                 child: Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                  const Icon(Icons.format_quote,
-                                      color: ProtoColors.blue, size: 14),
+                                  Icon(Icons.format_quote,
+                                      color: context.c.accent, size: 14),
                                   const SizedBox(width: 6),
                                   Expanded(
                                       child: Text(
                                           trecho.clausulaReferencia != null
                                               ? '${trecho.clausulaReferencia} — ${trecho.textoEditado}'
                                               : trecho.textoEditado,
-                                          style: const TextStyle(
-                                              color: ProtoColors.text,
+                                          style: TextStyle(
+                                              color: context.c.fg0,
                                               fontSize: 12,
                                               height: 1.4))),
                                   GestureDetector(
                                       onTap: () =>
                                           widget.onTrechoChanged(n.id, null),
-                                      child: const Icon(Icons.close,
-                                          color: ProtoColors.muted,
+                                      child: Icon(Icons.close,
+                                          color: context.c.fg2,
                                           size: 14)),
                                 ]),
                               ),
@@ -1721,7 +1724,7 @@ class _NormsStepState extends ConsumerState<_NormsStep> {
             Text(
               '${normas.length} normas disponíveis${selectedNormas.isNotEmpty ? ' · ${selectedNormas.length} selecionada${selectedNormas.length > 1 ? 's' : ''}' : ''}',
               style:
-                  const TextStyle(color: ProtoColors.muted2, fontSize: 11),
+                  TextStyle(color: context.c.fg3, fontSize: 11),
             ),
           ],
         );
@@ -1739,21 +1742,21 @@ class _NormChip extends StatelessWidget {
         padding:
             const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
-            color: ProtoColors.blue.withValues(alpha: .15),
+            color: context.c.accent.withValues(alpha: .15),
             borderRadius: BorderRadius.circular(999),
             border: Border.all(
-                color: ProtoColors.blue.withValues(alpha: .45))),
+                color: context.c.accent.withValues(alpha: .45))),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Text(code,
-              style: const TextStyle(
-                  color: ProtoColors.blue,
+              style: TextStyle(
+                  color: context.c.accent,
                   fontSize: 12,
                   fontWeight: FontWeight.w900)),
           const SizedBox(width: 5),
           GestureDetector(
               onTap: onRemove,
-              child: const Icon(Icons.close,
-                  color: ProtoColors.blue, size: 12)),
+              child: Icon(Icons.close,
+                  color: context.c.accent, size: 12)),
         ]),
       );
 }
@@ -1771,15 +1774,15 @@ class _NormActionBtn extends StatelessWidget {
           padding:
               const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-              color: ProtoColors.surface2,
+              color: context.c.bgElevated,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: ProtoColors.border)),
+              border: Border.all(color: context.c.borderSoft)),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(icon, color: ProtoColors.muted, size: 13),
+            Icon(icon, color: context.c.fg2, size: 13),
             const SizedBox(width: 5),
             Text(label,
-                style: const TextStyle(
-                    color: ProtoColors.text,
+                style: TextStyle(
+                    color: context.c.fg0,
                     fontSize: 12,
                     fontWeight: FontWeight.w700)),
           ]),
@@ -1830,25 +1833,25 @@ class _ReviewStep extends ConsumerWidget {
     return Column(
       children: [
         ProtoCard(
-          color: const Color(0xFF1A2534),
-          border: const Border.fromBorderSide(BorderSide(color: ProtoColors.blue)),
+          color: context.c.bgMuted,
+          border: Border.fromBorderSide(BorderSide(color: context.c.accent)),
           child: Row(children: [
-            const Icon(Icons.check_circle_outline_rounded,
-                color: ProtoColors.blue, size: 32),
+            Icon(Icons.check_circle_outline_rounded,
+                color: context.c.accent, size: 32),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Tudo pronto para publicar',
+                  Text('Tudo pronto para publicar',
                       style: TextStyle(
-                          color: ProtoColors.text,
+                          color: context.c.fg0,
                           fontSize: 14,
                           fontWeight: FontWeight.w900)),
                   const SizedBox(height: 4),
                   Text('Revise os dados abaixo antes de confirmar.',
                       style: TextStyle(
-                          color: ProtoColors.muted.withValues(alpha: .8),
+                          color: context.c.fg2.withValues(alpha: .8),
                           fontSize: 12)),
                 ],
               ),
@@ -1863,15 +1866,15 @@ class _ReviewStep extends ConsumerWidget {
               ProtoPill(
                 label: isNc ? 'Nao Conformidade' : 'Desvio',
                 bg: isNc
-                    ? ProtoColors.red.withValues(alpha: .12)
-                    : const Color(0xFF4A390A),
-                fg: isNc ? ProtoColors.red : ProtoColors.yellow,
+                    ? context.c.statusRedFg.withValues(alpha: .12)
+                    : context.c.statusYellowBg,
+                fg: isNc ? context.c.statusRedFg : context.c.statusYellowFg,
               ),
               const SizedBox(height: 10),
               Text(
                 titulo.isEmpty ? '(sem titulo)' : titulo,
-                style: const TextStyle(
-                    color: ProtoColors.text,
+                style: TextStyle(
+                    color: context.c.fg0,
                     fontSize: 15,
                     height: 1.3,
                     fontWeight: FontWeight.w900),
@@ -1946,12 +1949,12 @@ class _PulsingLoaderState extends State<_PulsingLoader>
             height: 72,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: ProtoColors.blue.withValues(alpha: .15),
+              color: context.c.accent.withValues(alpha: .15),
               border: Border.all(
-                  color: ProtoColors.blue.withValues(alpha: .6), width: 2),
+                  color: context.c.accent.withValues(alpha: .6), width: 2),
             ),
-            child: const Icon(Icons.send_rounded,
-                color: ProtoColors.blue, size: 28),
+            child: Icon(Icons.send_rounded,
+                color: context.c.accent, size: 28),
           ),
         ),
       ),
@@ -2131,54 +2134,62 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
             child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                 child: Container(
-                    color: ProtoColors.bg.withValues(alpha: .70)))),
+                    color: context.c.bgBase.withValues(alpha: .70)))),
         Align(
-          alignment: Alignment.bottomCenter,
+          alignment: stage == 0 ? Alignment.bottomCenter : Alignment.center,
           child: Container(
             constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.92),
-            padding: EdgeInsets.fromLTRB(
-                20, 8, 20, 24 + MediaQuery.of(context).viewInsets.bottom),
-            decoration: const BoxDecoration(
-                color: ProtoColors.surface,
-                borderRadius:
-                    BorderRadius.vertical(top: Radius.circular(22))),
+            margin: stage == 0
+                ? EdgeInsets.zero
+                : const EdgeInsets.symmetric(horizontal: 32),
+            padding: stage == 0
+                ? EdgeInsets.fromLTRB(
+                    20, 8, 20, 24 + MediaQuery.of(context).viewInsets.bottom)
+                : const EdgeInsets.fromLTRB(24, 28, 24, 24),
+            decoration: BoxDecoration(
+                color: context.c.bgSurface,
+                borderRadius: stage == 0
+                    ? const BorderRadius.vertical(top: Radius.circular(22))
+                    : BorderRadius.circular(22)),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                    width: 38,
-                    height: 4,
-                    decoration: BoxDecoration(
-                        color: ProtoColors.muted,
-                        borderRadius: BorderRadius.circular(99))),
-                const SizedBox(height: 22),
+                if (stage == 0) ...[
+                  Container(
+                      width: 38,
+                      height: 4,
+                      decoration: BoxDecoration(
+                          color: context.c.fg2,
+                          borderRadius: BorderRadius.circular(99))),
+                  const SizedBox(height: 22),
+                ],
                 if (stage == 0) ...[
                   // Header com tipo
                   Row(children: [
                     ProtoPill(
                       label: widget.isNc ? 'Nao Conformidade' : 'Desvio',
                       bg: widget.isNc
-                          ? ProtoColors.red.withValues(alpha: .15)
-                          : const Color(0xFF4A390A),
-                      fg: widget.isNc ? ProtoColors.red : ProtoColors.yellow,
+                          ? context.c.statusRedFg.withValues(alpha: .15)
+                          : context.c.statusYellowBg,
+                      fg: widget.isNc ? context.c.statusRedFg : context.c.statusYellowFg,
                     ),
                   ]),
                   const SizedBox(height: 14),
-                  const Align(
+                  Align(
                     alignment: Alignment.centerLeft,
                     child: Text('Confirmar publicacao?',
                         style: TextStyle(
-                            color: ProtoColors.text,
+                            color: context.c.fg0,
                             fontSize: 20,
                             fontWeight: FontWeight.w900)),
                   ),
                   const SizedBox(height: 4),
-                  const Align(
+                  Align(
                     alignment: Alignment.centerLeft,
                     child: Text('Revise os dados antes de publicar.',
                         style: TextStyle(
-                            color: ProtoColors.muted, fontSize: 12)),
+                            color: context.c.fg2, fontSize: 12)),
                   ),
                   const SizedBox(height: 16),
                   // Rows + destinatários — rolável (encolhe p/ caber erro+botões)
@@ -2190,9 +2201,9 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
                           // Resumo de dados
                           Container(
                             decoration: BoxDecoration(
-                              color: ProtoColors.surface2,
+                              color: context.c.bgElevated,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: ProtoColors.border),
+                              border: Border.all(color: context.c.borderSoft),
                             ),
                             child: Column(
                               children: [
@@ -2207,8 +2218,8 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
                                         SizedBox(
                                           width: 110,
                                           child: Text(widget.rows[i].label,
-                                              style: const TextStyle(
-                                                  color: ProtoColors.muted,
+                                              style: TextStyle(
+                                                  color: context.c.fg2,
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w700)),
                                         ),
@@ -2216,8 +2227,8 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
                                           child: Text(widget.rows[i].value,
                                               style: TextStyle(
                                                   color: widget.rows[i].red
-                                                      ? ProtoColors.red
-                                                      : ProtoColors.text,
+                                                      ? context.c.statusRedFg
+                                                      : context.c.fg0,
                                                   fontSize: 13,
                                                   fontWeight: widget.rows[i].red
                                                       ? FontWeight.w800
@@ -2227,9 +2238,9 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
                                     ),
                                   ),
                                   if (i < widget.rows.length - 1)
-                                    const Divider(
+                                    Divider(
                                         height: 1,
-                                        color: ProtoColors.border,
+                                        color: context.c.borderSoft,
                                         indent: 14,
                                         endIndent: 14),
                                 ],
@@ -2239,31 +2250,31 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
                           const SizedBox(height: 18),
                           // Destinatários do email de abertura
                           Row(children: [
-                            const Icon(Icons.mail_outline_rounded,
-                                color: ProtoColors.muted, size: 14),
+                            Icon(Icons.mail_outline_rounded,
+                                color: context.c.fg2, size: 14),
                             const SizedBox(width: 6),
-                            const Expanded(
+                            Expanded(
                               child: Text('Destinatários do email de abertura',
                                   style: TextStyle(
-                                      color: ProtoColors.text,
+                                      color: context.c.fg0,
                                       fontSize: 13,
                                       fontWeight: FontWeight.w800)),
                             ),
                             Text('$totalCount selecionados',
-                                style: const TextStyle(
-                                    color: ProtoColors.muted, fontSize: 12)),
+                                style: TextStyle(
+                                    color: context.c.fg2, fontSize: 12)),
                           ]),
                           const SizedBox(height: 10),
                           // Grupo: Dinâmicos
                           _groupLabel('Dinâmicos (automáticos)'),
                           ...widget.dynamicRecipients.map((r) => _recipientLine(
-                                leading: _dot(ProtoColors.blue),
+                                leading: _dot(context.c.accent),
                                 name: r.name,
                                 email: r.email,
                                 tag: r.tag,
                               )),
                           ..._manuaisDinamico.map((email) => _recipientLine(
-                                leading: _dot(ProtoColors.blue),
+                                leading: _dot(context.c.accent),
                                 name: 'Manual',
                                 email: email,
                                 trailing: _iconBtn(Icons.close, () {
@@ -2272,7 +2283,7 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
                                 }),
                               )),
                           ..._padraoPromovidos.map((email) => _recipientLine(
-                                leading: _dot(ProtoColors.blue),
+                                leading: _dot(context.c.accent),
                                 name: email,
                                 tag: '— Promovido',
                                 trailing: _iconBtn(Icons.close, () {
@@ -2339,8 +2350,8 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
                           if (_manualError != null) ...[
                             const SizedBox(height: 6),
                             Text(_manualError!,
-                                style: const TextStyle(
-                                    color: ProtoColors.red, fontSize: 11)),
+                                style: TextStyle(
+                                    color: context.c.statusRedFg, fontSize: 11)),
                           ],
                           const SizedBox(height: 8),
                           Row(children: [
@@ -2348,12 +2359,12 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
                               child: Container(
                                 height: 44,
                                 decoration: BoxDecoration(
-                                    color: ProtoColors.surface2,
+                                    color: context.c.bgElevated,
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
                                         color: _manualError != null
-                                            ? ProtoColors.red
-                                            : ProtoColors.border)),
+                                            ? context.c.statusRedFg
+                                            : context.c.borderSoft)),
                                 child: TextField(
                                   controller: _manualCtrl,
                                   keyboardType: TextInputType.emailAddress,
@@ -2364,15 +2375,15 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
                                   },
                                   onSubmitted: (_) =>
                                       _addManual(padraoFiltrados),
-                                  style: const TextStyle(
-                                      color: ProtoColors.text, fontSize: 13),
-                                  decoration: const InputDecoration(
+                                  style: TextStyle(
+                                      color: context.c.fg0, fontSize: 13),
+                                  decoration: InputDecoration(
                                       hintText: 'email@empresa.com',
                                       hintStyle: TextStyle(
-                                          color: ProtoColors.muted,
+                                          color: context.c.fg2,
                                           fontSize: 13),
                                       isDense: true,
-                                      contentPadding: EdgeInsets.symmetric(
+                                      contentPadding: const EdgeInsets.symmetric(
                                           horizontal: 12, vertical: 12),
                                       border: InputBorder.none),
                                 ),
@@ -2383,9 +2394,9 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
                               height: 44,
                               child: FilledButton.icon(
                                 style: FilledButton.styleFrom(
-                                    backgroundColor: ProtoColors.blue
+                                    backgroundColor: context.c.accent
                                         .withValues(alpha: .18),
-                                    foregroundColor: ProtoColors.blue,
+                                    foregroundColor: context.c.accent,
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(10))),
@@ -2407,18 +2418,18 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                          color: ProtoColors.red.withValues(alpha: .08),
+                          color: context.c.statusRedFg.withValues(alpha: .08),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                              color: ProtoColors.red.withValues(alpha: .4))),
+                              color: context.c.statusRedFg.withValues(alpha: .4))),
                       child: Row(children: [
-                        const Icon(Icons.error_outline,
-                            color: ProtoColors.red, size: 16),
+                        Icon(Icons.error_outline,
+                            color: context.c.statusRedFg, size: 16),
                         const SizedBox(width: 8),
                         Expanded(
                             child: Text(errorMsg!,
-                                style: const TextStyle(
-                                    color: ProtoColors.red, fontSize: 12))),
+                                style: TextStyle(
+                                    color: context.c.statusRedFg, fontSize: 12))),
                       ]),
                     ),
                   ],
@@ -2443,16 +2454,16 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
                   const SizedBox(height: 22),
                   Text(
                     widget.isNc ? 'Publicando NC...' : 'Publicando Desvio...',
-                    style: const TextStyle(
-                        color: ProtoColors.text,
+                    style: TextStyle(
+                        color: context.c.fg0,
                         fontSize: 17,
                         fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Notificando $_lastTotalCount destinatário${_lastTotalCount == 1 ? '' : 's'}.',
-                    style: const TextStyle(
-                        color: ProtoColors.muted, fontSize: 13),
+                    style: TextStyle(
+                        color: context.c.fg2, fontSize: 13),
                   ),
                   const SizedBox(height: 32),
                 ] else ...[
@@ -2461,20 +2472,20 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                          color: ProtoColors.green.withValues(alpha: .14),
+                          color: context.c.statusGreenFg.withValues(alpha: .14),
                           shape: BoxShape.circle,
                           border: Border.all(
-                              color: ProtoColors.green.withValues(alpha: .4),
+                              color: context.c.statusGreenFg.withValues(alpha: .4),
                               width: 2)),
-                      child: const Icon(Icons.check_rounded,
-                          color: ProtoColors.green, size: 34)),
+                      child: Icon(Icons.check_rounded,
+                          color: context.c.statusGreenFg, size: 34)),
                   const SizedBox(height: 16),
                   Text(
                     widget.isNc
                         ? 'NC publicada com sucesso!'
                         : 'Desvio publicado com sucesso!',
-                    style: const TextStyle(
-                        color: ProtoColors.text,
+                    style: TextStyle(
+                        color: context.c.fg0,
                         fontSize: 17,
                         fontWeight: FontWeight.w900),
                   ),
@@ -2482,8 +2493,8 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
                   Text(
                     '$_lastTotalCount destinatário${_lastTotalCount == 1 ? '' : 's'} notificado${_lastTotalCount == 1 ? '' : 's'}.',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        color: ProtoColors.muted, fontSize: 13, height: 1.4),
+                    style: TextStyle(
+                        color: context.c.fg2, fontSize: 13, height: 1.4),
                   ),
                   const SizedBox(height: 24),
                   _FooterButton(label: 'OK', onTap: () => context.go('/feed')),
@@ -2500,8 +2511,8 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
   Widget _groupLabel(String text) => Padding(
         padding: const EdgeInsets.only(bottom: 2, top: 2),
         child: Text(text,
-            style: const TextStyle(
-                color: ProtoColors.muted,
+            style: TextStyle(
+                color: context.c.fg2,
                 fontSize: 10,
                 letterSpacing: .3,
                 fontWeight: FontWeight.w800)),
@@ -2518,10 +2529,10 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
           width: 18,
           height: 18,
           decoration: BoxDecoration(
-            color: checked ? ProtoColors.blue : Colors.transparent,
+            color: checked ? context.c.accent : Colors.transparent,
             borderRadius: BorderRadius.circular(5),
             border: Border.all(
-                color: checked ? ProtoColors.blue : ProtoColors.borderStrong,
+                color: checked ? context.c.accent : context.c.borderMain,
                 width: 1.5),
           ),
           child: checked
@@ -2534,7 +2545,7 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-          child: Icon(icon, color: ProtoColors.muted, size: 15),
+          child: Icon(icon, color: context.c.fg2, size: 15),
         ),
       );
 
@@ -2555,8 +2566,8 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
               Flexible(
                 child: Text(name,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        color: ProtoColors.text,
+                    style: TextStyle(
+                        color: context.c.fg0,
                         fontSize: 12,
                         fontWeight: FontWeight.w700)),
               ),
@@ -2565,8 +2576,8 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
                 Flexible(
                   child: Text('<$email>',
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: ProtoColors.muted, fontSize: 11)),
+                      style: TextStyle(
+                          color: context.c.fg2, fontSize: 11)),
                 ),
               ],
             ]),
@@ -2574,8 +2585,8 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
           if (tag != null) ...[
             const SizedBox(width: 6),
             Text(tag,
-                style: const TextStyle(
-                    color: ProtoColors.blue,
+                style: TextStyle(
+                    color: context.c.accent,
                     fontSize: 10,
                     fontWeight: FontWeight.w700)),
           ],
@@ -2591,15 +2602,15 @@ class _ConfirmPublishModalState extends ConsumerState<_ConfirmPublishModal> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
         decoration: BoxDecoration(
           color: active
-              ? ProtoColors.blue.withValues(alpha: .18)
+              ? context.c.accent.withValues(alpha: .18)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-              color: active ? ProtoColors.blue : ProtoColors.border),
+              color: active ? context.c.accent : context.c.borderSoft),
         ),
         child: Text(label,
             style: TextStyle(
-                color: active ? ProtoColors.blue : ProtoColors.muted,
+                color: active ? context.c.accent : context.c.fg2,
                 fontSize: 11,
                 fontWeight: FontWeight.w700)),
       ),
@@ -2630,12 +2641,12 @@ class _TextField extends StatelessWidget {
     Widget field = TextField(
       controller: controller,
       maxLines: maxLines,
-      style: const TextStyle(
-          color: ProtoColors.text, fontSize: 14, height: 1.3),
+      style: TextStyle(
+          color: context.c.fg0, fontSize: 14, height: 1.3),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle:
-            const TextStyle(color: ProtoColors.muted, fontSize: 14),
+            TextStyle(color: context.c.fg2, fontSize: 14),
         contentPadding: const EdgeInsets.all(15),
         border: InputBorder.none,
       ),
@@ -2644,9 +2655,9 @@ class _TextField extends StatelessWidget {
       height: height,
       width: double.infinity,
       decoration: BoxDecoration(
-          color: ProtoColors.surface2,
+          color: context.c.bgElevated,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: ProtoColors.border)),
+          border: Border.all(color: context.c.borderSoft)),
       child: field,
     );
   }
@@ -2659,8 +2670,8 @@ class _Axis extends StatelessWidget {
   Widget build(BuildContext context) => Expanded(
       child: Center(
           child: Text(text,
-              style: const TextStyle(
-                  color: ProtoColors.muted,
+              style: TextStyle(
+                  color: context.c.fg2,
                   fontSize: 11,
                   fontWeight: FontWeight.w800))));
 }
@@ -2676,11 +2687,11 @@ class _ReviewLine extends StatelessWidget {
       child: Row(children: [
         Expanded(
             child: Text(label,
-                style: const TextStyle(
-                    color: ProtoColors.muted, fontSize: 13))),
+                style: TextStyle(
+                    color: context.c.fg2, fontSize: 13))),
         Text(value,
             style: TextStyle(
-                color: red ? ProtoColors.red : ProtoColors.text,
+                color: red ? context.c.statusRedFg : context.c.fg0,
                 fontSize: 13,
                 fontWeight: FontWeight.w900))
       ]));
@@ -2694,8 +2705,8 @@ class _Label extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(text.toUpperCase(),
-          style: const TextStyle(
-              color: ProtoColors.muted,
+          style: TextStyle(
+              color: context.c.fg2,
               fontSize: 12,
               letterSpacing: .45,
               fontWeight: FontWeight.w900)));
@@ -2714,23 +2725,23 @@ class _LocationDropdown extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
-        color: ProtoColors.surface2,
+        color: context.c.bgElevated,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: ProtoColors.border),
+        border: Border.all(color: context.c.borderSoft),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String?>(
           isExpanded: true,
-          dropdownColor: ProtoColors.surface,
+          dropdownColor: context.c.bgSurface,
           value: selected,
-          hint: const Text('Selecionar localizacao (opcional)',
-              style: TextStyle(color: ProtoColors.muted, fontSize: 13)),
-          style: const TextStyle(color: ProtoColors.text, fontSize: 14),
+          hint: Text('Selecionar localizacao (opcional)',
+              style: TextStyle(color: context.c.fg2, fontSize: 13)),
+          style: TextStyle(color: context.c.fg0, fontSize: 14),
           items: [
-            const DropdownMenuItem(
+            DropdownMenuItem(
                 value: null,
                 child: Text('— Nenhuma',
-                    style: TextStyle(color: ProtoColors.muted, fontSize: 13))),
+                    style: TextStyle(color: context.c.fg2, fontSize: 13))),
             ...items.map((l) =>
                 DropdownMenuItem(value: l.id, child: Text(l.nome))),
           ],
@@ -2750,20 +2761,20 @@ class _SelectRow extends StatelessWidget {
       height: 46,
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
-          color: ProtoColors.surface2,
+          color: context.c.bgElevated,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: ProtoColors.border)),
+          border: Border.all(color: context.c.borderSoft)),
       child: Row(children: [
-        Icon(icon, color: ProtoColors.muted, size: 16),
+        Icon(icon, color: context.c.fg2, size: 16),
         const SizedBox(width: 10),
         Expanded(
             child: Text(text,
-                style: const TextStyle(
-                    color: ProtoColors.text,
+                style: TextStyle(
+                    color: context.c.fg0,
                     fontSize: 14,
                     fontWeight: FontWeight.w800))),
-        const Icon(Icons.keyboard_arrow_down_rounded,
-            color: ProtoColors.muted, size: 18)
+        Icon(Icons.keyboard_arrow_down_rounded,
+            color: context.c.fg2, size: 18)
       ]));
 }
 
@@ -2781,9 +2792,9 @@ class _Footer extends StatelessWidget {
   Widget build(BuildContext context) => Column(children: [
         Container(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-            decoration: const BoxDecoration(
-                color: ProtoColors.surface,
-                border: Border(top: BorderSide(color: ProtoColors.border))),
+            decoration: BoxDecoration(
+                color: context.c.bgSurface,
+                border: Border(top: BorderSide(color: context.c.borderSoft))),
             child: Row(children: [
               Expanded(
                   child: _FooterButton(
@@ -2820,9 +2831,9 @@ class _FooterButton extends StatelessWidget {
       child: FilledButton.icon(
           style: FilledButton.styleFrom(
               backgroundColor:
-                  primary ? ProtoColors.blue : ProtoColors.surface2,
+                  primary ? context.c.accent : context.c.bgElevated,
               foregroundColor:
-                  primary ? Colors.white : ProtoColors.text,
+                  primary ? Colors.white : context.c.fg0,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10))),
           onPressed: onTap,

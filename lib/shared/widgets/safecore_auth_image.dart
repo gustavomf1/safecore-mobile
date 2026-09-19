@@ -19,6 +19,7 @@ class SafeCoreAuthImage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final token = ref.watch(authProvider).valueOrNull?.token;
+    final c = context.c;
 
     return CachedNetworkImage(
       imageUrl: url,
@@ -27,14 +28,14 @@ class SafeCoreAuthImage extends ConsumerWidget {
       fit: fit,
       fadeInDuration: const Duration(milliseconds: 200),
       placeholder: (_, __) => Container(
-        color: SafeCoreColors.dark.bgElevated,
+        color: c.bgElevated,
         child: Center(
           child: SizedBox(
             width: 20,
             height: 20,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              color: SafeCoreColors.dark.accent,
+              color: c.accent,
             ),
           ),
         ),
@@ -42,10 +43,10 @@ class SafeCoreAuthImage extends ConsumerWidget {
       errorWidget: (_, __, ___) =>
           errorWidget ??
           Container(
-            color: SafeCoreColors.dark.bgElevated,
+            color: c.bgElevated,
             child: Icon(
               Icons.broken_image_outlined,
-              color: SafeCoreColors.dark.fg2,
+              color: c.fg2,
               size: 32,
             ),
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/tokens.dart';
 
 // ignore_for_file: deprecated_member_use_from_same_package
 @Deprecated('Use context.c (SafeCoreColors) em novo código.')
@@ -24,25 +25,28 @@ class ProtoColors {
 class ProtoCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
-  final Color color;
+  // Was a fixed default (ProtoColors.surface) that never adapted to theme.
+  // Null now means "follow the active theme's surface color."
+  final Color? color;
   final Border? border;
 
   const ProtoCard({
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(14),
-    this.color = ProtoColors.surface,
+    this.color,
     this.border,
   });
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(12),
-        border: border ?? Border.all(color: ProtoColors.border),
+        color: color ?? c.bgSurface,
+        borderRadius: BorderRadius.circular(SafeCoreRadius.md),
+        border: border ?? Border.all(color: c.borderSoft),
       ),
       child: child,
     );
@@ -84,16 +88,17 @@ class ProtoIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return SizedBox(
       width: 38,
       height: 38,
       child: IconButton(
         style: IconButton.styleFrom(
           backgroundColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: ProtoColors.borderStrong)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: c.borderMain)),
         ),
         onPressed: onTap,
-        icon: Icon(icon, size: 19, color: ProtoColors.text),
+        icon: Icon(icon, size: 19, color: c.fg0),
       ),
     );
   }
@@ -106,7 +111,10 @@ class ProtoSectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(label.toUpperCase(), style: const TextStyle(color: Color(0xFFD7E8FF), fontSize: 13, letterSpacing: .45, fontWeight: FontWeight.w900));
+    return Text(
+      label.toUpperCase(),
+      style: SafeCoreType.label.copyWith(color: context.c.accent, fontSize: 13, letterSpacing: .45),
+    );
   }
 }
 
@@ -123,13 +131,13 @@ class ProtoMetricBox extends StatelessWidget {
       child: Container(
         height: 69,
         alignment: Alignment.center,
-        decoration: BoxDecoration(color: color.withValues(alpha: .18), borderRadius: BorderRadius.circular(9)),
+        decoration: BoxDecoration(color: color.withValues(alpha: .18), borderRadius: BorderRadius.circular(SafeCoreRadius.sm + 1)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(value, style: TextStyle(color: color, fontSize: 24, fontWeight: FontWeight.w900)),
             const SizedBox(height: 4),
-            Text(label, style: const TextStyle(color: ProtoColors.muted, fontSize: 11, fontWeight: FontWeight.w700)),
+            Text(label, style: SafeCoreType.body.copyWith(color: context.c.fg2)),
           ],
         ),
       ),

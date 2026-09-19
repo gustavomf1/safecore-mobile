@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../shared/theme/tokens.dart';
 import '../../shared/widgets/prototype_ui.dart';
 import 'model/notificacao_item.dart';
 import 'repository/notificacao_repository_impl.dart';
@@ -11,15 +12,16 @@ class NotifPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.c;
     final notificacoesAsync = ref.watch(notificacoesProvider);
     final naoLidas = notificacoesAsync.valueOrNull?.where((n) => !n.lida).length ?? 0;
 
     return Scaffold(
-      backgroundColor: ProtoColors.bg,
+      backgroundColor: c.bgBase,
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(
-          color: ProtoColors.blue,
+          color: c.accent,
           onRefresh: () async {
             ref.invalidate(notificacoesProvider);
             await ref.read(notificacoesProvider.future).catchError((_) => <NotificacaoItem>[]);
@@ -29,24 +31,24 @@ class NotifPage extends ConsumerWidget {
             children: [
               Align(alignment: Alignment.centerRight, child: ProtoIconButton(icon: Icons.notifications_none_rounded, onTap: () {})),
               const SizedBox(height: 8),
-              const Text('Notificacoes', style: TextStyle(color: ProtoColors.text, fontSize: 24, fontWeight: FontWeight.w900, height: 1)),
+              Text('Notificações', style: SafeCoreType.display.copyWith(color: c.fg0, fontSize: 24, height: 1)),
               const SizedBox(height: 4),
-              Text('$naoLidas nao lidas', style: const TextStyle(color: ProtoColors.muted, fontSize: 12, fontWeight: FontWeight.w700)),
+              Text('$naoLidas não lidas', style: SafeCoreType.body.copyWith(color: c.fg2)),
               const SizedBox(height: 18),
               notificacoesAsync.when(
                 loading: () => const Padding(
                   padding: EdgeInsets.symmetric(vertical: 40),
                   child: Center(child: CircularProgressIndicator()),
                 ),
-                error: (_, __) => const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 40),
-                  child: Center(child: Text('Erro ao carregar notificações', style: TextStyle(color: ProtoColors.muted))),
+                error: (_, __) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40),
+                  child: Center(child: Text('Erro ao carregar notificações', style: SafeCoreType.body.copyWith(color: c.fg2))),
                 ),
                 data: (notificacoes) {
                   if (notificacoes.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 40),
-                      child: Center(child: Text('Nenhuma notificação por aqui', style: TextStyle(color: ProtoColors.muted))),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40),
+                      child: Center(child: Text('Nenhuma notificação por aqui', style: SafeCoreType.body.copyWith(color: c.fg2))),
                     );
                   }
                   return Column(
@@ -87,6 +89,7 @@ class _NotifItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Stack(
@@ -102,23 +105,23 @@ class _NotifItem extends StatelessWidget {
                   Container(
                     width: 40,
                     height: 40,
-                    decoration: BoxDecoration(color: ProtoColors.blue.withValues(alpha: .18), borderRadius: BorderRadius.circular(12)),
-                    child: const Icon(Icons.shield_outlined, color: ProtoColors.blue, size: 20),
+                    decoration: BoxDecoration(color: c.accent.withValues(alpha: .18), borderRadius: BorderRadius.circular(12)),
+                    child: Icon(Icons.shield_outlined, color: c.accent, size: 20),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(item.titulo, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: ProtoColors.text, fontSize: 13, fontWeight: FontWeight.w900)),
+                        Text(item.titulo, maxLines: 2, overflow: TextOverflow.ellipsis, style: SafeCoreType.bodyStrong.copyWith(color: c.fg0)),
                         const SizedBox(height: 4),
-                        Text(item.corpo, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: ProtoColors.muted, fontSize: 12, height: 1.25)),
+                        Text(item.corpo, maxLines: 2, overflow: TextOverflow.ellipsis, style: SafeCoreType.bodyRegular.copyWith(color: c.fg2, fontSize: 12, height: 1.25)),
                         const SizedBox(height: 4),
-                        Text(_formatTime(item.criadoEm), style: const TextStyle(color: ProtoColors.muted2, fontSize: 11)),
+                        Text(_formatTime(item.criadoEm), style: SafeCoreType.micro.copyWith(color: c.fg3)),
                       ],
                     ),
                   ),
-                  const Icon(Icons.chevron_right_rounded, color: ProtoColors.muted, size: 18),
+                  Icon(Icons.chevron_right_rounded, color: c.fg2, size: 18),
                 ],
               ),
             ),
@@ -127,7 +130,7 @@ class _NotifItem extends StatelessWidget {
             Positioned(
               left: -5,
               top: 20,
-              child: Container(width: 10, height: 10, decoration: const BoxDecoration(color: ProtoColors.blue, shape: BoxShape.circle)),
+              child: Container(width: 10, height: 10, decoration: BoxDecoration(color: c.accent, shape: BoxShape.circle)),
             ),
         ],
       ),

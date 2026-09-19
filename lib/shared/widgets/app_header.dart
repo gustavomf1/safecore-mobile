@@ -27,10 +27,12 @@ class AppHeader extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+                Text(title, style: SafeCoreType.headline.copyWith(color: context.c.fg0)),
                 if (subtitle != null) ...[
-                  const SizedBox(height: 2),
-                  Text(subtitle!, style: TextStyle(color: context.c.fg3, fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 4),
+                  // Was fg3, which fails the 4.5:1 text floor in both themes — fg2 is the
+                  // nearest step that actually reads as real secondary copy.
+                  Text(subtitle!, style: SafeCoreType.body.copyWith(color: context.c.fg2)),
                 ],
               ],
             ),
