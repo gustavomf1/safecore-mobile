@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:safecore_mobile/features/auth/model/login_response.dart';
 import 'package:safecore_mobile/features/auth/provider/auth_provider.dart';
+import 'package:safecore_mobile/features/ocorrencias/repository/ocorrencias_repository_impl.dart';
 import 'package:safecore_mobile/shared/widgets/safecore_shell.dart';
 import 'package:safecore_mobile/shared/theme/tokens.dart';
 
@@ -41,6 +42,11 @@ Widget _wrap(LoginResponse? session) {
   return ProviderScope(
     overrides: [
       authProvider.overrideWith(() => _FakeAuthNotifier(session)),
+      // Perfil EXTERNO busca o feed mesmo sem workspace selecionado (ver
+      // isExterno em feed_page.dart/desvio_feed_page.dart), então sem esse
+      // override a chamada de rede real do FeedPage/DesvioFeedPage nunca
+      // resolve dentro do pumpAndSettle deste teste.
+      ocorrenciasProvider.overrideWith((ref, _) async => []),
     ],
     child: MaterialApp.router(theme: safeCoreThemeDark(), routerConfig: router),
   );
