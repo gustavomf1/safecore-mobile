@@ -1792,6 +1792,7 @@ import 'package:safecore_mobile/features/ocorrencias/model/rascunho_local.dart';
 import 'package:safecore_mobile/features/ocorrencias/repository/draft_repository_impl.dart';
 import 'package:safecore_mobile/features/sync/sincronizacao_page.dart';
 import 'package:safecore_mobile/shared/theme/tokens.dart';
+import 'package:mocktail/mocktail.dart';
 
 class MockAuthNotifier extends AsyncNotifier<LoginResponse?> with Mock implements AuthNotifier {
   @override
@@ -2080,6 +2081,7 @@ import 'package:safecore_mobile/features/ocorrencias/repository/draft_repository
 import 'package:safecore_mobile/core/network/connectivity_provider.dart';
 import 'package:safecore_mobile/shared/widgets/pending_sync_banner.dart';
 import 'package:safecore_mobile/shared/theme/tokens.dart';
+import 'package:mocktail/mocktail.dart';
 
 class MockAuthNotifier extends AsyncNotifier<LoginResponse?> with Mock implements AuthNotifier {
   @override
