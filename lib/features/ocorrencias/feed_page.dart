@@ -11,6 +11,7 @@ import '../../shared/widgets/motion_helpers.dart';
 import '../../shared/widgets/ocorrencia_filter_sheet.dart';
 import '../../shared/widgets/ocorrencia_search_bar.dart';
 import '../../shared/widgets/status_color_helper.dart';
+import '../../shared/utils/error_messages.dart';
 import '../auth/provider/auth_provider.dart';
 import 'model/ocorrencia_summary.dart';
 import 'ocorrencia_filtering.dart';
@@ -120,7 +121,7 @@ class _FeedPageState extends ConsumerState<FeedPage> with AutomaticKeepAliveClie
                   children:
                       List.generate(3, (_) => const CoverCardSkeleton()),
                 ),
-                error: (e, _) => _ErrorState(message: '$e'),
+                error: (e, _) => _ErrorState(message: friendlyErrorMessage(e)),
                 data: (ncs) {
                   final filtered = _applyFilter(ncs);
                   if (filtered.isEmpty) {

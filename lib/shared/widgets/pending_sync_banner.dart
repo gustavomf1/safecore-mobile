@@ -28,20 +28,28 @@ class PendingSyncBanner extends ConsumerWidget {
         child: InkWell(
           onTap: () => context.push('/sincronizacao'),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               children: [
-                Icon(Icons.cloud_upload_outlined, color: c.statusYellowFg, size: 18),
-                const SizedBox(width: 8),
+                Icon(Icons.cloud_upload_outlined, color: c.statusYellowFg, size: 24),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     count == 1
                         ? 'Você tem 1 item para sincronizar'
                         : 'Você tem $count itens para sincronizar',
-                    style: SafeCoreType.body.copyWith(color: c.statusYellowFg),
+                    style: SafeCoreType.bodyStrong.copyWith(color: c.statusYellowFg, fontSize: 14),
                   ),
                 ),
-                Text('Ver', style: SafeCoreType.bodyStrong.copyWith(color: c.statusYellowFg)),
+                const SizedBox(width: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: c.statusYellowFg.withValues(alpha: .18),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text('Ver', style: SafeCoreType.bodyStrong.copyWith(color: c.statusYellowFg, fontSize: 14)),
+                ),
               ],
             ),
           ),
