@@ -5,13 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'core/network/connectivity_provider.dart';
 import 'core/notifications/fcm_background_handler.dart';
 import 'core/router/app_router.dart';
 import 'core/router/navigator_key.dart';
-import 'core/sync/sync_service.dart';
-import 'core/sync/sync_status.dart';
-import 'features/auth/provider/auth_provider.dart';
 import 'shared/theme/tokens.dart';
 
 void main() async {
@@ -59,21 +55,11 @@ class _AppConnectivityListener extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen<AsyncValue<bool>>(connectivityProvider, (_, next) async {
-      final isOnline = next.valueOrNull ?? false;
-      if (!isOnline) return;
-
-      final session = ref.read(authProvider).valueOrNull;
-      if (session == null) return;
-
-      ref.read(syncStatusProvider.notifier).state = SyncStatus.syncing;
-      try {
-        await ref.read(syncServiceProvider).syncPendentes();
-        ref.read(syncStatusProvider.notifier).state = SyncStatus.idle;
-      } catch (_) {
-        ref.read(syncStatusProvider.notifier).state = SyncStatus.error;
-      }
-    });
+    // Sincronização automática removida (Task 6/2026-09-19-offline-mobile):
+    // SyncService.syncPendentes() (em lote, ao reconectar) foi substituído
+    // por SyncService.sincronizarRascunho() (item a item, disparado
+    // manualmente na tela de Sincronização). Este listener será reaproveitado
+    // pelo banner de pendência da Task 8.
     return child;
   }
 }
