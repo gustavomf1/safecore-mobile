@@ -348,7 +348,7 @@ class _WizardPageState extends ConsumerState<WizardPage> {
             ).toJson();
 
       await salvarRascunhoOffline(
-        container: ProviderScope.containerOf(context),
+        container: ProviderScope.containerOf(context, listen: false),
         usuarioId: usuarioId,
         tipo: isNc ? 'NC' : 'DESVIO',
         dadosJson: dadosJson,
