@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../model/login_response.dart';
+import '../model/workspace_state.dart';
 import 'auth_repository.dart';
 import '../../../core/network/dio_client.dart';
 
@@ -77,6 +78,18 @@ class AuthRepositoryImpl implements AuthRepository {
     return LoginResponse.fromJson(
       jsonDecode(sessionJson) as Map<String, dynamic>,
     );
+  }
+
+  @override
+  Future<void> salvarWorkspace(WorkspaceState workspace) async {
+    await storage.write(key: 'workspace', value: jsonEncode(workspace.toJson()));
+  }
+
+  @override
+  Future<WorkspaceState?> obterWorkspace() async {
+    final stored = await storage.read(key: 'workspace');
+    if (stored == null) return null;
+    return WorkspaceState.fromJson(jsonDecode(stored) as Map<String, dynamic>);
   }
 
   @override

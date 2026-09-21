@@ -7,6 +7,7 @@ import '../ocorrencias/model/estabelecimento.dart';
 import '../ocorrencias/repository/support_repository_impl.dart';
 import '../auth/model/workspace_state.dart';
 import 'provider/auth_provider.dart';
+import 'repository/auth_repository_impl.dart';
 import '../../shared/theme/tokens.dart';
 
 enum _Step { empresa, estabelecimento, empresaFilha }
@@ -38,11 +39,16 @@ class _WorkspaceSelectPageState extends ConsumerState<WorkspaceSelectPage> {
   }
 
   void _selecionarEmpresaFilha(Empresa filha) {
-    ref.read(workspaceProvider.notifier).state = WorkspaceState(
+    final workspace = WorkspaceState(
       empresa: empresaSelecionada!,
       estabelecimento: estabelecimentoSelecionado!,
       empresaFilha: filha,
     );
+    ref.read(workspaceProvider.notifier).state = workspace;
+    // Persistido localmente pra sobreviver a um cold start offline (sem essa
+    // gravação, fechar o app sem internet trava o usuário nesta tela — ela
+    // sempre precisa de rede pra listar empresas/estabelecimentos).
+    ref.read(authRepositoryProvider).salvarWorkspace(workspace);
     context.go('/feed');
   }
 

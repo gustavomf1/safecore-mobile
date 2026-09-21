@@ -3,7 +3,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:safecore_mobile/features/auth/model/workspace_state.dart';
 import 'package:safecore_mobile/features/auth/repository/auth_repository_impl.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/empresa.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/estabelecimento.dart';
 
 class MockDio extends Mock implements Dio {}
 class MockSecureStorage extends Mock implements FlutterSecureStorage {}
@@ -118,6 +121,46 @@ void main() {
 
       verify(() => dio.post('/api/auth/reset/redefinir',
           data: {'resetToken': 'a1b2c3d4-0000-0000-0000-000000000000', 'novaSenha': 'NovaSenha123!'})).called(1);
+    });
+  });
+
+  group('salvarWorkspace / obterWorkspace', () {
+    final workspace = const WorkspaceState(
+      empresa: Empresa(id: 'e1', nome: 'Empresa Mãe'),
+      estabelecimento: Estabelecimento(id: 'est1', nome: 'Estabelecimento', empresaId: 'e1'),
+      empresaFilha: Empresa(id: 'ef1', nome: 'Empresa Filha'),
+    );
+
+    test('salvarWorkspace grava o workspace como JSON na chave workspace', () async {
+      when(() => storage.write(key: any(named: 'key'), value: any(named: 'value')))
+          .thenAnswer((_) async {});
+
+      await repo.salvarWorkspace(workspace);
+
+      final captured = verify(
+        () => storage.write(key: 'workspace', value: captureAny(named: 'value')),
+      ).captured;
+      final decoded = jsonDecode(captured.first as String) as Map<String, dynamic>;
+      expect(decoded['empresa']['id'], 'e1');
+      expect(decoded['estabelecimento']['id'], 'est1');
+      expect(decoded['empresaFilha']['id'], 'ef1');
+    });
+
+    test('obterWorkspace retorna null quando nada foi salvo', () async {
+      when(() => storage.read(key: 'workspace')).thenAnswer((_) async => null);
+      final result = await repo.obterWorkspace();
+      expect(result, isNull);
+    });
+
+    test('obterWorkspace reconstrói o WorkspaceState a partir do JSON salvo', () async {
+      when(() => storage.read(key: 'workspace'))
+          .thenAnswer((_) async => jsonEncode(workspace.toJson()));
+
+      final result = await repo.obterWorkspace();
+
+      expect(result?.empresa.id, 'e1');
+      expect(result?.estabelecimento.nome, 'Estabelecimento');
+      expect(result?.empresaFilha.id, 'ef1');
     });
   });
 

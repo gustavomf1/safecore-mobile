@@ -10,4 +10,6 @@ class Estabelecimento {
         nome: json['nome'] as String,
         empresaId: json['empresaId'] as String?,
       );
+
+  Map<String, dynamic> toJson() => {'id': id, 'nome': nome, 'empresaId': empresaId};
 }
