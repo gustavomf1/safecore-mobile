@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import '../database/reference_cache_dao.dart';
 
 Future<List<T>> buscarComCache<T>({
@@ -12,9 +13,16 @@ Future<List<T>> buscarComCache<T>({
   if (online) {
     try {
       final lista = await buscarOnline();
-      await dao.salvar(chave, jsonEncode(lista.map(toJson).toList()));
+      try {
+        await dao.salvar(chave, jsonEncode(lista.map(toJson).toList()));
+      } catch (e) {
+        // falha ao cachear não pode descartar um resultado online que já
+        // funcionou — só loga e segue com o que veio da rede.
+        debugPrint('buscarComCache[$chave]: falha ao gravar cache: $e');
+      }
       return lista;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('buscarComCache[$chave]: buscarOnline falhou: $e');
       // cai pro cache abaixo
     }
   }

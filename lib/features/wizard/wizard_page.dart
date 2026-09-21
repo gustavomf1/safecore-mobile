@@ -605,9 +605,15 @@ class _DescriptionStep extends ConsumerWidget {
           const SizedBox(height: 6),
           ref.watch(localizacoesProvider(workspaceId)).when(
                 loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
+                error: (e, st) {
+                  debugPrint('localizacoesProvider($workspaceId) error: $e\n$st');
+                  return const SizedBox.shrink();
+                },
                 data: (locs) {
-                  if (locs.isEmpty) return const SizedBox.shrink();
+                  if (locs.isEmpty) {
+                    debugPrint('localizacoesProvider($workspaceId): lista vazia');
+                    return const SizedBox.shrink();
+                  }
                   return _LocationDropdown(
                     items: locs,
                     selected: localizacaoId,
