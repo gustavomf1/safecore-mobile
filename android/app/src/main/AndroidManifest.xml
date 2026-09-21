@@ -28,6 +28,16 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Ícone/cor padrão das notificações push (FCM) — sem isso o Android
+             usa o ícone do launcher como está, colorido, e o sistema o
+             renderiza como uma silhueta genérica no status bar (Android exige
+             um ícone monocromático dedicado pra notificações). -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_color" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
