@@ -21,26 +21,29 @@ class PendingSyncBanner extends ConsumerWidget {
     if (count == 0) return const SizedBox.shrink();
 
     final c = context.c;
-    return Material(
-      color: c.statusYellowBg,
-      child: InkWell(
-        onTap: () => context.go('/sincronizacao'),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Row(
-            children: [
-              Icon(Icons.cloud_upload_outlined, color: c.statusYellowFg, size: 18),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  count == 1
-                      ? 'Você tem 1 item para sincronizar'
-                      : 'Você tem $count itens para sincronizar',
-                  style: SafeCoreType.body.copyWith(color: c.statusYellowFg),
+    return SafeArea(
+      bottom: false,
+      child: Material(
+        color: c.statusYellowBg,
+        child: InkWell(
+          onTap: () => context.go('/sincronizacao'),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Row(
+              children: [
+                Icon(Icons.cloud_upload_outlined, color: c.statusYellowFg, size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    count == 1
+                        ? 'Você tem 1 item para sincronizar'
+                        : 'Você tem $count itens para sincronizar',
+                    style: SafeCoreType.body.copyWith(color: c.statusYellowFg),
+                  ),
                 ),
-              ),
-              Text('Ver', style: SafeCoreType.bodyStrong.copyWith(color: c.statusYellowFg)),
-            ],
+                Text('Ver', style: SafeCoreType.bodyStrong.copyWith(color: c.statusYellowFg)),
+              ],
+            ),
           ),
         ),
       ),
