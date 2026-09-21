@@ -1,7 +1,7 @@
 name: safecore_mobile
 description: SafeCore mobile app for field safety records.
 publish_to: "none"
-version: 0.1.0+1
+version: 0.1.1+2
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -31,6 +31,7 @@ dependencies:
   geocoding: ^3.0.0
   # Connectivity
   connectivity_plus: ^6.1.1
+  uuid: ^4.5.1
   # UI
   flutter_animate: ^4.5.0
   cached_network_image: ^3.4.1
