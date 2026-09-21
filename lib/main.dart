@@ -28,39 +28,22 @@ class SafeCoreApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
 
-    return _AppConnectivityListener(
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: 'SafeCore',
-        theme: safeCoreThemeDark(),
-        darkTheme: safeCoreThemeDark(),
-        themeMode: ThemeMode.dark,
-        routerConfig: router,
-        scaffoldMessengerKey: scaffoldMessengerKey,
-        builder: (context, child) => _MobileViewport(child: child ?? const SizedBox.shrink()),
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [Locale('pt', 'BR')],
-      ),
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      title: 'SafeCore',
+      theme: safeCoreThemeDark(),
+      darkTheme: safeCoreThemeDark(),
+      themeMode: ThemeMode.dark,
+      routerConfig: router,
+      scaffoldMessengerKey: scaffoldMessengerKey,
+      builder: (context, child) => _MobileViewport(child: child ?? const SizedBox.shrink()),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('pt', 'BR')],
     );
-  }
-}
-
-class _AppConnectivityListener extends ConsumerWidget {
-  final Widget child;
-  const _AppConnectivityListener({required this.child});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Sincronização automática removida (Task 6/2026-09-19-offline-mobile):
-    // SyncService.syncPendentes() (em lote, ao reconectar) foi substituído
-    // por SyncService.sincronizarRascunho() (item a item, disparado
-    // manualmente na tela de Sincronização). Este listener será reaproveitado
-    // pelo banner de pendência da Task 8.
-    return child;
   }
 }
 

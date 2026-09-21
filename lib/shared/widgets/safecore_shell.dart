@@ -8,6 +8,7 @@ import '../../features/ocorrencias/desvio_feed_page.dart';
 import '../../features/ocorrencias/feed_page.dart';
 import '../../features/profile/profile_page.dart';
 import '../theme/tokens.dart';
+import 'pending_sync_banner.dart';
 import 'prototype_ui.dart';
 
 const _tabPaths = ['/feed', '/desvios', '/notif', '/profile'];
@@ -85,7 +86,12 @@ class _SafeCoreShellState extends ConsumerState<SafeCoreShell> {
 
     return Scaffold(
       backgroundColor: c.bgBase,
-      body: body,
+      body: Column(
+        children: [
+          const PendingSyncBanner(),
+          Expanded(child: body),
+        ],
+      ),
       floatingActionButtonLocation: isExterno ? null : FloatingActionButtonLocation.centerDocked,
       floatingActionButton: isExterno
           ? null
