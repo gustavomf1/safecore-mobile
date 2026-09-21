@@ -361,7 +361,7 @@ class _WizardPageState extends ConsumerState<WizardPage> {
         capturedAt: widget.extra?['capturedAt'] as int?,
       );
       ref.read(captureProvider.notifier).clear();
-      if (mounted) context.go('/drafts');
+      if (mounted) context.go('/sincronizacao');
       return;
     }
 

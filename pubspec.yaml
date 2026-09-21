@@ -43,6 +43,8 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   drift_dev: ^2.20.0
   build_runner: ^2.4.13
+  path_provider_platform_interface: ^2.1.2
+  plugin_platform_interface: ^2.1.8
   mocktail: ^1.0.4
   flutter_launcher_icons: ^0.14.4
 
