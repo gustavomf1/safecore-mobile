@@ -13,6 +13,7 @@ class MockSecureStorage extends Mock implements FlutterSecureStorage {}
 
 void main() {
   late MockDio dio;
+  late MockDio refreshDio;
   late MockSecureStorage storage;
   late AuthRepositoryImpl repo;
 
@@ -22,8 +23,9 @@ void main() {
 
   setUp(() {
     dio = MockDio();
+    refreshDio = MockDio();
     storage = MockSecureStorage();
-    repo = AuthRepositoryImpl(dio: dio, storage: storage);
+    repo = AuthRepositoryImpl(dio: dio, storage: storage, refreshDio: refreshDio);
   });
 
   group('login', () {
@@ -187,6 +189,51 @@ void main() {
       final result = await repo.getSession();
       expect(result?.perfil, 'TECNICO');
       expect(result?.nome, 'Ana');
+    });
+
+    String expiredToken() {
+      final payload = base64Url.encode(utf8.encode(jsonEncode({'exp': 0})));
+      return 'header.$payload.sig';
+    }
+
+    final storedSession = jsonEncode({
+      'id': 'u1', 'token': 'old', 'nome': 'Ana', 'email': 'ana@test.com',
+      'perfil': 'TECNICO', 'isAdmin': false,
+    });
+
+    test('token expirado + renovação rejeitada pelo servidor: apaga a sessão', () async {
+      when(() => storage.read(key: 'user_session')).thenAnswer((_) async => storedSession);
+      when(() => storage.read(key: 'jwt_token')).thenAnswer((_) async => expiredToken());
+      when(() => storage.read(key: 'refresh_token')).thenAnswer((_) async => 'refresh-1');
+      when(() => storage.deleteAll()).thenAnswer((_) async {});
+      when(() => refreshDio.post('/api/auth/refresh', data: any(named: 'data'))).thenThrow(
+        DioException(requestOptions: RequestOptions(path: '/api/auth/refresh'), response: Response(
+          requestOptions: RequestOptions(path: '/api/auth/refresh'), statusCode: 401,
+        )),
+      );
+
+      final result = await repo.getSession();
+
+      expect(result, isNull);
+      verify(() => storage.deleteAll()).called(1);
+    });
+
+    test('token expirado + renovação falha só por falta de rede: mantém a sessão local', () async {
+      when(() => storage.read(key: 'user_session')).thenAnswer((_) async => storedSession);
+      when(() => storage.read(key: 'jwt_token')).thenAnswer((_) async => expiredToken());
+      when(() => storage.read(key: 'refresh_token')).thenAnswer((_) async => 'refresh-1');
+      when(() => refreshDio.post('/api/auth/refresh', data: any(named: 'data'))).thenThrow(
+        DioException(
+          requestOptions: RequestOptions(path: '/api/auth/refresh'),
+          type: DioExceptionType.connectionError,
+          error: 'Failed host lookup',
+        ),
+      );
+
+      final result = await repo.getSession();
+
+      expect(result?.nome, 'Ana');
+      verifyNever(() => storage.deleteAll());
     });
   });
 }
