@@ -10,6 +10,7 @@ import '../../features/ocorrencias/feed_page.dart';
 import '../../features/ocorrencias/repository/ocorrencias_repository_impl.dart';
 import '../../features/profile/profile_page.dart';
 import '../theme/tokens.dart';
+import 'offline_banner.dart';
 import 'pending_sync_banner.dart';
 import 'prototype_ui.dart';
 
@@ -98,6 +99,7 @@ class _SafeCoreShellState extends ConsumerState<SafeCoreShell> {
       backgroundColor: c.bgBase,
       body: Column(
         children: [
+          const OfflineBanner(),
           const PendingSyncBanner(),
           Expanded(child: body),
         ],
