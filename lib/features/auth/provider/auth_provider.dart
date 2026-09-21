@@ -5,6 +5,7 @@ import '../model/workspace_state.dart';
 import '../repository/auth_repository_impl.dart';
 import '../../../core/notifications/fcm_provider.dart';
 import '../../../core/network/auth_reset.dart';
+import '../../../core/database/app_database.dart';
 
 final authProvider = AsyncNotifierProvider<AuthNotifier, LoginResponse?>(
   AuthNotifier.new,
@@ -16,7 +17,14 @@ class AuthNotifier extends AsyncNotifier<LoginResponse?> {
   @override
   Future<LoginResponse?> build() async {
     registerForceLogoutCallback(() => state = const AsyncData(null));
-    return ref.read(authRepositoryProvider).getSession();
+    final session = await ref.read(authRepositoryProvider).getSession();
+    if (session != null && ref.read(workspaceProvider) == null) {
+      final workspace = await ref.read(authRepositoryProvider).obterWorkspace();
+      if (workspace != null) {
+        ref.read(workspaceProvider.notifier).state = workspace;
+      }
+    }
+    return session;
   }
 
   Future<void> login(String email, String senha) async {
@@ -31,6 +39,7 @@ class AuthNotifier extends AsyncNotifier<LoginResponse?> {
 
   Future<void> logout() async {
     await ref.read(authRepositoryProvider).logout();
+    await ref.read(appDatabaseProvider).ocorrenciasCacheDao.limparTudo();
     ref.read(workspaceProvider.notifier).state = null;
     state = const AsyncData(null);
   }

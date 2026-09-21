@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../model/login_response.dart';
+import '../model/workspace_state.dart';
 import 'auth_repository.dart';
 import '../../../core/network/dio_client.dart';
 
@@ -20,8 +21,10 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 class AuthRepositoryImpl implements AuthRepository {
   final Dio dio;
   final FlutterSecureStorage storage;
+  final Dio _refreshDio;
 
-  AuthRepositoryImpl({required this.dio, required this.storage});
+  AuthRepositoryImpl({required this.dio, required this.storage, Dio? refreshDio})
+      : _refreshDio = refreshDio ?? Dio(BaseOptions(baseUrl: dio.options.baseUrl));
 
   @override
   Future<LoginResponse> login(String email, String senha) async {
@@ -68,7 +71,11 @@ class AuthRepositoryImpl implements AuthRepository {
     // antes de descartar a sessão (senão o app deslogaria a cada 15 min).
     if (token == null || _isTokenExpired(token)) {
       final renovado = await _tentarRenovar();
-      if (!renovado) {
+      // false = servidor recusou a renovação (refresh token inválido/revogado)
+      // de verdade — aí sim desloga. null = falhou só por falta de rede: a
+      // sessão local continua válida (chamadas de API vão falhar por conta
+      // própria enquanto offline; não faz sentido deslogar por isso).
+      if (renovado == false) {
         await storage.deleteAll();
         return null;
       }
@@ -77,6 +84,18 @@ class AuthRepositoryImpl implements AuthRepository {
     return LoginResponse.fromJson(
       jsonDecode(sessionJson) as Map<String, dynamic>,
     );
+  }
+
+  @override
+  Future<void> salvarWorkspace(WorkspaceState workspace) async {
+    await storage.write(key: 'workspace', value: jsonEncode(workspace.toJson()));
+  }
+
+  @override
+  Future<WorkspaceState?> obterWorkspace() async {
+    final stored = await storage.read(key: 'workspace');
+    if (stored == null) return null;
+    return WorkspaceState.fromJson(jsonDecode(stored) as Map<String, dynamic>);
   }
 
   @override
@@ -101,12 +120,13 @@ class AuthRepositoryImpl implements AuthRepository {
     );
   }
 
-  Future<bool> _tentarRenovar() async {
+  /// true = renovado. false = servidor recusou de fato (desloga). null =
+  /// falhou só por falta de rede/timeout (mantém a sessão local).
+  Future<bool?> _tentarRenovar() async {
     final refreshToken = await storage.read(key: 'refresh_token');
     if (refreshToken == null) return false;
     try {
-      final raw = Dio(BaseOptions(baseUrl: dio.options.baseUrl));
-      final resp = await raw.post(
+      final resp = await _refreshDio.post(
         '/api/auth/refresh',
         data: {'refreshToken': refreshToken},
       );
@@ -118,10 +138,18 @@ class AuthRepositoryImpl implements AuthRepository {
         await storage.write(key: 'refresh_token', value: newRefresh);
       }
       return true;
+    } on DioException catch (e) {
+      return _isConnectivityError(e) ? null : false;
     } catch (_) {
       return false;
     }
   }
+
+  bool _isConnectivityError(DioException e) =>
+      e.type == DioExceptionType.connectionError ||
+      e.type == DioExceptionType.connectionTimeout ||
+      e.type == DioExceptionType.receiveTimeout ||
+      e.type == DioExceptionType.sendTimeout;
 
   bool _isTokenExpired(String token) {
     try {

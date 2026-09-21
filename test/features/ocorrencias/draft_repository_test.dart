@@ -18,13 +18,14 @@ void main() {
   test('salvar and watchPendentes emits saved draft', () async {
     await repo.salvar(RascunhoLocal(
       id: 'draft-1',
+      usuarioId: 'u1',
       tipo: 'NC',
       titulo: 'Rascunho NC',
       dadosJson: {'estabelecimentoId': 'est-1'},
       criadoEm: DateTime.now().millisecondsSinceEpoch,
     ));
 
-    final stream = repo.watchPendentes();
+    final stream = repo.watchPendentes('u1');
     final list = await stream.first;
     expect(list.length, 1);
     expect(list.first.titulo, 'Rascunho NC');
@@ -33,6 +34,7 @@ void main() {
   test('deletar removes draft', () async {
     await repo.salvar(RascunhoLocal(
       id: 'draft-2',
+      usuarioId: 'u1',
       tipo: 'DESVIO',
       titulo: 'Desvio X',
       dadosJson: {},
@@ -40,7 +42,7 @@ void main() {
     ));
     await repo.deletar('draft-2');
 
-    final list = await repo.watchPendentes().first;
+    final list = await repo.watchPendentes('u1').first;
     expect(list, isEmpty);
   });
 }

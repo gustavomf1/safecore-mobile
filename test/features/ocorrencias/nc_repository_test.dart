@@ -15,7 +15,7 @@ void main() {
 
   setUp(() {
     dio = MockDio();
-    repo = NcRepositoryImpl(dio: dio, cacheDao: null);
+    repo = NcRepositoryImpl(dio: dio, cacheDao: null, usuarioId: 'u1');
   });
 
   test('listar returns list of NcSummary from API', () async {

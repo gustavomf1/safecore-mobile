@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/network/connectivity_provider.dart';
 import '../../shared/providers/capture_provider.dart';
 import '../../shared/theme/tokens.dart';
 import '../../shared/widgets/prototype_ui.dart';
@@ -27,6 +28,7 @@ import '../ocorrencias/repository/nc_repository_impl.dart';
 import '../ocorrencias/repository/nc_trecho_norma_repository_impl.dart';
 import '../ocorrencias/repository/support_repository_impl.dart';
 import '../ocorrencias/widgets/trecho_manual_sheet.dart';
+import 'rascunho_offline.dart';
 
 class WizardPage extends ConsumerStatefulWidget {
   final String tipo;
@@ -310,6 +312,60 @@ class _WizardPageState extends ConsumerState<WizardPage> {
     final descricao =
         _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim();
 
+    final online = ref.read(connectivityProvider).valueOrNull ?? true;
+    if (!online) {
+      final usuarioId = ref.read(authProvider).valueOrNull?.id ?? '';
+      final Map<String, dynamic> dadosJson = isNc
+          ? CriarNcRequest(
+              estabelecimentoId: workspaceId,
+              titulo: titulo,
+              descricao: descricao,
+              severidade: severity > 0 ? severity : null,
+              probabilidade: probability > 0 ? probability : null,
+              regraDeOuro: _regraDeOuro,
+              reincidencia: _reincidencia,
+              normaIds: _selectedNormaIds.toList(),
+              localizacaoId: _localizacaoId,
+              responsavelNcId: _responsavel?.id,
+              responsavelTrativaId: _responsavelTratativa?.id,
+              ncAnteriorId: _ncAnterior?.id,
+              empresaContratadaId: empresaFilhaId,
+              emailsManuais: emailsManuais,
+              emailsPadraoExcluidos: emailsPadraoExcluidos,
+            ).toJson()
+          : CriarDesvioRequest(
+              estabelecimentoId: workspaceId,
+              titulo: titulo,
+              descricao: descricao,
+              localizacaoId: _localizacaoId,
+              orientacaoRealizada: descricao,
+              regraDeOuro: _regraDeOuro,
+              responsavelDesvioId: _responsavel?.id,
+              responsavelTratativaId: _responsavelTratativa?.id,
+              empresaContratadaId: empresaFilhaId,
+              emailsManuais: emailsManuais,
+              emailsPadraoExcluidos: emailsPadraoExcluidos,
+            ).toJson();
+
+      await salvarRascunhoOffline(
+        container: ProviderScope.containerOf(context, listen: false),
+        usuarioId: usuarioId,
+        tipo: isNc ? 'NC' : 'DESVIO',
+        dadosJson: dadosJson,
+        fotos: ref.read(captureProvider).map((x) => File(x.path)).toList(),
+        normaTrechos: _normaTrechos.map(
+          (normaId, t) => MapEntry(normaId, (clausulaReferencia: t.clausulaReferencia, textoEditado: t.textoEditado)),
+        ),
+        latitude: (widget.extra?['latitude'] as num?)?.toDouble(),
+        longitude: (widget.extra?['longitude'] as num?)?.toDouble(),
+        capturedAt: widget.extra?['capturedAt'] as int?,
+      );
+      ref.read(captureProvider.notifier).clear();
+      if (mounted) context.go('/sincronizacao');
+      return;
+    }
+
+    // --- tudo abaixo é o código que já existe hoje, sem alteração ---
     if (isNc) {
       final request = CriarNcRequest(
         estabelecimentoId: workspaceId,
@@ -549,9 +605,15 @@ class _DescriptionStep extends ConsumerWidget {
           const SizedBox(height: 6),
           ref.watch(localizacoesProvider(workspaceId)).when(
                 loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
+                error: (e, st) {
+                  debugPrint('localizacoesProvider($workspaceId) error: $e\n$st');
+                  return const SizedBox.shrink();
+                },
                 data: (locs) {
-                  if (locs.isEmpty) return const SizedBox.shrink();
+                  if (locs.isEmpty) {
+                    debugPrint('localizacoesProvider($workspaceId): lista vazia');
+                    return const SizedBox.shrink();
+                  }
                   return _LocationDropdown(
                     items: locs,
                     selected: localizacaoId,

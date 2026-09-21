@@ -8,4 +8,6 @@ class Localizacao {
     id: json['id'] as String,
     nome: json['nome'] as String,
   );
+
+  Map<String, dynamic> toJson() => {'id': id, 'nome': nome};
 }

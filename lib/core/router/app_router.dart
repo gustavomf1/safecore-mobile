@@ -9,7 +9,6 @@ import '../../features/auth/splash_page.dart';
 import '../../features/auth/workspace_select_page.dart';
 import '../../features/capture/camera_page.dart';
 import '../../features/dashboard/dashboard_page.dart';
-import '../../features/drafts/drafts_page.dart';
 import '../../features/notifications/notif_page.dart';
 import '../../features/ocorrencias/detail_page.dart';
 import '../../features/ocorrencias/desvio_detail_page.dart';
@@ -17,6 +16,7 @@ import '../../features/ocorrencias/edit_ocorrencia_page.dart';
 import '../../features/ocorrencias/desvio_feed_page.dart';
 import '../../features/ocorrencias/feed_page.dart';
 import '../../features/profile/profile_page.dart';
+import '../../features/sync/sincronizacao_page.dart';
 import '../../features/wizard/wizard_page.dart';
 import '../../shared/widgets/safecore_shell.dart';
 import 'navigator_key.dart';
@@ -108,7 +108,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/desvio/:id/editar',
         builder: (_, state) => EditOcorrenciaPage(tipo: 'desvio', id: state.pathParameters['id']!),
       ),
-      GoRoute(path: '/drafts', builder: (_, __) => const DraftsPage()),
+      GoRoute(path: '/sincronizacao', builder: (_, __) => const SincronizacaoPage()),
       GoRoute(
         path: '/camera',
         builder: (_, state) => CameraPage(tipo: state.uri.queryParameters['tipo'] ?? 'NC'),

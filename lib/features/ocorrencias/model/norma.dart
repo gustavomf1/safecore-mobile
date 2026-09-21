@@ -14,4 +14,7 @@ class Norma {
       nome: titulo,
     );
   }
+
+  // Espelha fromJson: backend usa "titulo", que mapeamos para codigo e nome.
+  Map<String, dynamic> toJson() => {'id': id, 'titulo': nome};
 }

@@ -11,6 +11,7 @@ import '../../shared/widgets/motion_helpers.dart';
 import '../../shared/widgets/ocorrencia_filter_sheet.dart';
 import '../../shared/widgets/ocorrencia_search_bar.dart';
 import '../../shared/widgets/status_color_helper.dart';
+import '../../shared/utils/error_messages.dart';
 import '../auth/provider/auth_provider.dart';
 import 'model/ocorrencia_summary.dart';
 import 'ocorrencia_filtering.dart';
@@ -142,7 +143,7 @@ class _DesvioFeedPageState extends ConsumerState<DesvioFeedPage> with AutomaticK
                         const SizedBox(height: 12),
                         Text('Erro ao carregar', style: SafeCoreType.subtitle.copyWith(color: c.statusRedFg)),
                         const SizedBox(height: 4),
-                        Text('$e', style: SafeCoreType.body.copyWith(color: c.fg3)),
+                        Text(friendlyErrorMessage(e), style: SafeCoreType.body.copyWith(color: c.fg3)),
                       ],
                     ),
                   ),

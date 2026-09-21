@@ -8,6 +8,9 @@ import '../model/empresa.dart';
 import '../model/dashboard_stats.dart';
 import 'support_repository.dart';
 import '../../../core/network/dio_client.dart';
+import '../../../core/network/connectivity_provider.dart';
+import '../../../core/network/reference_cache_helper.dart';
+import '../../../core/database/app_database.dart';
 
 final supportRepositoryProvider = Provider<SupportRepository>((ref) {
   return SupportRepositoryImpl(dio: ref.watch(dioProvider));
@@ -35,12 +38,28 @@ final usuariosPorEmpresaProvider = FutureProvider.family<List<UsuarioSummary>, S
 
 final localizacoesProvider = FutureProvider.family<List<Localizacao>, String>(
   (ref, estabelecimentoId) async {
-    return ref.watch(supportRepositoryProvider).listarLocalizacoes(estabelecimentoId);
+    final online = ref.watch(connectivityProvider).valueOrNull ?? true;
+    return buscarComCache<Localizacao>(
+      dao: ref.watch(appDatabaseProvider).referenceCacheDao,
+      chave: 'localizacoes:$estabelecimentoId',
+      online: online,
+      buscarOnline: () => ref.watch(supportRepositoryProvider).listarLocalizacoes(estabelecimentoId),
+      fromJson: Localizacao.fromJson,
+      toJson: (l) => l.toJson(),
+    );
   },
 );
 
-final normasProvider = FutureProvider<List<Norma>>((ref) {
-  return ref.watch(supportRepositoryProvider).listarNormas();
+final normasProvider = FutureProvider<List<Norma>>((ref) async {
+  final online = ref.watch(connectivityProvider).valueOrNull ?? true;
+  return buscarComCache<Norma>(
+    dao: ref.watch(appDatabaseProvider).referenceCacheDao,
+    chave: 'normas',
+    online: online,
+    buscarOnline: () => ref.watch(supportRepositoryProvider).listarNormas(),
+    fromJson: Norma.fromJson,
+    toJson: (n) => n.toJson(),
+  );
 });
 
 final estabelecimentosProvider = FutureProvider<List<Estabelecimento>>((ref) {
@@ -52,8 +71,17 @@ final empresasMaeProvider = FutureProvider<List<Empresa>>((ref) {
 });
 
 final empresasDoEstabelecimentoProvider =
-    FutureProvider.family<List<Empresa>, String>((ref, estabelecimentoId) {
-  return ref.watch(supportRepositoryProvider).listarEmpresasDoEstabelecimento(estabelecimentoId);
+    FutureProvider.family<List<Empresa>, String>((ref, estabelecimentoId) async {
+  final online = ref.watch(connectivityProvider).valueOrNull ?? true;
+  return buscarComCache<Empresa>(
+    dao: ref.watch(appDatabaseProvider).referenceCacheDao,
+    chave: 'empresasContratadas:$estabelecimentoId',
+    online: online,
+    buscarOnline: () =>
+        ref.watch(supportRepositoryProvider).listarEmpresasDoEstabelecimento(estabelecimentoId),
+    fromJson: Empresa.fromJson,
+    toJson: (e) => e.toJson(),
+  );
 });
 
 final dashboardProvider = FutureProvider.family<DashboardStats, String>(

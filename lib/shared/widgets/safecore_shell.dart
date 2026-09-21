@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/network/connectivity_provider.dart';
 import '../../features/auth/provider/auth_provider.dart';
 import '../../features/notifications/notif_page.dart';
 import '../../features/ocorrencias/desvio_feed_page.dart';
 import '../../features/ocorrencias/feed_page.dart';
+import '../../features/ocorrencias/repository/ocorrencias_repository_impl.dart';
 import '../../features/profile/profile_page.dart';
 import '../theme/tokens.dart';
+import 'offline_banner.dart';
+import 'pending_sync_banner.dart';
 import 'prototype_ui.dart';
 
 const _tabPaths = ['/feed', '/desvios', '/notif', '/profile'];
@@ -69,6 +73,14 @@ class _SafeCoreShellState extends ConsumerState<SafeCoreShell> {
 
   @override
   Widget build(BuildContext context) {
+    // Ao reconectar, recarrega as listagens de NC/Desvio automaticamente —
+    // só releitura de dados, não dispara nenhuma sincronização (isso
+    // continua manual, só pela tela de Sincronização).
+    ref.listen<AsyncValue<bool>>(connectivityProvider, (previous, next) {
+      final ficouOnline = (previous?.valueOrNull ?? false) == false && next.valueOrNull == true;
+      if (ficouOnline) ref.invalidate(ocorrenciasProvider);
+    });
+
     final c = context.c;
     final perfil = ref.watch(authProvider).valueOrNull?.perfil;
     final isExterno = perfil == 'EXTERNO';
@@ -85,7 +97,13 @@ class _SafeCoreShellState extends ConsumerState<SafeCoreShell> {
 
     return Scaffold(
       backgroundColor: c.bgBase,
-      body: body,
+      body: Column(
+        children: [
+          const OfflineBanner(),
+          const PendingSyncBanner(),
+          Expanded(child: body),
+        ],
+      ),
       floatingActionButtonLocation: isExterno ? null : FloatingActionButtonLocation.centerDocked,
       floatingActionButton: isExterno
           ? null

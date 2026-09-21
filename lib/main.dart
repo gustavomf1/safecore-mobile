@@ -5,15 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'core/network/connectivity_provider.dart';
 import 'core/notifications/fcm_background_handler.dart';
 import 'core/router/app_router.dart';
-import 'core/sync/sync_service.dart';
-import 'core/sync/sync_status.dart';
-import 'features/auth/provider/auth_provider.dart';
+import 'core/router/navigator_key.dart';
 import 'shared/theme/tokens.dart';
-
-final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,49 +28,22 @@ class SafeCoreApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
 
-    return _AppConnectivityListener(
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: 'SafeCore',
-        theme: safeCoreThemeDark(),
-        darkTheme: safeCoreThemeDark(),
-        themeMode: ThemeMode.dark,
-        routerConfig: router,
-        scaffoldMessengerKey: scaffoldMessengerKey,
-        builder: (context, child) => _MobileViewport(child: child ?? const SizedBox.shrink()),
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [Locale('pt', 'BR')],
-      ),
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      title: 'SafeCore',
+      theme: safeCoreThemeDark(),
+      darkTheme: safeCoreThemeDark(),
+      themeMode: ThemeMode.dark,
+      routerConfig: router,
+      scaffoldMessengerKey: scaffoldMessengerKey,
+      builder: (context, child) => _MobileViewport(child: child ?? const SizedBox.shrink()),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('pt', 'BR')],
     );
-  }
-}
-
-class _AppConnectivityListener extends ConsumerWidget {
-  final Widget child;
-  const _AppConnectivityListener({required this.child});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen<AsyncValue<bool>>(connectivityProvider, (_, next) async {
-      final isOnline = next.valueOrNull ?? false;
-      if (!isOnline) return;
-
-      final session = ref.read(authProvider).valueOrNull;
-      if (session == null) return;
-
-      ref.read(syncStatusProvider.notifier).state = SyncStatus.syncing;
-      try {
-        await ref.read(syncServiceProvider).syncPendentes();
-        ref.read(syncStatusProvider.notifier).state = SyncStatus.idle;
-      } catch (_) {
-        ref.read(syncStatusProvider.notifier).state = SyncStatus.error;
-      }
-    });
-    return child;
   }
 }
 

@@ -3,13 +3,17 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:safecore_mobile/features/auth/model/workspace_state.dart';
 import 'package:safecore_mobile/features/auth/repository/auth_repository_impl.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/empresa.dart';
+import 'package:safecore_mobile/features/ocorrencias/model/estabelecimento.dart';
 
 class MockDio extends Mock implements Dio {}
 class MockSecureStorage extends Mock implements FlutterSecureStorage {}
 
 void main() {
   late MockDio dio;
+  late MockDio refreshDio;
   late MockSecureStorage storage;
   late AuthRepositoryImpl repo;
 
@@ -19,8 +23,9 @@ void main() {
 
   setUp(() {
     dio = MockDio();
+    refreshDio = MockDio();
     storage = MockSecureStorage();
-    repo = AuthRepositoryImpl(dio: dio, storage: storage);
+    repo = AuthRepositoryImpl(dio: dio, storage: storage, refreshDio: refreshDio);
   });
 
   group('login', () {
@@ -121,6 +126,46 @@ void main() {
     });
   });
 
+  group('salvarWorkspace / obterWorkspace', () {
+    final workspace = const WorkspaceState(
+      empresa: Empresa(id: 'e1', nome: 'Empresa Mãe'),
+      estabelecimento: Estabelecimento(id: 'est1', nome: 'Estabelecimento', empresaId: 'e1'),
+      empresaFilha: Empresa(id: 'ef1', nome: 'Empresa Filha'),
+    );
+
+    test('salvarWorkspace grava o workspace como JSON na chave workspace', () async {
+      when(() => storage.write(key: any(named: 'key'), value: any(named: 'value')))
+          .thenAnswer((_) async {});
+
+      await repo.salvarWorkspace(workspace);
+
+      final captured = verify(
+        () => storage.write(key: 'workspace', value: captureAny(named: 'value')),
+      ).captured;
+      final decoded = jsonDecode(captured.first as String) as Map<String, dynamic>;
+      expect(decoded['empresa']['id'], 'e1');
+      expect(decoded['estabelecimento']['id'], 'est1');
+      expect(decoded['empresaFilha']['id'], 'ef1');
+    });
+
+    test('obterWorkspace retorna null quando nada foi salvo', () async {
+      when(() => storage.read(key: 'workspace')).thenAnswer((_) async => null);
+      final result = await repo.obterWorkspace();
+      expect(result, isNull);
+    });
+
+    test('obterWorkspace reconstrói o WorkspaceState a partir do JSON salvo', () async {
+      when(() => storage.read(key: 'workspace'))
+          .thenAnswer((_) async => jsonEncode(workspace.toJson()));
+
+      final result = await repo.obterWorkspace();
+
+      expect(result?.empresa.id, 'e1');
+      expect(result?.estabelecimento.nome, 'Estabelecimento');
+      expect(result?.empresaFilha.id, 'ef1');
+    });
+  });
+
   group('getSession', () {
     test('returns null when no session stored', () async {
       when(() => storage.read(key: 'user_session')).thenAnswer((_) async => null);
@@ -144,6 +189,51 @@ void main() {
       final result = await repo.getSession();
       expect(result?.perfil, 'TECNICO');
       expect(result?.nome, 'Ana');
+    });
+
+    String expiredToken() {
+      final payload = base64Url.encode(utf8.encode(jsonEncode({'exp': 0})));
+      return 'header.$payload.sig';
+    }
+
+    final storedSession = jsonEncode({
+      'id': 'u1', 'token': 'old', 'nome': 'Ana', 'email': 'ana@test.com',
+      'perfil': 'TECNICO', 'isAdmin': false,
+    });
+
+    test('token expirado + renovação rejeitada pelo servidor: apaga a sessão', () async {
+      when(() => storage.read(key: 'user_session')).thenAnswer((_) async => storedSession);
+      when(() => storage.read(key: 'jwt_token')).thenAnswer((_) async => expiredToken());
+      when(() => storage.read(key: 'refresh_token')).thenAnswer((_) async => 'refresh-1');
+      when(() => storage.deleteAll()).thenAnswer((_) async {});
+      when(() => refreshDio.post('/api/auth/refresh', data: any(named: 'data'))).thenThrow(
+        DioException(requestOptions: RequestOptions(path: '/api/auth/refresh'), response: Response(
+          requestOptions: RequestOptions(path: '/api/auth/refresh'), statusCode: 401,
+        )),
+      );
+
+      final result = await repo.getSession();
+
+      expect(result, isNull);
+      verify(() => storage.deleteAll()).called(1);
+    });
+
+    test('token expirado + renovação falha só por falta de rede: mantém a sessão local', () async {
+      when(() => storage.read(key: 'user_session')).thenAnswer((_) async => storedSession);
+      when(() => storage.read(key: 'jwt_token')).thenAnswer((_) async => expiredToken());
+      when(() => storage.read(key: 'refresh_token')).thenAnswer((_) async => 'refresh-1');
+      when(() => refreshDio.post('/api/auth/refresh', data: any(named: 'data'))).thenThrow(
+        DioException(
+          requestOptions: RequestOptions(path: '/api/auth/refresh'),
+          type: DioExceptionType.connectionError,
+          error: 'Failed host lookup',
+        ),
+      );
+
+      final result = await repo.getSession();
+
+      expect(result?.nome, 'Ana');
+      verifyNever(() => storage.deleteAll());
     });
   });
 }

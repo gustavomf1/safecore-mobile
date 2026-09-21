@@ -108,7 +108,7 @@ class ProfilePage extends ConsumerWidget {
             const SizedBox(height: 18),
 
             // ── Configurações ─────────────────────────────────────────────
-            _ProfileRow(icon: Icons.storage_rounded, label: 'Rascunhos locais', value: '', onTap: () => context.go('/drafts')),
+            _ProfileRow(icon: Icons.cloud_sync_rounded, label: 'Sincronização', value: '', onTap: () => context.push('/sincronizacao')),
             _ProfileRow(icon: Icons.help_outline_rounded, label: 'Ajuda & Suporte', value: '', onTap: () {}),
             const SizedBox(height: 8),
 
