@@ -26,7 +26,7 @@ class PendingSyncBanner extends ConsumerWidget {
       child: Material(
         color: c.statusYellowBg,
         child: InkWell(
-          onTap: () => context.go('/sincronizacao'),
+          onTap: () => context.push('/sincronizacao'),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Row(

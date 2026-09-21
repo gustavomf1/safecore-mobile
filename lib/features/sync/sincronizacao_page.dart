@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../ocorrencias/model/rascunho_local.dart';
 import '../ocorrencias/repository/draft_repository_impl.dart';
@@ -8,6 +9,19 @@ import '../../core/network/connectivity_provider.dart';
 import '../../core/sync/sync_service.dart';
 import '../../shared/theme/tokens.dart';
 import '../../shared/widgets/prototype_ui.dart';
+
+// Esta rota pode ser aberta tanto empilhada (Perfil → push) quanto
+// substituindo a pilha inteira (retorno do wizard offline → go), então nunca
+// dá pra confiar só em Navigator.canPop/no botão de voltar automático do
+// AppBar — sem isso, o botão físico/gesto de voltar do Android fecha o app
+// inteiro quando não há nada na pilha pra desempilhar.
+void _voltar(BuildContext context) {
+  if (context.canPop()) {
+    context.pop();
+  } else {
+    context.go('/feed');
+  }
+}
 
 class SincronizacaoPage extends ConsumerWidget {
   const SincronizacaoPage({super.key});
@@ -19,17 +33,28 @@ class SincronizacaoPage extends ConsumerWidget {
     final draftsAsync = ref.watch(draftsProvider(usuarioId));
     final online = ref.watch(connectivityProvider).valueOrNull ?? false;
 
-    return Scaffold(
-      backgroundColor: c.bgBase,
-      body: SafeArea(
-        bottom: false,
-        child: draftsAsync.when(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _voltar(context);
+      },
+      child: Scaffold(
+        backgroundColor: c.bgBase,
+        body: SafeArea(
+          bottom: false,
+          child: draftsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('Erro: $e', style: TextStyle(color: c.statusRedFg))),
           data: (drafts) => ListView(
             padding: const EdgeInsets.fromLTRB(16, 18, 16, 104),
             children: [
-              Text('Sincronização', style: SafeCoreType.headline.copyWith(color: c.fg0)),
+              Row(
+                children: [
+                  ProtoIconButton(icon: Icons.chevron_left_rounded, onTap: () => _voltar(context)),
+                  const SizedBox(width: 4),
+                  Text('Sincronização', style: SafeCoreType.headline.copyWith(color: c.fg0)),
+                ],
+              ),
               const SizedBox(height: 3),
               Text('${drafts.length} pendentes de sincronização', style: SafeCoreType.body.copyWith(color: c.fg2)),
               const SizedBox(height: 14),
@@ -65,6 +90,7 @@ class SincronizacaoPage extends ConsumerWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }
