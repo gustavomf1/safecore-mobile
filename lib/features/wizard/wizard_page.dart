@@ -231,7 +231,7 @@ class _WizardPageState extends ConsumerState<WizardPage> {
           const _ConfirmRow('Risco', 'Não definido'),
         _ConfirmRow('Regra de Ouro', _regraDeOuro ? 'Sim' : 'Nao', red: _regraDeOuro),
         _ConfirmRow('Reincidencia', _reincidencia ? 'Sim' : 'Nao'),
-        const _ConfirmRow('Prazo tratativa', '30 dias (automatico)'),
+        const _ConfirmRow('Prazo tratativa', '30 dias (a partir do envio para tratativa)'),
         _ConfirmRow('Normas', '${_selectedNormaIds.length} selecionada(s)'),
         _ConfirmRow('Resp. NC', _responsavel?.nome ?? '—'),
         _ConfirmRow('Resp. Tratativa', _responsavelTratativa?.nome ?? '—'),
@@ -1418,7 +1418,7 @@ class _RiskStep extends StatelessWidget {
                         fontWeight: FontWeight.w700)),
                 const SizedBox(height: 2),
                 Text(
-                  '30 dias a partir do registro (automatico)',
+                  'Definido no envio para tratativa (30 dias)',
                   style: TextStyle(
                       color: context.c.fg0.withValues(alpha: .7),
                       fontSize: 12),
